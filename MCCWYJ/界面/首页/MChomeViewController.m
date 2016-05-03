@@ -14,6 +14,7 @@
 #import "MCMApManager.h"
 #import "LoginController.h"
 #import "AppDelegate.h"
+#import "SettViewViewController.h"
 @interface MChomeViewController ()<UITableViewDataSource,UITableViewDelegate,ZZCarouselDelegate>
 {
     
@@ -27,6 +28,9 @@
 @end
 
 @implementation MChomeViewController
+
+
+
 - (void)viewWillAppear:(BOOL)animated
 {
     [super viewWillAppear:animated];
@@ -37,7 +41,7 @@
     sideMenuViewController.panGestureEnabled = YES;
     
     
-    [self.navigationController.navigationBar setShadowImage:[UIImage new]];//用于去除导航栏的底线，也就是周围的边线
+//    [self.navigationController.navigationBar setShadowImage:[UIImage new]];//用于去除导航栏的底线，也就是周围的边线
     
     //刷新头像，地址
         [_headBtn sd_setBackgroundImageWithURL:[NSURL URLWithString:[MCUserDefaults objectForKey:@"thumbnail"]] forState:0 placeholderImage:[UIImage imageNamed:@"home_mine_avatar2"]];
@@ -60,12 +64,33 @@
 - (void)viewDidLoad {
     [super viewDidLoad];
     _bannerArray = [NSMutableArray array];
-
+    //监听头像的刷新
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(disTouXiangObj:) name:@"disTouXiangObjNotification" object:nil];
+    //跳转页面
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(disCtlViewObj:) name:@"disCtlViewObjNotification" object:nil];
     //self.navigationController.navigationBarHidden = YES;
     [self prepareUI];
     
     //[self loadImg];
     // Do any additional setup after loading the view.
+}
+#pragma mark-跳转页面
+-(void)disCtlViewObj:(NSNotification*)notication{
+    NSString * objcStr =notication.object;
+    [[[self.navigationController.navigationBar subviews]objectAtIndex:0] setAlpha:1];
+
+       if ([objcStr isEqualToString:@"设置"]) {
+        SettViewViewController * ctl = [[SettViewViewController alloc]init];
+        [self pushNewViewController:ctl];
+    }
+    
+    
+    
+}
+-(void)disTouXiangObj:(NSNotification*)notication{
+    //刷新头像，地址
+    [_headBtn sd_setBackgroundImageWithURL:[NSURL URLWithString:[MCUserDefaults objectForKey:@"thumbnail"]] forState:0 placeholderImage:[UIImage imageNamed:@"home_mine_avatar2"]];
+    
 }
 -(void)prepareUI{
     _tableView = [[UITableView alloc]initWithFrame:CGRectMake(0, 0, Main_Screen_Width, Main_Screen_Height - 49) style:UITableViewStyleGrouped];
@@ -75,7 +100,7 @@
     _tableView.mj_header  = [MJRefreshNormalHeader headerWithRefreshingTarget:self refreshingAction:@selector(loadNewData)];
     
    [[[self.navigationController.navigationBar subviews]objectAtIndex:0] setAlpha:0];
-    [MCMApManager sharedInstance];
+    [MCMApManager sharedInstance];//定位
     [[MCMApManager sharedInstance] Isdingwei:YES CtlView:self];
 //    [[MCMApManager sharedInstance] Isdingwei:YES CtlView:self];
 
@@ -181,7 +206,7 @@
 -(void)loadbanner{
     
     [self showLoading];
-    [self.requestManager postWithUrl:@"api/global/banner.json" refreshCache:NO params:nil success:^(id resultDic) {
+    [self.requestManager postWithUrl:@"api/global/banner.json" refreshCache:NO params:nil IsNeedlogin:NO success:^(id resultDic) {
         NSLog(@"成功");
         [self stopshowLoading];
 
@@ -207,7 +232,8 @@
         [self pushNewViewController:ctl];
         return;
     }
-
+    //发送通知
+    [[NSNotificationCenter defaultCenter] postNotificationName:@"disDatadetailObjNotification" object:nil];
     [self presentLeftMenuViewController:btn];
 }
 #pragma mark-点击搜索

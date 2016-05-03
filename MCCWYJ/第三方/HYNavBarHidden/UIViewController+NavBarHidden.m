@@ -80,29 +80,29 @@ static const char * hy_hidenControlOptionsKey = "hy_hidenControlOptions";
 
 #pragma mark - **************** 核心代码-对外接口功能实现代码 ******************
 
-//- (void)setInViewWillAppear{
-//
-//    static dispatch_once_t onceToken;
-//    dispatch_once(&onceToken, ^{
-//    
-//        self.navBarBackgroundImage = [self.navigationController.navigationBar backgroundImageForBarMetrics:UIBarMetricsDefault];
-//    });
-//    //设置背景图片
-//    [self.navigationController.navigationBar setBackgroundImage:self.navBarBackgroundImage forBarMetrics:UIBarMetricsDefault];
-//    //清除边框，设置一张空的图片
-//    [self.navigationController.navigationBar setShadowImage:[[UIImage alloc]init]];
-//    
-//    self.keyScrollView.contentOffset = CGPointMake(0, self.keyScrollView.contentOffset.y - 1);
-//    self.keyScrollView.contentOffset = CGPointMake(0, self.keyScrollView.contentOffset.y + 1);
-//    
-//}
-//
-//- (void)setInViewWillDisappear{
-//
-//    [[[self.navigationController.navigationBar subviews]objectAtIndex:0] setAlpha:1];
-//    [self.navigationController.navigationBar setBackgroundImage:nil forBarMetrics:UIBarMetricsDefault];
-//    [self.navigationController.navigationBar setShadowImage:nil];
-//}
+- (void)setInViewWillAppear{
+
+    static dispatch_once_t onceToken;
+    dispatch_once(&onceToken, ^{
+    
+        self.navBarBackgroundImage = [self.navigationController.navigationBar backgroundImageForBarMetrics:UIBarMetricsDefault];
+    });
+    //设置背景图片
+    [self.navigationController.navigationBar setBackgroundImage:self.navBarBackgroundImage forBarMetrics:UIBarMetricsDefault];
+    //清除边框，设置一张空的图片
+    [self.navigationController.navigationBar setShadowImage:[[UIImage alloc]init]];
+    
+    self.keyScrollView.contentOffset = CGPointMake(0, self.keyScrollView.contentOffset.y - 1);
+    self.keyScrollView.contentOffset = CGPointMake(0, self.keyScrollView.contentOffset.y + 1);
+    
+}
+
+- (void)setInViewWillDisappear{
+
+    [[[self.navigationController.navigationBar subviews]objectAtIndex:0] setAlpha:1];
+    [self.navigationController.navigationBar setBackgroundImage:nil forBarMetrics:UIBarMetricsDefault];
+    [self.navigationController.navigationBar setShadowImage:nil];
+}
 
 - (void)setKeyScrollView:(UIScrollView *)keyScrollView scrolOffsetY:(CGFloat)scrolOffsetY options:(HYHidenControlOptions)options{
     

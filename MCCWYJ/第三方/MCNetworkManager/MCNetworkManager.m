@@ -317,7 +317,7 @@ static NSMutableArray *sg_requestTasks;
 - (void )postWithUrl:(NSString *)url
         refreshCache:(BOOL)refreshCache
               params:(NSDictionary *)params
-             success:(HttpResponseSucBlock)completeBlock
+           IsNeedlogin:(BOOL)isneedlogin success:(HttpResponseSucBlock)completeBlock
                 fail:(HttpResponseErrBlock)errorBlock{
     
     
@@ -328,7 +328,7 @@ static NSMutableArray *sg_requestTasks;
         
         @try {
             result_Dic = [self datamanage:resultDic];//数据处理，data->dic
-            NSLog(@"result_Dic ==%@",result_Dic);
+           // NSLog(@"result_Dic ==%@",result_Dic);
         }
         @catch (NSException *exception) {
             [NSException raise:@"网络接口返回数据异常" format:@"Error domain %@\n,code=%ld\n,userinfo=%@",parserError.domain,(long)parserError.code,parserError.userInfo];
@@ -337,7 +337,7 @@ static NSMutableArray *sg_requestTasks;
         @finally {
             //业务产生的状态码
             /*配对好你后台返回来的状态码，要不然拿不到数据或蹦*/
-            NSString *logicCode = [NSString stringWithFormat:@"%d",[result_Dic[@"code"] integerValue]];
+            NSString *logicCode = [NSString stringWithFormat:@"%ld",[result_Dic[@"code"] integerValue]];
             //成功获得数据
             if ([logicCode isEqualToString:@"1"]) {
                 
@@ -346,22 +346,18 @@ static NSMutableArray *sg_requestTasks;
             }
             else{
                 
-            NSString *logicCode = [NSString stringWithFormat:@"%d",[result_Dic[@"code"] integerValue]];
+            NSString *logicCode = [NSString stringWithFormat:@"%ld",[result_Dic[@"code"] integerValue]];
                 if ([logicCode isEqualToString:@"30008"]) {
+                    if (isneedlogin) {
+               
+                    AppDelegate *appDelegate = (AppDelegate *)[[UIApplication sharedApplication] delegate];
                     
+                    RESideMenu *sideMenuViewController  =(RESideMenu*)  appDelegate.window.rootViewController;
+                    LoginController * ctl = [[LoginController alloc]init];
+                    [sideMenuViewController.navigationController pushViewController:ctl animated:YES];
                     
-                    
-
-//                    AppDelegate *appDelegate = (AppDelegate *)[[UIApplication sharedApplication] delegate];
-//                    
-//                    RESideMenu *sideMenuViewController  =(RESideMenu*)  appDelegate.window.rootViewController;
-//                    LoginController * ctl = [[LoginController alloc]init];
-//                    [sideMenuViewController.navigationController pushViewController:ctl animated:YES];
-//                    
-//
-//
-//                    
-//                    return ;
+                    return ;
+                    }
                 }
                 
                 

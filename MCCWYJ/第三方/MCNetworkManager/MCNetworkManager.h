@@ -168,7 +168,7 @@ typedef void (^MCUploadProgress)(int64_t bytesWritten,
 - (void )postWithUrl:(NSString *)url
         refreshCache:(BOOL)refreshCache
               params:(NSDictionary *)params
-             success:(HttpResponseSucBlock)completeBlock
+         IsNeedlogin:(BOOL)isneedlogin success:(HttpResponseSucBlock)completeBlock
                 fail:(HttpResponseErrBlock)errorBlock;
 /*
  *带进度回调

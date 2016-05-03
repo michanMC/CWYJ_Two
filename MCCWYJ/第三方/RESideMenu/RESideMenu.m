@@ -133,6 +133,7 @@
 
 - (void)presentLeftMenuViewController
 {
+    
     [self presentMenuViewContainerWithMenuViewController:self.leftMenuViewController];
     [self showLeftMenuViewController];
 }
@@ -444,6 +445,8 @@
 
 - (void)statusBarNeedsAppearanceUpdate
 {
+    
+    
     if ([self respondsToSelector:@selector(setNeedsStatusBarAppearanceUpdate)]) {
         [UIView animateWithDuration:0.3f animations:^{
             [self performSelector:@selector(setNeedsStatusBarAppearanceUpdate)];
@@ -526,6 +529,7 @@
 
 - (BOOL)gestureRecognizer:(UIGestureRecognizer *)gestureRecognizer shouldReceiveTouch:(UITouch *)touch
 {
+    
     IF_IOS7_OR_GREATER(
        if (self.interactivePopGestureRecognizerEnabled && [self.contentViewController isKindOfClass:[UINavigationController class]]) {
            UINavigationController *navigationController = (UINavigationController *)self.contentViewController;
@@ -538,6 +542,7 @@
     if (self.panFromEdge && [gestureRecognizer isKindOfClass:[UIPanGestureRecognizer class]] && !self.visible) {
         CGPoint point = [touch locationInView:gestureRecognizer.view];
         if (point.x < 20.0 || point.x > self.view.frame.size.width - 20.0) {
+            
             return YES;
         } else {
             return NO;
@@ -552,6 +557,8 @@
 
 - (void)panGestureRecognized:(UIPanGestureRecognizer *)recognizer
 {
+    //发送通知
+    [[NSNotificationCenter defaultCenter] postNotificationName:@"disDatadetailObjNotification" object:nil];
     if ([self.delegate conformsToProtocol:@protocol(RESideMenuDelegate)] && [self.delegate respondsToSelector:@selector(sideMenu:didRecognizePanGesture:)])
         [self.delegate sideMenu:self didRecognizePanGesture:recognizer];
     
@@ -605,6 +612,7 @@
         }
         
         if (self.scaleMenuView) {
+            
             self.menuViewContainer.transform = CGAffineTransformMakeScale(menuViewScale, menuViewScale);
         }
         
@@ -667,6 +675,7 @@
             self.contentViewContainer.frame = self.view.bounds;
             self.visible = NO;
             self.rightMenuVisible = NO;
+           
         }
         
         [self statusBarNeedsAppearanceUpdate];

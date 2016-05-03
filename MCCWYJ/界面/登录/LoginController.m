@@ -192,7 +192,7 @@
                                     };
     
     
-[self.requestManager postWithUrl:@"api/user/login.json" refreshCache:NO params:Parameterdic success:^(id resultDic) {
+[self.requestManager postWithUrl:@"api/user/login.json" refreshCache:NO params:Parameterdic IsNeedlogin:NO success:^(id resultDic) {
     [self stopshowLoading];
     NSLog(@"登录成功");
     NSLog(@"返回==%@",resultDic);

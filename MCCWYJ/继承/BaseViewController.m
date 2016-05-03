@@ -3,7 +3,7 @@
 #import "BaseViewController.h"
 #import "CLGifLoadView.h"
 #import "UIViewController+HUD.h"
-
+#import "MChomeViewController.h"
 @interface BaseViewController ()
 {
     CLGifLoadView * gifLoading;
@@ -106,8 +106,8 @@
         self.automaticallyAdjustsScrollViewInsets = NO;
     }
     [self appColorNavigation];
-    
-       [[UIBarButtonItem appearance] setBackButtonTitlePositionAdjustment:UIOffsetMake(NSIntegerMin, NSIntegerMin) forBarMetrics:UIBarMetricsDefault];
+   // [self ColorNavigation];
+    [[UIBarButtonItem appearance] setBackButtonTitlePositionAdjustment:UIOffsetMake(NSIntegerMin, NSIntegerMin) forBarMetrics:UIBarMetricsDefault];
     
 
 }
@@ -119,7 +119,11 @@
     self.navigationController.navigationBar.barTintColor =    [UIColor groupTableViewBackgroundColor];
     self.navigationController.navigationBar.tintColor = RGBCOLOR(127, 125, 147);
     self.navigationController.navigationBar.barStyle = UIBarStyleDefault;
-    //[self.navigationController.navigationBar setTintColor:[UIColor whiteColor]];
+//    if (![self isKindOfClass:[MChomeViewController class] ]) {
+//        [self.navigationController.navigationBar setBackgroundColor:[UIColor whiteColor]];
+//
+//    }
+    
  
 }
 -(void)ColorNavigation{

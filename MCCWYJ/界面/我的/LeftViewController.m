@@ -7,14 +7,22 @@
 //
 
 #import "LeftViewController.h"
-
-
+#import "YJUserModel.h"
+#import "me1TableViewCell.h"
+#import "me2TableViewCell.h"
+#import "LoginController.h"
 @interface LeftViewController ()<UITableViewDelegate,UITableViewDataSource,UIActionSheetDelegate,UIImagePickerControllerDelegate,UINavigationControllerDelegate>
 {
     CGFloat _selfViewW ;
     UITableView *_tableView;
     UIButton * _headBtn;
     BOOL _isshang;
+    BOOL _isloaddata;
+
+    YJUserModel * _usermodel;
+    UILabel *_nameLbl;
+    UILabel * _biaozhiLbl;
+    UILabel * _IdLbl;
 
 
 }
@@ -25,6 +33,19 @@
 
 @implementation LeftViewController
 
+-(instancetype)initWithNibName:(NSString *)nibNameOrNil bundle:(NSBundle *)nibBundleOrNil
+
+{
+    
+    self = [super initWithNibName:nibNameOrNil bundle:nibBundleOrNil];
+    if (self) {
+        
+        //监听查询资料
+        [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(disDatadetailObj:) name:@"disDatadetailObjNotification" object:nil];
+    }
+    return self;
+    
+}
 - (void)viewWillAppear:(BOOL)animated
 {
     [super viewWillAppear:animated];
@@ -45,12 +66,14 @@
     RESideMenu *sideMenuViewController  =(RESideMenu*)  appDelegate.window.rootViewController;
     
     sideMenuViewController.panGestureEnabled = YES;
-    
+    [self stopshowLoading];
+
 }
 
 
 - (void)viewDidLoad {
     [super viewDidLoad];
+    _isloaddata = NO;
     _selfViewW = Main_Screen_Width - 50;
     
     self.view.alpha = 1;
@@ -69,6 +92,7 @@
     
     UIButton * btn = [[UIButton alloc]initWithFrame:CGRectMake(_selfViewW - 60, 30, 30, 30)];
     btn.backgroundColor = [UIColor yellowColor];
+    [btn addTarget:self action:@selector(SettBtn) forControlEvents:UIControlEventTouchUpInside];
     [view addSubview:btn];
     
     CGFloat w = 80*MCWidthScale;
@@ -86,8 +110,99 @@
     [_headBtn sd_setBackgroundImageWithURL:[NSURL URLWithString:[MCUserDefaults objectForKey:@"thumbnail"]] forState:0 placeholderImage:[UIImage imageNamed:@"home_mine_avatar2"]];
 
 
+    y +=h + 20;
+    w = _selfViewW;
+    h = 20;
+   w =  [MCIucencyView heightforString:[MCUserDefaults objectForKey:@"nickname"] andHeight:20 fontSize:16];
+    
+    x = (_selfViewW-w)/2;
+    _nameLbl = [[UILabel alloc]initWithFrame:CGRectMake(x, y, w, h)];
+    _nameLbl.text = [MCUserDefaults objectForKey:@"nickname"];
+    _nameLbl.textColor = [UIColor whiteColor];
+    _nameLbl.font = [UIFont systemFontOfSize:16];
+    [view addSubview:_nameLbl];
+
+    _biaozhiLbl = [[UILabel alloc]init];
+    _biaozhiLbl.text = @"Lv1";
+    _biaozhiLbl.textColor = [UIColor whiteColor];
+    _biaozhiLbl.font = AppFont;
+    _biaozhiLbl.layer.borderColor = [UIColor whiteColor].CGColor;
+    _biaozhiLbl.textAlignment = NSTextAlignmentCenter;
+    _biaozhiLbl.layer.borderWidth = 1;
+    ViewRadius(_biaozhiLbl, 10);
+    [self updateBiaozhiLbl];
+    [view addSubview:_biaozhiLbl];
+
+    
+    y +=h + 10;
+    _IdLbl = [[UILabel alloc]initWithFrame:CGRectMake(0, y, _selfViewW, 20)];
+    _IdLbl.textColor = [UIColor whiteColor];
+    _IdLbl.font = [UIFont systemFontOfSize:13];
+    _IdLbl.textAlignment = NSTextAlignmentCenter;
+
+    [view addSubview:_IdLbl];
+
+    
+}
+-(void)updateBiaozhiLbl{
+    _biaozhiLbl.frame  =CGRectMake(_nameLbl.mj_x -35 , _nameLbl.mj_y, 30, 20);
     
     
+}
+
+#pragma mark-查询资料
+-(void)disDatadetailObj:(NSNotification*)notication{
+    
+    [self Datadetail];
+
+}
+-(void)Datadetail{
+    if (_isloaddata) {
+        return;
+    }
+    _isloaddata = YES;
+    [self showLoading];
+    [self.requestManager postWithUrl:@"api/user/detail.json" refreshCache:NO params:nil IsNeedlogin:YES success:^(id resultDic) {
+        [self stopshowLoading];
+        _isloaddata = NO;
+
+        NSLog(@"查询资料resultDic == %@",resultDic);
+        _usermodel  = [YJUserModel mj_objectWithKeyValues:resultDic[@"object"]];
+        //头像
+        [_headBtn sd_setImageWithURL:[NSURL URLWithString:[NSString stringWithFormat:@"%@",_usermodel.raw]] forState:0 placeholderImage:[UIImage imageNamed:@"mine_default-avatar"]];
+        NSUserDefaults *defaults=[NSUserDefaults standardUserDefaults];
+        [defaults setObject:_usermodel.raw forKey:@"thumbnail"];
+
+        
+        
+        
+      CGFloat  w =  [MCIucencyView heightforString:_usermodel.nickname andHeight:20 fontSize:16];
+        
+      CGFloat  x = (_selfViewW-w)/2;
+        
+        _nameLbl.frame = CGRectMake(x, _nameLbl.mj_y, w, 20);
+        _nameLbl.text =_usermodel.nickname;
+        [defaults setObject :_usermodel.nickname forKey:@"nickname"];
+        [self updateBiaozhiLbl];
+        _IdLbl.text = [NSString stringWithFormat:@"ID:%@",_usermodel.id];
+        
+        //强制让数据立刻保存
+        [defaults synchronize];
+
+        
+        //发送通知刷新头像
+        [[NSNotificationCenter defaultCenter] postNotificationName:@"disTouXiangObjNotification" object:nil];
+
+        
+        [_tableView reloadData];
+    } fail:^(NSURLSessionDataTask *operation, NSError *error, NSString *description) {
+        [self stopshowLoading];
+        [self showAllTextDialog:description];
+        NSLog(@"失败");
+        _isloaddata = NO;
+
+    }];
+ 
 }
 #pragma mark-点击头像
 -(void)actionHeadbtn{
@@ -162,7 +277,9 @@
                                     
                                     };
     [self showLoading];
-    [self.requestManager postWithUrl:@"api/user/profiles/updateAvatar.json" refreshCache:NO params:Parameterdic success:^(id resultDic) {
+
+    
+    [self.requestManager postWithUrl:@"api/user/profiles/updateAvatar.json" refreshCache:NO params:Parameterdic IsNeedlogin:YES success:^(id resultDic) {
         [self stopshowLoading];
         //头像
         [_headBtn setImage:img forState:0];
@@ -170,7 +287,9 @@
         [defaults setObject:resultDic[@"object"] forKey:@"thumbnail"];
         //强制让数据立刻保存
         [defaults synchronize];
-
+        //发送通知刷新头像
+        [[NSNotificationCenter defaultCenter] postNotificationName:@"disTouXiangObjNotification" object:nil];
+        [self showAllTextDialog:@"更换成功"];
     } fail:^(NSURLSessionDataTask *operation, NSError *error, NSString *description) {
         [self stopshowLoading];
         [self showAllTextDialog:description];
@@ -187,6 +306,21 @@
 }
 -(CGFloat)tableView:(UITableView *)tableView heightForRowAtIndexPath:(NSIndexPath *)indexPath
 {
+    if (indexPath.section == 0) {
+        if (indexPath.row == 0) {
+            CGFloat h = 0;
+            CGFloat y = 20;
+            
+            if ([_usermodel.introduction length]) {
+                h  = [MCIucencyView heightforString:_usermodel.introduction andWidth:_selfViewW - 20 fontSize:14];
+                
+            }
+            y +=h + 10;
+            h = 20;
+          return  y +=h + 10;
+
+        }
+    }
     return 44;
 }
 -(CGFloat)tableView:(UITableView *)tableView heightForFooterInSection:(NSInteger)section
@@ -205,7 +339,43 @@
     return 2;
 }
 -(UITableViewCell*)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath{
+    static NSString * cellid1 = @"me1TableViewCell";
+    static NSString * cellid2 = @"me2TableViewCell";
+
+    if (indexPath.section == 0) {
+        if (indexPath.row == 0) {
+            me1TableViewCell * cell = [tableView dequeueReusableCellWithIdentifier:cellid1];
+            if (!cell) {
+                cell = [[me1TableViewCell alloc]initWithStyle:UITableViewCellStyleDefault reuseIdentifier:cellid1];
+            }
+           [cell prepareStr:_usermodel.introduction TitleStr:@"我的游(77)" Ishong:YES];
+            return cell;
+        }
+        me2TableViewCell * cell = [tableView dequeueReusableCellWithIdentifier:cellid2];
+        if (!cell) {
+            cell = [[me2TableViewCell alloc]initWithStyle:UITableViewCellStyleDefault reuseIdentifier:cellid2];
+        }
+        [cell preapreTitleStr:@"我的购(66)" Ishong:YES];
+        return cell;
+
+    }
+    if (indexPath.section == 1) {
+        me2TableViewCell * cell = [tableView dequeueReusableCellWithIdentifier:cellid2];
+        if (!cell) {
+            cell = [[me2TableViewCell alloc]initWithStyle:UITableViewCellStyleDefault reuseIdentifier:cellid2];
+        }
+        [cell preapreTitleStr:@"通讯录" Ishong:NO];
+        return cell;
+ 
+    }
     return [[UITableViewCell alloc]init];
+}
+#pragma mark-设置
+-(void)SettBtn{
+    
+    [self.sideMenuViewController hideMenuViewController];
+    //发送通知
+    [[NSNotificationCenter defaultCenter] postNotificationName:@"disCtlViewObjNotification" object:@"设置"];
 }
 - (void)didReceiveMemoryWarning {
     [super didReceiveMemoryWarning];

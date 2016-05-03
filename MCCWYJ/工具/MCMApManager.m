@@ -115,7 +115,7 @@
     
     
 
-    [_ctlView.requestManager postWithUrl:@"api/user/profiles/updateLocation.json" refreshCache:NO params:Parameterdic success:^(id resultDic) {
+    [_ctlView.requestManager postWithUrl:@"api/user/profiles/updateLocation.json" refreshCache:NO params:Parameterdic  IsNeedlogin:NO success:^(id resultDic) {
         
         NSLog(@"上传地址成功");
         NSLog(@"返回==%@",resultDic);
