@@ -10,6 +10,6 @@
 #import "HYViewController.h"
 #import "RESideMenu.h"
 
-@interface MChomeViewController : HYViewController
+@interface MChomeViewController : BaseViewController
 
 @end

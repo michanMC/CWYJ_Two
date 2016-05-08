@@ -37,6 +37,7 @@ typedef NS_OPTIONS(NSUInteger, HYHidenControlOptions) {
 //RGBCOLOR(232, 48, 17)
 //#define AppCOLOR      RGBACOLOR(255, 68, 76, 1);
 #define AppCOLOR      RGBCOLOR(232, 48, 17);
+#define AppRegTextCOLOR      RGBCOLOR(207, 0, 51);
 
 #define AppTextCOLOR      RGBCOLOR(127, 125, 147);
 #define AppFont     [UIFont systemFontOfSize:14]

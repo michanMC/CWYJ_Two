@@ -11,7 +11,8 @@
 #import "Log2TableViewCell.h"
 #import "Log3TableViewCell.h"
 #import "Log4TableViewCell.h"
-
+#import "RegisterViewController.h"
+#import "ForgetViewController.h"
 @interface LoginController ()<UITableViewDelegate,UITableViewDataSource,UITextFieldDelegate>
 {
     UITableView * _tableView;
@@ -41,7 +42,8 @@
 - (void)viewDidLoad {
     [super viewDidLoad];
     self.view.backgroundColor = [UIColor whiteColor];
-   
+    _phoneStr = [MCUserDefaults objectForKey:@"UserName"];
+    _pwdStr = [MCUserDefaults objectForKey:@"Pwd"];
     _tableView = [[UITableView alloc]initWithFrame:CGRectMake(0, 0, Main_Screen_Width, Main_Screen_Height)];
     _tableView.delegate = self;
     _tableView.dataSource =self;
@@ -94,6 +96,14 @@
 
         }
         cell.selectionStyle = UITableViewCellSelectionStyleNone;
+        cell.weixinBtn.tag = 200;
+        cell.weiboBtn.tag = 201;
+        cell.QQBtn.tag = 202;
+        [cell.weixinBtn addTarget:self action:@selector(Actionlogin:) forControlEvents:UIControlEventTouchUpInside];
+        [cell.weiboBtn addTarget:self action:@selector(Actionlogin:) forControlEvents:UIControlEventTouchUpInside];
+        [cell.QQBtn addTarget:self action:@selector(Actionlogin:) forControlEvents:UIControlEventTouchUpInside];
+
+        
         return cell;
     }
     if (indexPath.row == 1) {
@@ -130,6 +140,8 @@
             
         }
         cell.selectionStyle = UITableViewCellSelectionStyleNone;
+        [cell.recBtn addTarget:self action:@selector(regBtn) forControlEvents:UIControlEventTouchUpInside];
+        [cell.forgetBtn addTarget:self action:@selector(forgetBtn) forControlEvents:UIControlEventTouchUpInside];
 
         return cell;
     }
@@ -243,6 +255,294 @@
 }];
     
     
+    
+}
+#pragma mark-第三方登录
+-(void)Actionlogin:(UIButton*)btn{
+    
+    NSLog(@"%zd",btn.tag);
+    
+    if (btn.tag == 201) {
+        NSUserDefaults *defaults=[NSUserDefaults standardUserDefaults];
+        
+        SSDKUserQueryConditional * conditional;
+        
+        if (![[defaults objectForKey:@"uid"] length]|| ![defaults objectForKey:@"uid"]) {
+            conditional = nil;
+        }
+        else
+        {
+            conditional = [SSDKUserQueryConditional userQueryConditionalByUserId:[defaults objectForKey:@"uid"]];
+        }
+        
+        
+        [ShareSDK getUserInfo:SSDKPlatformTypeSinaWeibo conditional:conditional onStateChanged:^(SSDKResponseState state, SSDKUser *user, NSError *error) {
+            
+            NSLog(@">>%d",state);
+            
+            switch (state) {
+                case SSDKResponseStateBegin://开始
+                {
+                    [self showAllTextDialog:@"正在授权"];
+                }
+                    break;
+                case SSDKResponseStateSuccess://成功
+                {
+                    [self stopshowLoading];
+                    NSLog(@"%@",user.nickname);
+                    NSLog(@"%@",user.icon);
+                    NSLog(@"%@",user.uid);
+                    NSLog(@"%@",user.rawData);
+                    
+                    NSDictionary * Parameterdic = @{
+                                                    @"uname":user.uid,
+                                                    @"nickname":user.nickname,
+                                                    @"type":@(3),
+                                                    @"raw":user.icon,
+                                                    @"thumbnail":user.icon
+                                                    };
+                    
+                    
+                    [self socialLogin:Parameterdic];
+                    
+                }
+                    break;
+                case SSDKResponseStateFail://失败
+                {
+                    [self stopshowLoading];
+                    [self showAllTextDialog:@"登录失败"];
+                }
+                    break;
+                case SSDKResponseStateCancel://取消
+                {
+                    [self stopshowLoading];
+                    [self showAllTextDialog:@"取消登录"];
+                }
+                    break;
+                    
+                default:
+                    break;
+            }
+            
+            
+            
+            
+        }];
+    }
+    else if(btn.tag == 200){
+        //微信
+        
+        NSUserDefaults *defaults=[NSUserDefaults standardUserDefaults];
+        
+        SSDKUserQueryConditional * conditional;
+        if (![[defaults objectForKey:@"uid"] length]|| ![defaults objectForKey:@"uid"]) {
+            conditional = nil;
+        }
+        else
+        {
+            conditional = [SSDKUserQueryConditional userQueryConditionalByUserId:[defaults objectForKey:@"uid"]];
+        }
+        
+        
+        
+        [ShareSDK getUserInfo:SSDKPlatformTypeWechat conditional:conditional onStateChanged:^(SSDKResponseState state, SSDKUser *user, NSError *error) {
+            NSLog(@">>%d",state);
+            NSLog(@"%@",user.nickname);
+            NSLog(@"%@",user.icon);
+            NSLog(@"%@",user.uid);
+            switch (state) {
+                case SSDKResponseStateBegin://开始
+                {
+                    [self showAllTextDialog:@"正在授权"];
+                }
+                    break;
+                case SSDKResponseStateSuccess://成功
+                {
+                    [self stopshowLoading];
+                    NSLog(@"%@",user.nickname);
+                    NSLog(@"%@",user.icon);
+                    NSLog(@"%@",user.uid);
+                    
+                    NSDictionary * Parameterdic = @{
+                                                    @"uname":user.uid,
+                                                    @"nickname":user.nickname,
+                                                    @"type":@(1),
+                                                    @"raw":user.icon,
+                                                    @"thumbnail":user.icon
+                                                    };
+                    
+                    
+                    [self socialLogin:Parameterdic];
+                    
+                }
+                    break;
+                case SSDKResponseStateFail://失败
+                {
+                    [self stopshowLoading];
+                    [self showAllTextDialog:@"登录失败"];
+                }
+                    break;
+                case SSDKResponseStateCancel://取消
+                {
+                    [self stopshowLoading];
+                    [self showAllTextDialog:@"取消登录"];
+                }
+                    break;
+                    
+                default:
+                    break;
+            }
+            
+            
+        }];
+        
+
+    }
+    else if(btn.tag == 202){
+        //QQ
+        NSUserDefaults *defaults=[NSUserDefaults standardUserDefaults];
+        
+        SSDKUserQueryConditional * conditional;
+        if (![[defaults objectForKey:@"uid"] length]|| ![defaults objectForKey:@"uid"]) {
+            conditional = nil;
+        }
+        else
+        {
+            conditional = [SSDKUserQueryConditional userQueryConditionalByUserId:[defaults objectForKey:@"uid"]];
+        }
+        
+        [ShareSDK getUserInfo:SSDKPlatformTypeQQ conditional:conditional onStateChanged:^(SSDKResponseState state, SSDKUser *user, NSError *error) {
+            
+            NSLog(@">>%d",state);
+            NSLog(@"%@",user.nickname);
+            NSLog(@"%@",user.icon);
+            NSLog(@"%@",user.uid);
+            switch (state) {
+                case SSDKResponseStateBegin://开始
+                {
+                    [self showAllTextDialog:@"正在授权"];
+//                    [self showLoading:YES AndText:@"正在授权"];
+                }
+                    break;
+                case SSDKResponseStateSuccess://成功
+                {
+                    [self stopshowLoading];
+                    NSLog(@"%@",user.nickname);
+                    NSLog(@"%@",user.icon);
+                    NSLog(@"%@",user.uid);
+                    NSLog(@"%@",user.rawData);
+                    
+                    NSDictionary * Parameterdic = @{
+                                                    @"uname":user.uid,
+                                                    @"nickname":user.nickname,
+                                                    @"type":@(2),
+                                                    @"raw":user.icon,
+                                                    @"thumbnail":user.icon
+                                                    };
+                    
+                    
+                    [self socialLogin:Parameterdic];
+                    
+                }
+                    break;
+                case SSDKResponseStateFail://失败
+                {
+                    [self stopshowLoading];
+                    [self showAllTextDialog:@"登录失败"];
+                }
+                    break;
+                case SSDKResponseStateCancel://取消
+                {
+                    [self stopshowLoading];
+                    [self showAllTextDialog:@"取消登录"];
+                }
+                    break;
+                    
+                default:
+                    break;
+            }
+            
+            
+            
+            
+            
+            
+            //            NSDictionary * Parameterdic = @{
+            //                                            @"uname":user.uid,
+            //                                            @"nickname":user.nickname,
+            //                                            @"type":@(3),
+            //                                            @"raw":user.icon,
+            //                                            @"thumbnail":user.icon
+            //                                            };
+            
+            
+            // [self socialLogin:Parameterdic];
+            
+        }];
+        
+
+        
+    }
+    
+    
+    
+}
+#pragma mark-第三方登录
+-(void)socialLogin:(NSDictionary *)Parameterdic{
+    
+    [self showLoading];
+    [self.requestManager postWithUrl:@"api/user/socialLogin.json" refreshCache:NO params:Parameterdic IsNeedlogin:NO success:^(id resultDic) {
+        [self stopshowLoading];
+        NSLog(@"成功");
+        NSLog(@"返回==%@",resultDic);
+        /*保存数据－－－－－－－－－－－－－－－－－begin*/
+        NSUserDefaults *defaults=[NSUserDefaults standardUserDefaults];
+        [defaults setObject:Parameterdic[@"uname"] forKey:@"uid"];//第三方的id
+        [defaults setObject:@"1" forKey:@"isLogOut"];//是否登录状态
+        [defaults setObject:[Parameterdic objectForKey:@"type"] forKey:@"type"];//第三方登录的key
+        [defaults setObject :resultDic[@"object"][@"sessionId"] forKey:@"sessionId"];
+        [defaults setObject :resultDic[@"object"][@"user"][@"nickname"] forKey:@"nickname"];
+        NSLog(@"==%@",resultDic[@"object"][@"user"][@"nickname"]);
+        
+        
+        [defaults setObject :resultDic[@"mobile"] forKey:@"mobile"];
+        [defaults setObject :resultDic[@"object"][@"user"][@"id"] forKey:@"id"];
+        [defaults setObject :resultDic[@"sign"] forKey:@"password"];
+        [defaults setObject :[NSString stringWithFormat:@"%@",resultDic[@"object"][@"user"][@"raw"]] forKey:@"thumbnail"];
+        
+        
+        
+        //强制让数据立刻保存
+        [defaults synchronize];
+        
+        if (resultDic[@"object"][@"sessionId"])
+            [[MCMApManager sharedInstance]Isdingwei:YES CtlView:self];
+        
+        [self.navigationController popViewControllerAnimated:YES];
+        
+
+
+        
+    } fail:^(NSURLSessionDataTask *operation, NSError *error, NSString *description) {
+        [self stopshowLoading];
+        [self showAllTextDialog:description];
+        NSLog(@"失败");
+    }];
+    
+    
+    
+
+}
+#pragma mark-注册
+-(void)regBtn{
+    RegisterViewController * ctl = [[RegisterViewController alloc]init];
+    [self pushNewViewController:ctl];
+}
+-(void)forgetBtn{
+    
+    ForgetViewController * ctl = [[ForgetViewController alloc]init];
+    [self pushNewViewController:ctl];
+
     
 }
 -(void)actionBack{

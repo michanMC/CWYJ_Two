@@ -93,7 +93,13 @@
         if (!_city.length) {
             _city =response.regeocode.addressComponent.city;
             NSLog(@">>>>>>%@",_city);
+            NSUserDefaults *defaults=[NSUserDefaults standardUserDefaults];
+            [defaults setObject:_city forKey:@"city"];
+            [defaults synchronize];
+
                 [self backCity:_city];
+            //发送通知
+            [[NSNotificationCenter defaultCenter] postNotificationName:@"disCityObjNotification" object:_city];
             
         }
 

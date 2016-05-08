@@ -7,7 +7,7 @@
 //
 
 #import "LeftViewController.h"
-#import "YJUserModel.h"
+#import "homeYJModel.h"
 #import "me1TableViewCell.h"
 #import "me2TableViewCell.h"
 #import "LoginController.h"
@@ -107,6 +107,7 @@
     _headBtn.layer.borderWidth = 2;
     [_headBtn addTarget:self action:@selector(actionHeadbtn) forControlEvents:UIControlEventTouchUpInside];
     [view addSubview:_headBtn];
+    
     [_headBtn sd_setBackgroundImageWithURL:[NSURL URLWithString:[MCUserDefaults objectForKey:@"thumbnail"]] forState:0 placeholderImage:[UIImage imageNamed:@"home_mine_avatar2"]];
 
 
@@ -160,6 +161,7 @@
     if (_isloaddata) {
         return;
     }
+    
     _isloaddata = YES;
     [self showLoading];
     [self.requestManager postWithUrl:@"api/user/detail.json" refreshCache:NO params:nil IsNeedlogin:YES success:^(id resultDic) {
@@ -169,7 +171,7 @@
         NSLog(@"查询资料resultDic == %@",resultDic);
         _usermodel  = [YJUserModel mj_objectWithKeyValues:resultDic[@"object"]];
         //头像
-        [_headBtn sd_setImageWithURL:[NSURL URLWithString:[NSString stringWithFormat:@"%@",_usermodel.raw]] forState:0 placeholderImage:[UIImage imageNamed:@"mine_default-avatar"]];
+        [_headBtn sd_setBackgroundImageWithURL:[NSURL URLWithString:[NSString stringWithFormat:@"%@",_usermodel.raw]] forState:0 placeholderImage:[UIImage imageNamed:@"mine_default-avatar"]];
         NSUserDefaults *defaults=[NSUserDefaults standardUserDefaults];
         [defaults setObject:_usermodel.raw forKey:@"thumbnail"];
 

@@ -150,4 +150,7 @@ blue:((float)(rgbValue & 0xFF))/255.0 alpha:1.0]
 +(NSAttributedString *)formatString:(NSString *)str textColor:(UIColor *)acolor font:(UIFont *)afont image:(UIImage *)image;
 +(NSString*)daysAgoAgainst:(long long)time;
 
+
+
++(NSMutableAttributedString *)formatString:(NSString *)str textColor:(UIColor *)acolor font:(CGFloat )afont textordinaryColor:(UIColor*)ordinaryColor startNum:(NSInteger)startnum toNum:(NSInteger)tonum;
 @end

@@ -9,5 +9,8 @@
 #import <UIKit/UIKit.h>
 
 @interface Log1TableViewCell : UITableViewCell
+@property(nonatomic,strong)UIButton *weixinBtn;
+@property(nonatomic,strong)UIButton *weiboBtn;
+@property(nonatomic,strong)UIButton *QQBtn;
 
 @end

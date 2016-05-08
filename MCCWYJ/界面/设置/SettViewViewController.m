@@ -8,6 +8,11 @@
 
 #import "SettViewViewController.h"
 #import "changNameViewController.h"
+#import "AddressViewController.h"
+#import "SafetyViewController.h"
+#import "AboutViewController.h"
+#import "SystemSettViewController.h"
+#import "GengxinViewController.h"
 @interface SettViewViewController ()<UITableViewDelegate,UITableViewDataSource,UIActionSheetDelegate,UIImagePickerControllerDelegate,UINavigationControllerDelegate>
 {
     UITableView * _tableView;
@@ -41,8 +46,86 @@
     _tableView.dataSource = self;
     [self.view addSubview:_tableView];
     [self prepareHeadView];
+    [self prepareFooer];
     // Do any additional setup after loading the view.
 }
+-(void)prepareFooer{
+    UIView * view = [[UIView alloc]initWithFrame:CGRectMake(0, 0, Main_Screen_Width, 100)];
+    view.backgroundColor = [UIColor groupTableViewBackgroundColor];
+    UIButton * btn = [[UIButton alloc]initWithFrame:CGRectMake(40, 100 - 40 -20,Main_Screen_Width - 2* 40, 40)];
+    [btn setTitle:@"退出登录" forState:0];
+    [btn setTitleColor:[UIColor whiteColor] forState:0];
+    btn.titleLabel.font = AppFont;
+    btn.backgroundColor = AppRegTextCOLOR;//[UIColor redColor];
+    [view addSubview:btn];
+    ViewRadius(btn, 5);
+    [btn addTarget:self action:@selector(logout) forControlEvents:UIControlEventTouchUpInside];
+    _tableView.tableFooterView = view;
+}
+#pragma mark-注销
+-(void)logout{
+    
+    [self showLoading];
+    [self.requestManager postWithUrl:@"api/user/logout.json" refreshCache:NO params:nil IsNeedlogin:YES success:^(id resultDic) {
+        [self stopshowLoading];
+        NSLog(@"成功");
+        NSLog(@"返回==%@",resultDic);
+        /*保存数据－－－－－－－－－－－－－－－－－begin*/
+        NSUserDefaults *defaults=[NSUserDefaults standardUserDefaults];
+        [defaults setObject :@"" forKey:@"Pwd"];
+        [defaults setObject :@"" forKey:@"uid"];
+        
+        [defaults setObject :@"" forKey:@"thumbnail"];
+        
+        [defaults setObject :@"" forKey:@"sessionId"];
+        [defaults setObject :@"" forKey:@"nickname"];
+        [defaults setObject :@"" forKey:@"mobile"];
+        [defaults setObject :@"" forKey:@"id"];
+        [defaults setObject :@"" forKey:@"password"];
+        [defaults setObject:@"" forKey:@"isLogOut"];
+        
+        [self.requestManager.httpClient.requestSerializer setValue:@"" forHTTPHeaderField:@"user_session"];
+        
+        if ([[defaults objectForKey:@"type"]  isEqual: @(3)]) {
+            
+            [ShareSDK cancelAuthorize:SSDKPlatformTypeSinaWeibo];
+            
+        }
+        if ([[defaults objectForKey:@"type"]  isEqual: @(1)]) {
+            
+           [ShareSDK cancelAuthorize:SSDKPlatformTypeWechat];
+            
+        }
+        if ([[defaults objectForKey:@"type"]  isEqual: @(2)]) {
+            
+            [ShareSDK cancelAuthorize:SSDKPlatformTypeQQ];
+            
+        }
+        //强制让数据立刻保存
+        [defaults synchronize];
+
+        
+        [self showAllTextDialog:@"账号已退出"];
+        dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(0.5 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
+            [self.navigationController popViewControllerAnimated:YES];
+            
+                      
+        });
+        
+
+        
+    } fail:^(NSURLSessionDataTask *operation, NSError *error, NSString *description) {
+        [self stopshowLoading];
+        [self showAllTextDialog:description];
+        NSLog(@"失败");
+
+    }];
+    
+    
+    
+    
+}
+
 -(void)prepareHeadView{
     UIView * view = [[UIView alloc]initWithFrame:CGRectMake(0, 0, Main_Screen_Width, 100*MCHeightScale)];
     view.backgroundColor = [UIColor groupTableViewBackgroundColor];
@@ -220,6 +303,38 @@
             changNameViewController * ctl = [[changNameViewController alloc]init];
             [self pushNewViewController:ctl];
         }
+        if (indexPath.row == 2) {
+            AddressViewController * ctl = [[AddressViewController alloc]init];
+            [self pushNewViewController:ctl];
+
+        }
+    }
+    if (indexPath.section == 1) {
+        if (indexPath.row == 0) {
+            SafetyViewController * ctl = [[SafetyViewController alloc]init];
+            [self pushNewViewController:ctl];
+
+            
+        }
+        if (indexPath.row == 1) {
+            AboutViewController * ctl = [[AboutViewController alloc]init];
+            [self pushNewViewController:ctl];
+            
+            
+        }
+        if (indexPath.row == 2) {
+            GengxinViewController * ctl = [[GengxinViewController alloc]init];
+            [self pushNewViewController:ctl];
+            
+            
+        }
+        if (indexPath.row == 3) {
+            SystemSettViewController * ctl = [[SystemSettViewController alloc]init];
+            [self pushNewViewController:ctl];
+            
+            
+        }
+
     }
     
 }

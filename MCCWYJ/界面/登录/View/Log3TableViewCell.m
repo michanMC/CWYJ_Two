@@ -62,7 +62,7 @@
         y +=h + 20*MCHeightScale;
         
         _loginBtn = [[UIButton alloc]initWithFrame:CGRectMake(x, y, w, h)];
-        _loginBtn.backgroundColor = [UIColor redColor];
+        _loginBtn.backgroundColor = AppRegTextCOLOR;//[UIColor redColor];
         [_loginBtn setTitle:@"登录" forState:0];
         [_loginBtn setTitleColor:[UIColor whiteColor] forState:0];
         ViewRadius(_loginBtn, 5);

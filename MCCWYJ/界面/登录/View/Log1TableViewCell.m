@@ -24,7 +24,9 @@
         UIImageView *imgview = [[UIImageView alloc]initWithFrame:CGRectMake(x, 0, imgW, imgh)];
         imgview.backgroundColor = [UIColor redColor];
         [self.contentView addSubview:imgview];
-        
+        _weixinBtn = [[UIButton alloc]initWithFrame:CGRectMake(x, 0, imgW, imgh)];
+        [self.contentView addSubview:_weixinBtn];
+
         UILabel * lbl = [[UILabel alloc]initWithFrame:CGRectMake(x,selfViewh - 20 , imgW, 20)];
         lbl.text = @"微信登录";
         lbl.textColor = AppTextCOLOR;
@@ -42,8 +44,11 @@
         imgview = [[UIImageView alloc]initWithFrame:CGRectMake(x, 0, imgW, imgh)];
         imgview.backgroundColor = [UIColor redColor];
         [self.contentView addSubview:imgview];
+        _weiboBtn = [[UIButton alloc]initWithFrame:CGRectMake(x, 0, imgW, imgh)];
+        [self.contentView addSubview:_weiboBtn];
+
         lbl = [[UILabel alloc]initWithFrame:CGRectMake(x,selfViewh - 20 , imgW, 20)];
-        lbl.text = @"微信登录";
+        lbl.text = @"微博登录";
         lbl.textColor = AppTextCOLOR;
         lbl.textAlignment = NSTextAlignmentCenter;
 
@@ -61,7 +66,11 @@
         imgview.backgroundColor = [UIColor redColor];
         [self.contentView addSubview:imgview];
         lbl = [[UILabel alloc]initWithFrame:CGRectMake(x,selfViewh - 20 , imgW, 20)];
-        lbl.text = @"微信登录";
+        
+        _QQBtn = [[UIButton alloc]initWithFrame:CGRectMake(x, 0, imgW, imgh)];
+        [self.contentView addSubview:_QQBtn];
+
+        lbl.text = @"QQ登录";
         lbl.textAlignment = NSTextAlignmentCenter;
         lbl.textColor = AppTextCOLOR;
         lbl.font = AppFont;

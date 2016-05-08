@@ -2,14 +2,8 @@
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
-	<key>NSLocationAlwaysUsageDescription</key>
-	<string></string>
 	<key> NSLocationWhenInUseUsageDescription </key>
 	<string></string>
-	<key>LSApplicationQueriesSchemes</key>
-	<array>
-		<string>iosamap</string>
-	</array>
 	<key>CFBundleDevelopmentRegion</key>
 	<string>en</string>
 	<key>CFBundleExecutable</key>
@@ -26,8 +20,74 @@
 	<string>1.0</string>
 	<key>CFBundleSignature</key>
 	<string>????</string>
+	<key>CFBundleURLTypes</key>
+	<array>
+		<dict>
+			<key>CFBundleURLSchemes</key>
+			<array>
+				<string>wb255748822</string>
+			</array>
+			<key>CFBundleURLName</key>
+			<string></string>
+		</dict>
+		<dict>
+			<key>CFBundleTypeRole</key>
+			<string>Editor</string>
+			<key>CFBundleURLSchemes</key>
+			<array>
+				<string>wxd754731ce0fc1570</string>
+			</array>
+		</dict>
+		<dict>
+			<key>CFBundleTypeRole</key>
+			<string>Editor</string>
+			<key>CFBundleURLSchemes</key>
+			<array>
+				<string>QQ41DCC4A4</string>
+				<string>tencent1104987300</string>
+			</array>
+		</dict>
+		<dict>
+			<key>CFBundleTypeRole</key>
+			<string>Editor</string>
+			<key>CFBundleURLSchemes</key>
+			<array>
+				<string>ciwei</string>
+			</array>
+		</dict>
+		<dict>
+			<key>CFBundleTypeRole</key>
+			<string>Editor</string>
+			<key>CFBundleURLName</key>
+			<string>weibo</string>
+			<key>CFBundleURLSchemes</key>
+			<array>
+				<string>650697fb366b3b7884f33aa769a4e8e9</string>
+			</array>
+		</dict>
+	</array>
 	<key>CFBundleVersion</key>
 	<string>1</string>
+	<key>LSApplicationQueriesSchemes</key>
+	<array>
+		<string>iosamap</string>
+		<string>mqqOpensdkSSoLogin</string>
+		<string>mqzone</string>
+		<string>sinaweibo</string>
+		<string>alipayauth</string>
+		<string>alipay</string>
+		<string>safepay</string>
+		<string>mqq</string>
+		<string>mqqapi</string>
+		<string>mqqopensdkapiV3</string>
+		<string>mqqopensdkapiV2</string>
+		<string>mqqapiwallet</string>
+		<string>mqqwpa</string>
+		<string>mqqbrowser</string>
+		<string>wtloginmqq2</string>
+		<string>weixin</string>
+		<string>wechat</string>
+	</array>
 	<key>LSRequiresIPhoneOS</key>
 	<true/>
 	<key>NSAppTransportSecurity</key>
@@ -35,6 +95,8 @@
 		<key>NSAllowsArbitraryLoads</key>
 		<true/>
 	</dict>
+	<key>NSLocationAlwaysUsageDescription</key>
+	<string></string>
 	<key>UIRequiredDeviceCapabilities</key>
 	<array>
 		<string>armv7</string>

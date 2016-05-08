@@ -9,19 +9,22 @@
 #import "MChomeViewController.h"
 #import "LeftViewController.h"
 #import "UIViewController+NavBarHidden.h"
-#import "ZZCarousel.h"
-#import "MCplaceholderText.h"
 #import "MCMApManager.h"
 #import "LoginController.h"
 #import "AppDelegate.h"
 #import "SettViewViewController.h"
-@interface MChomeViewController ()<UITableViewDataSource,UITableViewDelegate,ZZCarouselDelegate>
+#import "HomeCollectionViewCell.h"
+#import "HomeHeaderCollectionReusableView.h"
+
+@interface MChomeViewController ()<UICollectionViewDelegate,UICollectionViewDataSource,UICollectionViewDelegateFlowLayout>
 {
     
-    UITableView *_tableView;
+   // UITableView *_tableView;
+    UICollectionView *_collectionView;
+
     NSMutableArray *_bannerArray;
   UIButton * _headBtn;
-    MCplaceholderText *_searchtext;
+    UIButton * _cityBtn;
 
 }
 
@@ -63,9 +66,13 @@
 }
 - (void)viewDidLoad {
     [super viewDidLoad];
+    self.title = @"";
+    self.navigationController.title = @"首页";
     _bannerArray = [NSMutableArray array];
     //监听头像的刷新
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(disTouXiangObj:) name:@"disTouXiangObjNotification" object:nil];
+    //监听位置的刷新
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(disCityObj:) name:@"disCityObjNotification" object:nil];
     //跳转页面
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(disCtlViewObj:) name:@"disCtlViewObjNotification" object:nil];
     //self.navigationController.navigationBarHidden = YES;
@@ -87,79 +94,58 @@
     
     
 }
+-(void)disCityObj:(NSNotification*)notication{
+    
+    NSString * city = notication.object;
+    if (!city||!city.length) {
+        city = @"未知";
+    }
+    CGFloat w = [MCIucencyView heightforString:city andHeight:25 fontSize:14]+20;
+    _cityBtn.frame = CGRectMake(_cityBtn.mj_x, 0, w, _cityBtn.mj_h);
+    [_cityBtn setTitle:city forState:0];
+
+}
+
 -(void)disTouXiangObj:(NSNotification*)notication{
     //刷新头像，地址
     [_headBtn sd_setBackgroundImageWithURL:[NSURL URLWithString:[MCUserDefaults objectForKey:@"thumbnail"]] forState:0 placeholderImage:[UIImage imageNamed:@"home_mine_avatar2"]];
     
 }
--(void)prepareUI{
-    _tableView = [[UITableView alloc]initWithFrame:CGRectMake(0, 0, Main_Screen_Width, Main_Screen_Height - 49) style:UITableViewStyleGrouped];
-    _tableView.delegate =self;
-    _tableView.dataSource =self;
-    [self.view addSubview:_tableView];
-    _tableView.mj_header  = [MJRefreshNormalHeader headerWithRefreshingTarget:self refreshingAction:@selector(loadNewData)];
+-(void)prepareCollectionView{
+     UICollectionViewFlowLayout *layout = [[UICollectionViewFlowLayout alloc]init];
+//    layout.sectionInset = UIEdgeInsetsMake(10, 10, 10, 10);
+    _collectionView = [[UICollectionView alloc]initWithFrame:CGRectMake(0, 64, Main_Screen_Width, Main_Screen_Height - 64 - 49) collectionViewLayout:layout];
+    _collectionView.delegate = self;
+    _collectionView.dataSource = self;
     
-   [[[self.navigationController.navigationBar subviews]objectAtIndex:0] setAlpha:0];
+    [_collectionView registerClass:[HomeCollectionViewCell class] forCellWithReuseIdentifier:@"mc"];
+    
+    _collectionView.backgroundColor = [UIColor groupTableViewBackgroundColor];
+    [self.view addSubview:_collectionView];
+    
+    [_collectionView registerClass:[HomeHeaderCollectionReusableView class] forSupplementaryViewOfKind:UICollectionElementKindSectionHeader withReuseIdentifier:@"headerView"];
+        _collectionView.mj_header  = [MJRefreshNormalHeader headerWithRefreshingTarget:self refreshingAction:@selector(loadNewData)];
+    
+
+}
+-(void)prepareUI{
+    [self prepareCollectionView];
+//   [[[self.navigationController.navigationBar subviews]objectAtIndex:0] setAlpha:0];
     [MCMApManager sharedInstance];//定位
     [[MCMApManager sharedInstance] Isdingwei:YES CtlView:self];
 //    [[MCMApManager sharedInstance] Isdingwei:YES CtlView:self];
 
-    [self prepareHeadview];
+  //  [self prepareHeadview];
         //2.设置导航条内容
     [self setUpNavBar];
     
-    [self setKeyScrollView:_tableView scrolOffsetY:200*MCHeightScale options:nil];
+   // [self setKeyScrollView:_tableView scrolOffsetY:200*MCHeightScale options:nil];
     
     
     [self loadbanner];
     
 }
 
-#pragma mark - UI设置
-#pragma mark -prepareHeadview
--(void)prepareHeadview{
-    ZZCarousel* wheel  = [[ZZCarousel alloc]initWithFrame:CGRectMake(0, 0, Main_Screen_Width, 200*MCHeightScale)];
-    /*
-     *   carouseScrollTimeInterval  ---  此属性为设置轮播多长时间滚动到下一张
-     */
-    wheel.carouseScrollTimeInterval = 5.0f;
-    
-    
-    
-    // 代理
-    wheel.delegate = self;
-    
-    /*
-     *   isAutoScroll  ---  默认为NO，当为YES时 才能使轮播进行滚动
-     */
-    wheel.isAutoScroll = YES;
-    
-    /*
-     *   pageType  ---  设置轮播样式 默认为系统样式。ZZCarousel 中封装了 两种样式，另外一种为数字样式
-     */
-    wheel.pageType = ZZCarouselPageTypeOfNone;
-    
-    /*
-     *   设置UIPageControl 在轮播中的位置、系统默认的UIPageControl 的顶层颜色 和底层颜色已经背景颜色
-     */
-    wheel.pageControlFrame = CGRectMake((Main_Screen_Width - 60 ) / 2, wheel.frame.size.height - 20, 60, 10);
-    
-    
-    wheel.pageIndicatorTintColor = RGBCOLOR(250, 150, 110);//[UIColor whiteColor];
-    wheel.currentPageIndicatorTintColor = RGBCOLOR(251, 78, 9);
-    wheel.pageControlBackGroundColor = [UIColor whiteColor];
-    
-    /*
-     *   设置数字样式的 UIPageControl 中的字体和字体颜色。 背景颜色仍然按照上面pageControlBackGroundColor属性来设置
-     */
-    wheel.pageControlOfNumberFont = [UIFont fontWithName:@"Helvetica-Bold" size:18];
-    wheel.pageContolOfNumberFontColor = [UIColor whiteColor];
-
-        _tableView.tableHeaderView = wheel;
-
-    [wheel reloadData];
-    
-}
 #pragma mark -setUpNavBar
 
 - (void)setUpNavBar{
@@ -178,26 +164,21 @@
     self.navigationItem.leftBarButtonItem = [[UIBarButtonItem alloc]initWithCustomView:_headBtn];
     
     
-    MCIucencyView * seachView = [[MCIucencyView alloc]initWithFrame:CGRectMake(0, 0, Main_Screen_Width - 100, 30)];
-    ViewRadius(seachView, 5);
-    _searchtext = [[MCplaceholderText alloc]initWithFrame:CGRectMake(30, 0, seachView.mj_w - 30, 30)];
-    _searchtext.placeholder = @"输入景点搜索";
-    _searchtext.textColor  =[UIColor whiteColor];
-    _searchtext.font = AppFont;
-    _searchtext.enabled = NO;
-    _searchtext.clearButtonMode = UITextFieldViewModeAlways;
-    [seachView addSubview:_searchtext];
-    UIButton *_searchBtn = [[UIButton alloc]initWithFrame:_searchtext.bounds];
-    [_searchBtn addTarget:self action:@selector(ActionsearchBtn) forControlEvents:UIControlEventTouchUpInside];
-    [seachView addSubview:_searchBtn];
-
-    UIImageView * imgview = [[UIImageView alloc]initWithFrame:CGRectMake(5, 5, 20, 20)];
-    imgview.image = [UIImage imageNamed:@"ic_icon_search1"];
-    [seachView addSubview:imgview];
+    NSString * city = [MCUserDefaults objectForKey:@"city"];
+    if (!city||!city.length) {
+        city = @"未知";
+    }
+   CGFloat w = [MCIucencyView heightforString:city andHeight:25 fontSize:14]+20;
+    _cityBtn = [[UIButton alloc]initWithFrame:CGRectMake(Main_Screen_Width - 10 - w, (40-25)/2, w, 25)];
+    [_cityBtn setTitle:city forState:0];
+    ViewRadius(_cityBtn, 25/2);
+    [_cityBtn setTitleColor:[UIColor whiteColor] forState:0];
+    _cityBtn.titleLabel.font = AppFont;
+    _cityBtn.backgroundColor = [UIColor lightGrayColor];
     
-    self.navigationItem.titleView = seachView;
     
-    self.navigationItem.rightBarButtonItem = [[UIBarButtonItem alloc]initWithBarButtonSystemItem:UIBarButtonSystemItemCamera target:self action:nil];
+    
+    self.navigationItem.rightBarButtonItem = [[UIBarButtonItem alloc]initWithCustomView:_cityBtn];//[[UIBarButtonItem alloc]initWithBarButtonSystemItem:UIBarButtonSystemItemCamera target:self action:nil];
     
     
     
@@ -212,14 +193,14 @@
 
         NSLog(@"guang游记==%@",resultDic);
         _bannerArray = resultDic[@"object"];
-        _tableView.tableHeaderView = nil;
-        [self prepareHeadview];
+        [_collectionView reloadData];
         
-        
+        [_collectionView.mj_header endRefreshing];
     } fail:^(NSURLSessionDataTask *operation, NSError *error, NSString *description) {
         [self stopshowLoading];
         [self showAllTextDialog:description];
         NSLog(@"失败");
+        [_collectionView.mj_header endRefreshing];
 
     }];
     
@@ -243,81 +224,129 @@
 }
 #pragma mark-下拉
 -(void)loadNewData{
+    [self loadbanner];
 }
 
--(NSInteger)numberOfSectionsInTableView:(UITableView *)tableView{
-    return 20;
-}
--(NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section
+-(NSInteger)numberOfSectionsInCollectionView:(UICollectionView *)collectionView
 {
-    return 1;
+    //collectionView有多少的section
+    return 5;
 }
-- (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath{
+
+-(NSInteger)collectionView:(UICollectionView *)collectionView numberOfItemsInSection:(NSInteger)section
+{
+    //collectionView有多少个Item
+    if (section == 0 || section == 1)
+        return 0;
+    if (section == 2) {
+        return 2;
+    }
+    return 4;
+}
+-(UICollectionReusableView *)collectionView:(UICollectionView *)collectionView viewForSupplementaryElementOfKind:(NSString *)kind atIndexPath:(NSIndexPath *)indexPath
+{
     
-    UITableViewCell * cell = [tableView dequeueReusableCellWithIdentifier:@"cell"];
-    if (!cell) {
-        cell = [[UITableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:@"cell"];
+    if ([kind isEqualToString:UICollectionElementKindSectionHeader])
+    {
+        HomeHeaderCollectionReusableView *headView = [collectionView dequeueReusableSupplementaryViewOfKind:kind withReuseIdentifier:@"headerView" forIndexPath:indexPath];
+        if(indexPath.section == 0){
+            [headView prepareADUI];
+            headView.backgroundColor = [UIColor whiteColor];
+        }
+        else
+        {
+            if(indexPath.section == 1)
+                [headView prepareUI:@"朋友推荐"];
+            if(indexPath.section == 2)
+            [headView prepareMeUI:@"我的"];
+            if(indexPath.section == 3)
+                [headView prepareMeUI:@"热门"];
+            if(indexPath.section == 4)
+                [headView prepareUI:@"朋友江湖"];
+
+            
+            
+            if (indexPath.section == 1|| indexPath.section == 2)
+                headView.backgroundColor = [UIColor whiteColor];
+            else
+                headView.backgroundColor = [UIColor groupTableViewBackgroundColor];
+
+
+        }
+        return headView;
+    }
+          return nil;
+}
+-(CGSize)collectionView:(UICollectionView *)collectionView layout:(UICollectionViewLayout *)collectionViewLayout referenceSizeForHeaderInSection:(NSInteger)section
+{
+    if (section== 0) {
+        return CGSizeMake(Main_Screen_Width, 150*MCHeightScale);
+    }
+    return CGSizeMake(Main_Screen_Width, 40);
+}
+
+
+
+
+
+-(CGSize)collectionView:(UICollectionView *)collectionView layout:(UICollectionViewLayout *)collectionViewLayout sizeForItemAtIndexPath:(NSIndexPath *)indexPath
+{
+    if (indexPath.section == 0|| indexPath.section == 1) {
+        return CGSizeMake(0.001, 0.001);
+
+    }
+    if (indexPath.section == 4) {
+        return CGSizeMake(Main_Screen_Width - 20, 150*MCHeightScale);
+    }
+//    if (indexPath.section == 2)
+    //item
+//    return CGSizeMake((Main_Screen_Width - 10)/2, 110*MCHeightScale + 85);
+    return CGSizeMake((Main_Screen_Width - 30)/2, 110*MCHeightScale + 85);
+
+
+}
+//定义每个UICollectionView 的 margin
+-(UIEdgeInsets)collectionView:(UICollectionView *)collectionView layout:(UICollectionViewLayout *)collectionViewLayout insetForSectionAtIndex:(NSInteger)section
+{
+    if (section == 0||section == 1) {
+        return UIEdgeInsetsMake(0, 0, 0, 0);
+
+    }
+//    if (section == 3)
+        return UIEdgeInsetsMake(10, 10,10, 10);
+
+//    return UIEdgeInsetsMake(0, 0, 2.5, 0);
+
+}
+
+
+
+-(UICollectionViewCell *)collectionView:(UICollectionView *)collectionView cellForItemAtIndexPath:(NSIndexPath *)indexPath
+{
+    HomeCollectionViewCell * cell = [collectionView dequeueReusableCellWithReuseIdentifier:@"mc" forIndexPath:indexPath];
+    if (!cell)
+    {
+        cell = [[HomeCollectionViewCell alloc]init];
         
     }
-    cell.backgroundColor = indexPath.row % 2 ? [UIColor orangeColor]:[UIColor greenColor];
-    
-    cell.textLabel.text = @"zzzz";
-    return cell;
-}
-#pragma mark --- ZZCarouselDelegate
-
-
--(NSInteger)numberOfZZCarousel:(ZZCarousel *)wheel
-{
-    if (_bannerArray.count) {
-        return _bannerArray.count;
+    if (indexPath.section == 4) {
+        [cell prepareYJUI];
     }
-    return 3;
-}
--(ZZCarouselView *)zzcarousel:(UICollectionView *)zzcarousel viewForItemAtIndex:(NSIndexPath *)index itemsIndex:(NSInteger)itemsIndex identifire:(NSString *)identifire ZZCarousel:(ZZCarousel *)zZCarousel
-{
-    /*
-     *  index参数         ※ 注意
-     */
-    ZZCarouselView *cell = [zzcarousel dequeueReusableCellWithReuseIdentifier:identifire forIndexPath:index];
-    
-    if (!cell) {
-        cell = [[ZZCarouselView alloc]init];
-    }
-    //    cell.title.text = [_imagesGroup objectAtIndex:indexPath.row];
-    //    [cell.imageView sd_setImageWithURL:[NSURL URLWithString:@"图片地址"]];
-    
-    /*
-     *  itemsIndex 参数   ※ 注意
-     */
-    if (_bannerArray.count) {
-        NSDictionary * model = [_bannerArray objectAtIndex:itemsIndex];
-        
-        [cell.imageView sd_setImageWithURL:[NSURL URLWithString:model[@"image"]] placeholderImage:[UIImage imageNamed:@"home_banner_default-chart"]];
+   else if (indexPath.section == 3) {
+        [cell prepareHotUI];
     }
     else
-        
-        cell.imageView.image = [UIImage imageNamed:@"123"];
-    //
-    
+    {
+    [cell prepareMeUI];
+    }
     return cell;
 }
 
-//点击方法
 
--(void)zzcarouselScrollView:(ZZCarousel *)zzcarouselScrollView didSelectItemAtIndex:(NSInteger)index
-{
-    
-    //[self showAllTextDialog:[NSString stringWithFormat:@"点击了 第%ld张",(long)index]];
-//    if(_bannerArray.count > index ){
-//        NSDictionary * model = [_bannerArray objectAtIndex:index];
-//        
-//        Home_LunBoGuangGao_Web *vc = [[Home_LunBoGuangGao_Web alloc]init];
-//        vc.adlinkurl = model[@"link"];
-//        [self pushNewViewController:vc];
-//        
-//    }
-}
+
+
+
+
 
 - (void)didReceiveMemoryWarning {
     [super didReceiveMemoryWarning];

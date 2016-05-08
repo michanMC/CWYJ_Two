@@ -916,5 +916,14 @@
     
     return @"未知";
 }
++(NSMutableAttributedString *)formatString:(NSString *)str textColor:(UIColor *)acolor font:(CGFloat )afont textordinaryColor:(UIColor*)ordinaryColor startNum:(NSInteger)startnum toNum:(NSInteger)tonum{
+    
+    NSMutableAttributedString *btn_arrstring = [[NSMutableAttributedString alloc] initWithString:str];
+    
+    [btn_arrstring addAttributes:@{NSForegroundColorAttributeName : ordinaryColor,	NSFontAttributeName : [UIFont systemFontOfSize:afont]} range:NSMakeRange(startnum, tonum)];
+    return btn_arrstring;
+    
+}
+
 
 @end

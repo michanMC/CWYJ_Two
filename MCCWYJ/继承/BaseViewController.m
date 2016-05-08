@@ -116,8 +116,8 @@
                                                                      RGBCOLOR(127, 125, 147), NSForegroundColorAttributeName,
                                                                      [UIFont fontWithName:@"CourierNewPSMT" size:20.0], NSFontAttributeName,
                                                                      nil]];
-    self.navigationController.navigationBar.barTintColor =    [UIColor groupTableViewBackgroundColor];
-    self.navigationController.navigationBar.tintColor = RGBCOLOR(127, 125, 147);
+    self.navigationController.navigationBar.barTintColor =    [UIColor whiteColor];
+    self.navigationController.navigationBar.tintColor = [UIColor grayColor];//RGBCOLOR(127, 125, 147);
     self.navigationController.navigationBar.barStyle = UIBarStyleDefault;
 //    if (![self isKindOfClass:[MChomeViewController class] ]) {
 //        [self.navigationController.navigationBar setBackgroundColor:[UIColor whiteColor]];
