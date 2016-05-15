@@ -51,17 +51,19 @@
     [self.view addSubview:_tableView];
     [self prepareHeadView];
     UIButton * backBtn = [[UIButton alloc]initWithFrame:CGRectMake(10, 20, 30, 30)];
-    backBtn.backgroundColor = [UIColor redColor];
+//    backBtn.backgroundColor = [UIColor redColor];
+    [backBtn setImage:[UIImage imageNamed:@"login_icon_close"] forState:0];
     [self.view addSubview:backBtn];
     [backBtn addTarget:self action:@selector(actionBack) forControlEvents:UIControlEventTouchUpInside];
     // Do any additional setup after loading the view.
 }
 -(void)prepareHeadView{
     UIView * view = [[UIView alloc]initWithFrame:CGRectMake(0, 0, Main_Screen_Height, (Main_Screen_Height-50*MCHeightScale)/2 - 64*MCHeightScale )];
-    view.backgroundColor = [UIColor yellowColor];
+//    view.backgroundColor = [UIColor yellowColor];
     _tableView.tableHeaderView = view;
     UIImageView * imgview = [[UIImageView alloc]initWithFrame:CGRectMake((Main_Screen_Width-60) / 2, (view.mj_h - 60)/2, 60, 60)];
-    imgview.backgroundColor = [UIColor redColor];
+    imgview.image = [UIImage imageNamed:@"login_logo"];
+//    imgview.backgroundColor = [UIColor redColor];
     [view addSubview:imgview];
 }
 -(NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section

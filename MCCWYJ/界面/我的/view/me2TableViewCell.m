@@ -21,9 +21,9 @@
     CGFloat h = 20;
     CGFloat selfViewW = Main_Screen_Width - 50;
 
-    UIImageView * imgview = [[UIImageView alloc]initWithFrame:CGRectMake(x, y, w, h)];
-    imgview.backgroundColor = [UIColor yellowColor];
-    [self.contentView addSubview:imgview];
+     _imgview= [[UIImageView alloc]initWithFrame:CGRectMake(x, y, w, h)];
+//    imgview.backgroundColor = [UIColor yellowColor];
+    [self.contentView addSubview:_imgview];
 
     
     x +=w + 10;

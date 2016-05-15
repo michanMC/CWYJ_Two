@@ -24,21 +24,21 @@
     [super viewDidLoad];
     AppDelegate *appDelegate = (AppDelegate *)[[UIApplication sharedApplication] delegate];
     MChomeViewController *vc1 = [[MChomeViewController alloc] init];
-    vc1.tabBarItem.badgeValue = @"23";
+//    vc1.tabBarItem.badgeValue = @"23";
     vc1.title = @"首页";
-    vc1.tabBarItem.image = [UIImage imageNamed:@"tabbar_home"];
-    vc1.tabBarItem.selectedImage = [UIImage imageNamed:@"tabbar_home_selected"];
+    vc1.tabBarItem.image = [UIImage imageNamed:@"home_normal"];
+    vc1.tabBarItem.selectedImage = [UIImage imageNamed:@"home_pre"];
     
     MCMyshoppingViewController *vc2 = [[MCMyshoppingViewController alloc] init];
-    vc2.tabBarItem.badgeValue = @"1";
+//    vc2.tabBarItem.badgeValue = @"1";
     vc2.title = @"我的购";
-    vc2.tabBarItem.image = [UIImage imageNamed:@"tabbar_message_center"];
-    vc2.tabBarItem.selectedImage = [UIImage imageNamed:@"tabbar_message_center_selected"];
+    vc2.tabBarItem.image = [UIImage imageNamed:@"travel_normal"];
+    vc2.tabBarItem.selectedImage = [UIImage imageNamed:@"travel_pre"];
     
     MCplayViewController *vc3 = [[MCplayViewController alloc] init];
     vc3.title = @"我的游";
-    vc3.tabBarItem.image = [UIImage imageNamed:@"tabbar_discover"];
-    vc3.tabBarItem.selectedImage = [UIImage imageNamed:@"tabbar_discover_selected"];
+    vc3.tabBarItem.image = [UIImage imageNamed:@"friend_normal"];
+    vc3.tabBarItem.selectedImage = [UIImage imageNamed:@"friend_pre"];
     
     MCNavViewController *navC1 = [[MCNavViewController alloc] initWithRootViewController:vc1];
     MCNavViewController *navC2 = [[MCNavViewController alloc] initWithRootViewController:vc2];
@@ -52,7 +52,7 @@
     
     //    tabBarC.itemTitleFont          = [UIFont boldSystemFontOfSize:11.0f];
     //    tabBarC.itemTitleColor         = [UIColor greenColor];
-    //    tabBarC.selectedItemTitleColor = [UIColor redColor];
+    tabBarC.selectedItemTitleColor = AppCOLOR;//[UIColor redColor];
     //    tabBarC.itemImageRatio         = 0.5f;
     //    tabBarC.badgeTitleFont         = [UIFont boldSystemFontOfSize:12.0f];
     

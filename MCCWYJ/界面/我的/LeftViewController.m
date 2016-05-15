@@ -2,8 +2,6 @@
 //  LeftViewController.m
 //  ThreeViewsText
 //
-//  Created by lanouhn on 16/2/29.
-//  Copyright © 2016年 杨鹤. All rights reserved.
 //
 
 #import "LeftViewController.h"
@@ -23,7 +21,7 @@
     UILabel *_nameLbl;
     UILabel * _biaozhiLbl;
     UILabel * _IdLbl;
-
+    NSArray * _titelImgArray;
 
 }
 
@@ -75,7 +73,10 @@
     [super viewDidLoad];
     _isloaddata = NO;
     _selfViewW = Main_Screen_Width - 50;
-    
+    _titelImgArray = @[
+                       @[@"--我的游",@"我的晒",@"我的采",@"我的售",@"我的足迹-"],
+                       @[@"通讯录",@"我的任务"]
+                       ];
     self.view.alpha = 1;
     _tableView = [[UITableView alloc]initWithFrame:CGRectMake(0, 0, _selfViewW, Main_Screen_Height) style:UITableViewStyleGrouped];
     _tableView.delegate =self;
@@ -86,12 +87,14 @@
 }
 -(void)prepareheadView{
     UIImageView * view = [[UIImageView alloc]initWithFrame:CGRectMake(0, 0, _selfViewW, 250*MCHeightScale)];
-    view.backgroundColor = [UIColor redColor];
+//    view.backgroundColor = [UIColor redColor];
+    view.image = [UIImage imageNamed:@"mine_Background"];
     view.userInteractionEnabled = YES;
     _tableView.tableHeaderView = view;
     
-    UIButton * btn = [[UIButton alloc]initWithFrame:CGRectMake(_selfViewW - 60, 30, 30, 30)];
-    btn.backgroundColor = [UIColor yellowColor];
+    UIButton * btn = [[UIButton alloc]initWithFrame:CGRectMake(_selfViewW - 40, 30, 30, 30)];
+//    btn.backgroundColor = [UIColor yellowColor];
+    [btn setImage:[UIImage imageNamed:@"icon_message"] forState:0];
     [btn addTarget:self action:@selector(SettBtn) forControlEvents:UIControlEventTouchUpInside];
     [view addSubview:btn];
     
@@ -108,8 +111,8 @@
     [_headBtn addTarget:self action:@selector(actionHeadbtn) forControlEvents:UIControlEventTouchUpInside];
     [view addSubview:_headBtn];
     
-    [_headBtn sd_setBackgroundImageWithURL:[NSURL URLWithString:[MCUserDefaults objectForKey:@"thumbnail"]] forState:0 placeholderImage:[UIImage imageNamed:@"home_mine_avatar2"]];
-
+    [_headBtn sd_setBackgroundImageWithURL:[NSURL URLWithString:[MCUserDefaults objectForKey:@"thumbnail"]] forState:0 placeholderImage:[UIImage imageNamed:@"home_Avatar_146"]];
+//
 
     y +=h + 20;
     w = _selfViewW;
@@ -171,7 +174,7 @@
         NSLog(@"查询资料resultDic == %@",resultDic);
         _usermodel  = [YJUserModel mj_objectWithKeyValues:resultDic[@"object"]];
         //头像
-        [_headBtn sd_setBackgroundImageWithURL:[NSURL URLWithString:[NSString stringWithFormat:@"%@",_usermodel.raw]] forState:0 placeholderImage:[UIImage imageNamed:@"mine_default-avatar"]];
+        [_headBtn sd_setBackgroundImageWithURL:[NSURL URLWithString:[NSString stringWithFormat:@"%@",_usermodel.raw]] forState:0 placeholderImage:[UIImage imageNamed:@"home_Avatar_146"]];
         NSUserDefaults *defaults=[NSUserDefaults standardUserDefaults];
         [defaults setObject:_usermodel.raw forKey:@"thumbnail"];
 
@@ -208,6 +211,11 @@
 }
 #pragma mark-点击头像
 -(void)actionHeadbtn{
+    [self.sideMenuViewController hideMenuViewController];
+    //发送通知
+    [[NSNotificationCenter defaultCenter] postNotificationName:@"disCtlViewObjNotification" object:@"设置"];
+    
+    return;
     _isshang = YES;
     UIActionSheet *myActionSheet = [[UIActionSheet alloc]
                                     initWithTitle:nil
@@ -351,6 +359,7 @@
                 cell = [[me1TableViewCell alloc]initWithStyle:UITableViewCellStyleDefault reuseIdentifier:cellid1];
             }
            [cell prepareStr:_usermodel.introduction TitleStr:@"我的游(77)" Ishong:YES];
+            cell.imgview.image =[UIImage imageNamed:_titelImgArray[indexPath.section][indexPath.row]] ;
             return cell;
         }
         me2TableViewCell * cell = [tableView dequeueReusableCellWithIdentifier:cellid2];
@@ -358,6 +367,8 @@
             cell = [[me2TableViewCell alloc]initWithStyle:UITableViewCellStyleDefault reuseIdentifier:cellid2];
         }
         [cell preapreTitleStr:@"我的购(66)" Ishong:YES];
+        cell.imgview.image =[UIImage imageNamed:_titelImgArray[indexPath.section][indexPath.row]] ;
+
         return cell;
 
     }
@@ -367,17 +378,17 @@
             cell = [[me2TableViewCell alloc]initWithStyle:UITableViewCellStyleDefault reuseIdentifier:cellid2];
         }
         [cell preapreTitleStr:@"通讯录" Ishong:NO];
+        cell.imgview.image =[UIImage imageNamed:_titelImgArray[indexPath.section][indexPath.row]] ;
+
         return cell;
  
     }
     return [[UITableViewCell alloc]init];
 }
-#pragma mark-设置
+#pragma mark-im
 -(void)SettBtn{
     
-    [self.sideMenuViewController hideMenuViewController];
-    //发送通知
-    [[NSNotificationCenter defaultCenter] postNotificationName:@"disCtlViewObjNotification" object:@"设置"];
+
 }
 - (void)didReceiveMemoryWarning {
     [super didReceiveMemoryWarning];

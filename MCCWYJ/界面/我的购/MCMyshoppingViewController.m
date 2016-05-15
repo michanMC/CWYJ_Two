@@ -7,10 +7,15 @@
 //
 
 #import "MCMyshoppingViewController.h"
+#import "MCMyshoppingTableViewCell.h"
+#import "YJTableViewCell.h"
 
-@interface MCMyshoppingViewController ()
+@interface MCMyshoppingViewController ()<UITableViewDelegate,UITableViewDataSource>
 {
     UITextField *_searchtext;
+    
+    UITableView *_tableView;
+    
 
 }
 
@@ -22,8 +27,86 @@
     [super viewDidLoad];
     self.view.backgroundColor = [UIColor whiteColor];
     [self setUpNavBar];
+    
+    
+     _tableView = [[UITableView alloc]initWithFrame:CGRectMake(0, 64, Main_Screen_Width, Main_Screen_Height - 64 - 49) style:UITableViewStyleGrouped];
+    _tableView.delegate =self;
+    _tableView.dataSource = self;
+    [self.view addSubview:_tableView];
     // Do any additional setup after loading the view.
 }
+-(NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section{
+    return 1;
+}
+-(CGFloat)tableView:(UITableView *)tableView heightForFooterInSection:(NSInteger)section{
+    return 0.01;
+}
+-(CGFloat)tableView:(UITableView *)tableView heightForHeaderInSection:(NSInteger)section{
+    return 10;
+}
+-(NSInteger)numberOfSectionsInTableView:(UITableView *)tableView
+{
+    return 3;
+}
+-(CGFloat)tableView:(UITableView *)tableView heightForRowAtIndexPath:(NSIndexPath *)indexPath{
+    //3种状态
+    if (indexPath.section == 0) {
+
+    return 100 *MCHeightScale + 15 + 20 + 10;
+    }
+    if (indexPath.section == 1) {
+        return 100 *MCHeightScale + 15 + 20 + 10 + 44;
+
+    }
+    if(indexPath.section == 2){
+    return 100 *MCHeightScale + 15 + 20 + 15;
+    }
+
+    return 44;
+}
+-(UITableViewCell*)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath
+{
+    static NSString * cellid1 = @"MCMyshoppingTableViewCell1";
+    static NSString * cellid2 = @"MCMyshoppingTableViewCell2";
+    static NSString * cellid3 = @"mc3";
+
+    if (indexPath.section == 0) {
+    
+    MCMyshoppingTableViewCell * cell = [tableView dequeueReusableCellWithIdentifier:cellid1];
+    if (!cell) {
+        cell = [[MCMyshoppingTableViewCell alloc]initWithStyle:UITableViewCellStyleDefault reuseIdentifier:cellid1];
+    }
+    
+    [cell  prepareNotitleUI];
+    return cell;
+    }
+    if (indexPath.section == 1) {
+        MCMyshoppingTableViewCell * cell = [tableView dequeueReusableCellWithIdentifier:cellid2];
+        if (!cell) {
+            cell = [[MCMyshoppingTableViewCell alloc]initWithStyle:UITableViewCellStyleDefault reuseIdentifier:cellid2];
+        }
+        
+        [cell  prepareHastitleUI];
+        return cell;
+
+    }
+    if (indexPath.section == 2) {
+        YJTableViewCell * cell = [tableView dequeueReusableCellWithIdentifier:cellid3];
+        if (!cell) {
+            cell = [[YJTableViewCell alloc]initWithStyle:UITableViewCellStyleDefault reuseIdentifier:cellid3];
+        }
+        //        cell.selectionStyle =
+//        homeYJModel * model= _dataAarray[indexPath.section];
+        [cell prepareUI:nil];
+        return cell;
+
+    }
+    
+    return [[UITableViewCell alloc]init];
+}
+
+
+
 -(void)setUpNavBar{
     
     MCIucencyView * seachView = [[MCIucencyView alloc]initWithFrame:CGRectMake(0, 0, Main_Screen_Width - 100, 30)];

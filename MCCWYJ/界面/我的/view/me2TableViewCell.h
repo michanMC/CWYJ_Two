@@ -9,5 +9,7 @@
 #import <UIKit/UIKit.h>
 
 @interface me2TableViewCell : UITableViewCell
+@property(nonatomic,strong)UIImageView * imgview;
+
 -(void)preapreTitleStr:(NSString*)titleStr Ishong:(BOOL)ishong;
 @end

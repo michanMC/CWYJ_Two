@@ -22,7 +22,9 @@
         CGFloat imgh = selfViewh - 20;
         CGFloat x = 40;
         UIImageView *imgview = [[UIImageView alloc]initWithFrame:CGRectMake(x, 0, imgW, imgh)];
-        imgview.backgroundColor = [UIColor redColor];
+//        imgview.backgroundColor = [UIColor redColor];
+        imgview.image = [UIImage imageNamed:@"微信"];
+        imgview.contentMode = UIViewContentModeScaleAspectFit;  
         [self.contentView addSubview:imgview];
         _weixinBtn = [[UIButton alloc]initWithFrame:CGRectMake(x, 0, imgW, imgh)];
         [self.contentView addSubview:_weixinBtn];
@@ -42,7 +44,10 @@
         [self.contentView addSubview:lineView];
         x +=1;
         imgview = [[UIImageView alloc]initWithFrame:CGRectMake(x, 0, imgW, imgh)];
-        imgview.backgroundColor = [UIColor redColor];
+//        imgview.backgroundColor = [UIColor redColor];
+        imgview.image = [UIImage imageNamed:@"微博"];
+        imgview.contentMode = UIViewContentModeScaleAspectFit;
+
         [self.contentView addSubview:imgview];
         _weiboBtn = [[UIButton alloc]initWithFrame:CGRectMake(x, 0, imgW, imgh)];
         [self.contentView addSubview:_weiboBtn];
@@ -63,7 +68,10 @@
         
         x +=1;
         imgview = [[UIImageView alloc]initWithFrame:CGRectMake(x, 0, imgW, imgh)];
-        imgview.backgroundColor = [UIColor redColor];
+//        imgview.backgroundColor = [UIColor redColor];
+        imgview.image = [UIImage imageNamed:@"QQ"];
+        imgview.contentMode = UIViewContentModeScaleAspectFit;
+
         [self.contentView addSubview:imgview];
         lbl = [[UILabel alloc]initWithFrame:CGRectMake(x,selfViewh - 20 , imgW, 20)];
         

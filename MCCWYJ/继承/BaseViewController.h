@@ -2,8 +2,9 @@
 
 #import <UIKit/UIKit.h>
 
-
+@class MCNetworkManager;
 @interface BaseViewController : UIViewController
+
 @property (nonatomic,strong) MCNetworkManager *requestManager;
 @property (nonatomic , strong)NSDictionary * classifyDic;
 

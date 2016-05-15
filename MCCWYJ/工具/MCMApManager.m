@@ -101,6 +101,11 @@
             //发送通知
             [[NSNotificationCenter defaultCenter] postNotificationName:@"disCityObjNotification" object:_city];
             
+            //发送通知
+            [[NSNotificationCenter defaultCenter] postNotificationName:@"disqueryObjNotification" object:nil];
+            //发送通知
+            [[NSNotificationCenter defaultCenter] postNotificationName:@"disquery2ObjNotification" object:nil];
+            
         }
 
     }

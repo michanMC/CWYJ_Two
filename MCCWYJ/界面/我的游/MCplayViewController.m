@@ -11,6 +11,8 @@
 #import "HMSegmentedControl.h"
 #import "AllPalyViewController.h"
 #import "friendPlayViewController.h"
+#import "ProductionViewController.h"
+#import "homeYJModel.h"
 @interface MCplayViewController ()<UIScrollViewDelegate>
 {
     UITextField *_searchtext;
@@ -26,9 +28,21 @@
 @end
 
 @implementation MCplayViewController
+-(void)disXQDatadetailObj:(NSNotification*)notication{
+    NSDictionary * dic = (NSDictionary*)notication.object;
+    ProductionViewController *ctl = [[ProductionViewController alloc]init];
+    ctl.home_model = dic[@"model"];
+    ctl.dataArray = dic[@"dataArray"];
+    ctl.index = [dic [@"index"] integerValue];//indexPath.section;
 
+    [self pushNewViewController:ctl];
+    
+    
+}
 - (void)viewDidLoad {
     [super viewDidLoad];
+    //监听跳详情
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(disXQDatadetailObj:) name:@"disXQDatadetailObjNotification" object:nil];
     self.view.backgroundColor = [UIColor whiteColor];
     [self setUpNavBar];
     [self prepareCurrentScrollView];

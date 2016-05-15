@@ -9,6 +9,10 @@
 #import <UIKit/UIKit.h>
 
 @interface HomeCollectionViewCell : UICollectionViewCell
+@property(nonatomic,strong)UIButton * headerimgBtn;
+@property(nonatomic,strong)UIButton * buyBtn;
+
+
 
 -(void)prepareMeUI;
 

@@ -38,6 +38,9 @@
 
 //新浪微博SDK头文件
 #import "WeiboSDK.h"
+#import "MCCWYJ-Bridging-Header.h"
+
+#import "MCCWYJ-Swift.h"
 
 
 // Include any system framework and library headers here that should be included in all compilation units.

@@ -10,14 +10,27 @@
 #import "JT3DScrollView.h"
 #import "zuopinDataView.h"
 #import "homeYJModel.h"
+#import "UIImageView+LBBlurredImage.h"
+#import "HcCustomKeyboard.h"
 
-@interface ProductionViewController ()
+@interface ProductionViewController ()<zuopinDataViewDeleGate,UIScrollViewDelegate,UITextViewDelegate,HcCustomKeyboardDelegate>
 {
     JT3DScrollView *_scrollView;
     UIButton * _backBtn;
     UIButton * _fenxianBtn;
+    NSMutableArray * _viewArray;
+    BOOL _iszuozhe;
+
+    
+    BOOL _ishuifu;
+    homeYJModel * _homeNodel2;
+    pinglunModel *_pinglunModel;
+    NSInteger _viewidex;
+
+
 
 }
+@property(nonatomic,strong)UIImageView *bgimgView;
 
 @end
 
@@ -27,15 +40,38 @@
     self = [super initWithNibName:nibNameOrNil bundle:nibBundleOrNil];
     if (self) {
         
-        
-        
+        _viewArray = [NSMutableArray array];
+
+                [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(didSelectjubaoObj:) name:@"didjubaoObjNotification" object:nil];
     }
     
     return self;
 }
+- (void)viewWillAppear:(BOOL)animated
+{
+    [super viewWillAppear:animated];
+    [MobClick beginLogPageView:@"zuopinXQView"];
+    self.navigationController.navigationBarHidden = YES;
+}
+- (void)viewWillDisappear:(BOOL)animated {
+    [super viewWillDisappear:animated];
+    [MobClick endLogPageView:@"zuopinXQView"];
+    self.navigationController.navigationBarHidden = NO;
 
+}
 - (void)viewDidLoad {
     [super viewDidLoad];
+    [[HcCustomKeyboard customKeyboard]textViewShowView:self customKeyboardDelegate:self];
+    [[HcCustomKeyboard customKeyboard].zuozheBtn addTarget:self action:@selector(actionzhezhe:) forControlEvents:UIControlEventTouchUpInside];
+    [HcCustomKeyboard customKeyboard].mTextView.tag = 808;
+
+    _bgimgView = [[UIImageView alloc]initWithFrame:CGRectMake(0, 0, Main_Screen_Width, Main_Screen_Height)];
+    [self.view addSubview:_bgimgView];
+    [_bgimgView setImageToBlur:[UIImage imageNamed:@"login_bg_720"] completionBlock:^{
+        
+    }];
+
+    [self prepareUI2];
     // Do any additional setup after loading the view.
 }
 -(void)prepareUI2{
@@ -43,10 +79,12 @@
     
     
     _scrollView = [[JT3DScrollView alloc]initWithFrame:CGRectMake(40, 64, Main_Screen_Width - 80, Main_Screen_Height - 64-1)];
+    //295+80//375
     _scrollView.effect = JT3DScrollViewEffectDepth;
     _scrollView.backgroundColor = [UIColor clearColor];
     _scrollView.delegate = self;
     [self.view addSubview:_scrollView];
+    
     for (int i = 0; i < _dataArray.count; i ++) {
         [self createCardWithColor:i];
     }
@@ -80,45 +118,331 @@
     // contr = [[zuopinDataViewController alloc] initFrame:CGRectMake(x, 0, width, height)];
     zuopinDataView * zuoView = [[zuopinDataView alloc]initWithFrame:CGRectMake(x, 0, width, height)];
     ViewRadius(zuoView, 10);
-//    homeYJModel * model = _dataArray[index];
-//    zuoView.indexId = index;
-//    zuoView.classifyDic = self.classifyDic;
-////    zuoView.home_model = model;
-//    zuoView.deleGate = self;
-//    
-////    [_viewArray addObject:zuoView];
-//    if (index == _index ) {
-//        if ( model.photos) {
-//            
-//            //  NSDictionary * dicimg = model.photos[0];
-//            __weak typeof(UIImageView*)bg_imgView = _bgimgView;
-//            UIImageView * imgViewmc = [[UIImageView alloc]init];
-//            YJphotoModel * photoModel = model.YJphotos[0];
-//            [imgViewmc sd_setImageWithURL:[NSURL URLWithString:photoModel.raw] placeholderImage:[UIImage imageNamed:@"login_bg_720"] completed:^(UIImage *image, NSError *error, SDImageCacheType cacheType, NSURL *imageURL) {
-//                [bg_imgView setImageToBlur:imgViewmc.image completionBlock:^{
-//                    
-//                }];
-//                
-//                
-//            }];
-//        }
-//        else
-//        {
-//            // _bgimgView.image = [self blurryImage:[UIImage imageNamed:@"login_bg_720"]  withBlurLevel:44];
-//            [_bgimgView setImageToBlur:[UIImage imageNamed:@"login_bg_720"] completionBlock:^{
-//                
-//            }];
-//        }
-//        [zuoView loadData:YES];
-//    }
-//    
-//    // contr.view.backgroundColor = [UIColor yellowColor];//
+    homeYJModel * model = _dataArray[index];
+    zuoView.indexId = index;
+    zuoView.classifyDic = self.classifyDic;
+    zuoView.home_model = model;
+    zuoView.deleGate = self;
+    
+   [_viewArray addObject:zuoView];
+    if (index == _index ) {
+        if ( model.photos) {
+            
+            //  NSDictionary * dicimg = model.photos[0];
+            __weak typeof(UIImageView*)bg_imgView = _bgimgView;
+            UIImageView * imgViewmc = [[UIImageView alloc]init];
+            YJphotoModel * photoModel = model.YJphotos[0];
+            [imgViewmc sd_setImageWithURL:[NSURL URLWithString:photoModel.raw] placeholderImage:[UIImage imageNamed:@"login_bg_720"] completed:^(UIImage *image, NSError *error, SDImageCacheType cacheType, NSURL *imageURL) {
+                
+                
+            }];
+        }
+        else
+        {
+            // _bgimgView.image = [self blurryImage:[UIImage imageNamed:@"login_bg_720"]  withBlurLevel:44];
+            [_bgimgView setImageToBlur:[UIImage imageNamed:@"login_bg_720"] completionBlock:^{
+                
+            }];
+        }
+        [zuoView loadData:YES];
+    }
+    
+    // contr.view.backgroundColor = [UIColor yellowColor];//
     [_scrollView addSubview:zuoView];
     _scrollView.contentSize = CGSizeMake(x + width, height);
 }
 
 
+-(void)zhuan:(NSString *)str
+{
+    [self showLoading];
+}
+-(void)stop:(NSString *)str
+{
+    [self stopshowLoading];
+//    if (str) {
+//        [self showHint:str];
+//    }
+    
+}
+#pragma mark-返回
+-(void)actionBackBtn{
+    [_scrollView removeFromSuperview];
+    [self.navigationController popViewControllerAnimated:YES];
+    
+    
+    
+}
+-(void)scrollViewDidEndDecelerating:(UIScrollView *)scrollView
+{
+    _index = (scrollView.contentOffset.x  )/(Main_Screen_Width - 80);
+    
+    zuopinDataView * view = _viewArray[_index];
+    
+    if ( !view.isLoda) {
+        
+        view.pagrStr = 1;
+        [view loadData:YES];
+        //[view.tableView reloadData];
+    }
+    homeYJModel * model = _dataArray[_index];
+    
+    if (view.bg_imgView.image) {
+        
+        float kCompressionQuality = 0.3;
+        NSData *photo = UIImageJPEGRepresentation(view.bg_imgView.image, kCompressionQuality);
+        UIImage * img = [UIImage imageWithData:photo];
+        //_bgimgView.image = [self blurryImage:img withBlurLevel:44];
+        
+        
+        // _bgimgView.image  = img;
+        [_bgimgView setImageToBlur:img completionBlock:^{
+            
+        }];
+        
+        
+    }
+    else
+    {
+        // _bgimgView.image = [self blurryImage:[UIImage imageNamed:@"login_bg_720"]  withBlurLevel:44];
+        [_bgimgView setImageToBlur:[UIImage imageNamed:@"login_bg_720"] completionBlock:^{
+            
+        }];
+        
+    }
+    
+    
+}
+#pragma mark-评论
+-(void)pinglunModel:(homeYJModel *)model Index:(NSInteger)index IsHuifu:(BOOL)ishuifu PinglunModel:(pinglunModel *)pinglunModel
+{
+    _ishuifu = ishuifu;
+    _pinglunModel = pinglunModel;
+    
+    _homeNodel2 = model;
+    _viewidex = index;
+    
+    [[HcCustomKeyboard customKeyboard].mTextView becomeFirstResponder];
+    [HcCustomKeyboard customKeyboard].mTextView.delegate = self;
+    if (_ishuifu){
+        [HcCustomKeyboard customKeyboard].zuozheBtn.hidden = YES;
+        
+        
+        NSString *ss = [NSString stringWithFormat:@"回复 %@ :",_pinglunModel.userModel.nickname];
+        
+        //        [HcCustomKeyboard customKeyboard].mTextView.text = [NSString stringWithFormat:@"回复 %@ :",_pinglunModel.userModel.nickname];
+        NSMutableAttributedString *btn_arrstring = [[NSMutableAttributedString alloc] initWithString:ss];
+        
+        [btn_arrstring addAttributes:@{NSForegroundColorAttributeName : RGBCOLOR(75, 142, 244),	NSFontAttributeName : [UIFont systemFontOfSize:12]} range:NSMakeRange(3, _pinglunModel.userModel.nickname.length)];
+        
+        [[HcCustomKeyboard customKeyboard].mTextView setAttributedText:btn_arrstring];
+        //  [HcCustomKeyboard customKeyboard].mTextView.;
+        
+    }
+    else
+    {
+        [HcCustomKeyboard customKeyboard].zuozheBtn.hidden = NO;
+        //                [HcCustomKeyboard customKeyboard].mTextView.text = @"";
+        
+    }
 
+    
+}
+-(void)actionzhezhe:(UIButton*)btn{
+    UITextView *  TextView = (UITextView*)[self.view viewWithTag:808];
+    
+    if(btn.selected){
+        btn.selected = NO;
+        _iszuozhe = NO;
+        if (IOS8) {
+            
+            if ([TextView.text containsString:@"@作者"]) {
+                NSMutableString * ss = [NSMutableString stringWithString:TextView.text];
+                NSRange rr = {0,3};
+                [ss deleteCharactersInRange:rr];
+                TextView.text = ss;
+                //                NSMutableAttributedString*  btn_arrstring = [[NSMutableAttributedString alloc] initWithString:titleStr];
+                //
+                //                [btn_arrstring setAttributes:@{NSForegroundColorAttributeName : RGBCOLOR(249, 77, 33),	NSFontAttributeName : [UIFont systemFontOfSize:13]} range:NSMakeRange(0, 4)];
+                //                [_titleLbl setAttributedText:btn_arrstring];
+                
+            }
+            else
+            {
+                //                _titleLbl.text = titleStr;
+                //                // [_titleLbl setAttributedText:titleStr];
+                //
+            }
+        }
+        else
+        {
+            NSRange range = [TextView.text rangeOfString:@"@作者"];//判断字符串是否包含
+            if (range.length >0)//包含
+            {
+                NSMutableString * ss = [NSMutableString stringWithString:TextView.text];
+                NSRange rr = {0,3};
+                [ss deleteCharactersInRange:rr];
+                TextView.text = ss;
+                
+
+            }
+            else//不包含
+            {
+                // _titleLbl.text = titleStr;
+            }
+        }
+        
+        
+        //        if ([textStr containsString:@"@作者"]) {
+        //            NSLog(@"you");
+        //        }
+        //        rgFadeView.msgTextView.text = textStr;
+    }
+    else
+    {
+        btn.selected = YES;
+        _iszuozhe = YES;
+        if (IOS8) {
+            
+            if ([TextView.text containsString:@"@作者"]) {
+
+                
+            }
+            else
+            {
+                NSMutableString * ss = [NSMutableString stringWithString:TextView.text];
+                [ss insertString:@"@作者" atIndex:0];
+                TextView.text = ss;
+                
+                //                _titleLbl.text = titleStr;
+                //                // [_titleLbl setAttributedText:titleStr];
+                //
+            }
+        }
+        else
+        {
+            NSRange range = [TextView.text rangeOfString:@"@作者"];//判断字符串是否包含
+            if (range.length >0)//包含
+            {
+
+            }
+            else//不包含
+            {
+                NSMutableString * ss = [NSMutableString stringWithString:TextView.text];
+                [ss insertString:@"@作者" atIndex:0];
+                TextView.text = ss;
+                // _titleLbl.text = titleStr;
+            }
+        }
+        
+        
+        //        textStr =[NSString stringWithFormat:@"@作者%@",textStr];
+        //        rgFadeView.msgTextView.text = textStr;
+    }
+    
+}
+-(void)talkBtnClick:(UITextView *)textViewGet
+{
+    NSLog(@"%@",textViewGet.text);
+    if (!textViewGet.text.length) {
+        //        textViewGet.text = nil;
+        //        // [rgFadeView removeFromSuperview];
+        //        // [self showAllTextDialog:@"请输入你评论内容"];
+        return;
+    }
+    if (_iszuozhe) {
+        NSMutableString * ss = [NSMutableString stringWithString:textViewGet.text];
+        
+        NSRange range = [ss rangeOfString:@"@作者"];//判断字符串是否包含
+        if (range.length >0)//包含
+        {
+            NSRange rr = {0,3};
+            [ss deleteCharactersInRange:rr];
+            textViewGet.text = ss;
+            
+        }
+        else//不包含
+            
+        {
+            
+        }
+        
+        
+        
+        
+    }
+    else
+    {
+        
+    }
+    
+    NSDictionary * Parameterdic = @{
+                                    @"isRemindAuthor":@(_iszuozhe),
+                                    @"targetId":_homeNodel2.id,
+                                    @"content":textViewGet.text
+                                    };
+    
+    
+    [self showLoading];
+    [self.requestManager postWithUrl:@"api/travel/comment/add.json" refreshCache:NO params:Parameterdic IsNeedlogin:YES success:^(id resultDic) {
+        [self stopshowLoading];
+        NSLog(@"评论成功");
+        NSLog(@"返回==%@",resultDic);
+        [self showAllTextDialog:@"评论成功"];
+        textViewGet.text = @"";
+        zuopinDataView * view = _viewArray[_viewidex];
+        view.pagrStr = 1;
+        [view.dataPingLunArray removeAllObjects];
+        [view loadData:YES];
+        //[self loadData:YES];
+        _iszuozhe = NO;
+        [[HcCustomKeyboard customKeyboard].zuozheBtn setSelected:NO];
+        
+        
+    } fail:^(NSURLSessionDataTask *operation, NSError *error, NSString *description) {
+        [self stopshowLoading];
+        [self showAllTextDialog:description];
+        NSLog(@"失败");
+
+        
+    }];
+    
+    
+    
+    
+}
+
+- (BOOL)textView:(UITextView *)textView shouldChangeTextInRange:(NSRange)range replacementText:(NSString *)text{
+    NSLog(@"%d",textView.text.length);
+    
+    if (_ishuifu) {
+        NSString *ss = [NSString stringWithFormat:@"回复 %@ :",_pinglunModel.userModel.nickname];
+        NSString * aString = [textView.text stringByReplacingCharactersInRange:range withString:text];
+        if (aString.length < ss.length) {
+            
+            return NO;
+        }
+    }
+    
+    if ([text isEqualToString:@"\n"]){ //判断输入的字是否是回车，即按下return
+        //在这里做你响应return键的代码
+        //[textView resignFirstResponder];
+        // [self actionsend];
+        return NO; //这里返回NO，就代表return键值失效，即页面上按下return，不会出现换行，如果为yes，则输入页面会换行
+    }
+    
+    return YES;
+}
+#pragma mark- 举报
+-(void)didSelectjubaoObj:(NSNotification*)Notification{
+    NSString * youjiid = Notification.object;
+    
+    jubaoViewController * ctl = [[jubaoViewController alloc]init];
+    ctl._youjiId = youjiid;
+    [self pushNewViewController:ctl];
+    
+    
+}
 - (void)didReceiveMemoryWarning {
     [super didReceiveMemoryWarning];
     // Dispose of any resources that can be recreated.

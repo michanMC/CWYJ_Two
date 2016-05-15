@@ -94,7 +94,7 @@
 //    }
 //    else
     
-        cell.imageView.image = [UIImage imageNamed:@"123"];
+        cell.imageView.image = [UIImage imageNamed:@"home_banner"];
     //
     
     return cell;
@@ -128,8 +128,7 @@
     lbl.textColor = AppCOLOR;
     [self addSubview:lbl];
     _modeBtn = [[UIButton alloc]initWithFrame:CGRectMake(Main_Screen_Width - 10 - 30 , 5, 30, 30)];
-    _modeBtn.backgroundColor = [UIColor redColor];
-    
+    [_modeBtn setImage:[UIImage imageNamed:@"home_icon_more"] forState:0];
     [self addSubview:_modeBtn];
 
     

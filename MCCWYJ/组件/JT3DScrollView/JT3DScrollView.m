@@ -128,7 +128,7 @@
         CGFloat angle = distanceFromCenterX * self.angleRatio;
         
         CGFloat offset = distanceFromCenterX;
-        CGFloat translateX = (CGRectGetWidth(self.frame) * self.translateX) * offset / 300.;
+        CGFloat translateX = (CGRectGetWidth(self.frame) * self.translateX) * offset / (Main_Screen_Width - 20);
         CGFloat translateY = (CGRectGetWidth(self.frame) * self.translateY) * abs(offset) / 100.;
         
         

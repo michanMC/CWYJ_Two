@@ -16,11 +16,11 @@
 #import "UIImageView+LBBlurredImage.h"
 
 @interface zuopinDataView ()<UITableViewDelegate,UITableViewDataSource,UITextViewDelegate>{
-    RGFadeView * rgFadeView;
+    
+//    RGFadeView * rgFadeView;
     BOOL _iszuozhe;
     BOOL _ispinglun;
     BOOL _isloadImg;
-    
     CGRect _viewFrame;
     BOOL _isjiagengduo;
     
@@ -39,8 +39,9 @@
         _viewFrame = frame;
         _dataPingLunArray = [NSMutableArray array];
         _pagrStr = 1;
-        _requestManager = [NetworkManager instanceManager];
-        _requestManager.needSeesion = YES;
+//        _requestManager = [NetworkManager instanceManager];
+//        _requestManager.needSeesion = YES;
+        _requestManager = [MCNetworkManager instanceManager];
 
         _isjiagengduo = NO;
     }
@@ -65,7 +66,7 @@
     
     _tableView.tableHeaderView = [self addHeadView:_home_model.photos.count];
     _tableView.separatorStyle = UITableViewCellSeparatorStyleNone;
-    [_tableView addFooterWithTarget:self action:@selector(fooershuaxin)];
+    //[_tableView addFooterWithTarget:self action:@selector(fooershuaxin)];
     [self addSubview:_tableView];
     
     
@@ -80,9 +81,10 @@
 }
 
 -(UIView*)addHeadView:(NSInteger)indexCount{
-    UIView * bgview = [[UIView alloc]initWithFrame:CGRectMake(0, 0, Main_Screen_Width - 80, Main_Screen_Width - 80)];
     
-    UIView *imgbgView = [[UIView alloc]initWithFrame:CGRectMake(0, 0, Main_Screen_Width - 80, Main_Screen_Width - 80)];
+    UIView * bgview = [[UIView alloc]initWithFrame:CGRectMake(0, 0, self.mj_w, self.mj_w)];
+    
+    UIView *imgbgView = [[UIView alloc]initWithFrame:CGRectMake(0, 0, self.mj_w, self.mj_w)];
     
     [bgview addSubview:imgbgView];
     
@@ -97,7 +99,8 @@
     YJphotoModel * photomodel;
     CGRect imgfram;
     if (indexCount == 1) {
-        imgfram = CGRectMake(0, 0, Main_Screen_Width - 80, Main_Screen_Width - 80);
+        imgfram = CGRectMake(0, 0, self.mj_w, self.mj_w);
+        //295
         photomodel = _home_model.YJphotos[0];
         UIButton * imgView =[self addImgView:imgfram ImgStr:@"travels-details_default-chart01" ImgUrlStr:photomodel.raw];
         imgView.tag = 400;
@@ -112,7 +115,7 @@
         
         for (int  i = 0; i < 2 ; i++) {
             photomodel = _home_model.YJphotos[i];
-            imgfram = CGRectMake(((Main_Screen_Width - 80 - 2)/2 + 2) *i, 0, (Main_Screen_Width - 80 - 2)/2, Main_Screen_Width - 80);
+            imgfram = CGRectMake(((self.mj_w - 2)/2 + 2) *i, 0, (self.mj_w - 2)/2, self.mj_w);
             UIButton * imgView =[self addImgView:imgfram ImgStr:@"travels-details_default-chart02" ImgUrlStr:photomodel.raw];
             imgView.tag = 400 +i;
             [imgView addTarget:self action:@selector(showTupian:) forControlEvents:UIControlEventTouchUpInside];
@@ -128,8 +131,8 @@
     else if(indexCount == 3){
         CGFloat x = 0;
         CGFloat y = 0;
-        CGFloat width = (Main_Screen_Width- 2 - 80)/2;
-        CGFloat height = Main_Screen_Width - 80;
+        CGFloat width = (self.mj_w- 2 )/2;
+        CGFloat height = self.mj_w;
         for (int  i = 0; i < 3 ; i++) {
             photomodel = _home_model.YJphotos[i];
             imgfram = CGRectMake(x, y, width, height);
@@ -165,8 +168,8 @@
     else if(indexCount == 4){
         CGFloat x = 0;
         CGFloat y = 0;
-        CGFloat width = (Main_Screen_Width- 2 - 80)/2;
-        CGFloat height = (Main_Screen_Width - 80 - 2) / 2;
+        CGFloat width = (self.mj_w - 2)/2;
+        CGFloat height = (self.mj_w - 2) / 2;
         
         for (int  i = 0; i < 4 ; i++) {
             photomodel = _home_model.YJphotos[i];
@@ -198,8 +201,9 @@
     imgView.imageView.contentMode = UIViewContentModeScaleAspectFill;
 
    // imgView.imageView.contentMode = UIViewContentModeScaleAspectFill;
-    [imgView sd_setImageWithURL:[NSURL URLWithString:[NSString stringWithFormat:@"%@",imgUrlStr]] forState:0 placeholderImage:[UIImage imageNamed:imgStr]];
-  //  [imgView sd_setBackgroundImageWithURL:[NSURL URLWithString:[NSString stringWithFormat:@"%@",imgUrlStr]] forState:0 placeholderImage:[UIImage imageNamed:imgStr]];
+    
+    //[imgView sd_setImageWithURL:[NSURL URLWithString:[NSString stringWithFormat:@"%@",imgUrlStr]] forState:0 placeholderImage:[UIImage imageNamed:imgStr]];
+   [imgView sd_setBackgroundImageWithURL:[NSURL URLWithString:[NSString stringWithFormat:@"%@",imgUrlStr]] forState:0 placeholderImage:[UIImage imageNamed:imgStr]];
     
     
     
@@ -304,7 +308,7 @@
             cell = [[zuopinQxTableViewCell alloc]initWithStyle:UITableViewCellStyleDefault reuseIdentifier:cellid1];
         }
         cell.selectionStyle = UITableViewCellSelectionStyleNone;
-        CGFloat h = [MCIucencyView heightforString:_home_model.content andWidth:Main_Screen_Width - 80 - 30 fontSize:13];
+        CGFloat h = [MCIucencyView heightforString:_home_model.content andWidth:self.mj_w - 30 fontSize:13];
         
         if (h > 20) {
             
@@ -406,18 +410,21 @@
         if (indexPath.row == 0) {
             zuopinQx2TableViewCell * cell = [tableView dequeueReusableCellWithIdentifier:cellid2];
             if (!cell) {
-                cell = [[[NSBundle mainBundle]loadNibNamed:cellid2 owner:self options:nil]lastObject];
+                cell = [[zuopinQx2TableViewCell alloc]initWithStyle:UITableViewCellStyleDefault reuseIdentifier:cellid2];
+                
+              //  cell = [[[NSBundle mainBundle]loadNibNamed:cellid2 owner:self options:nil]lastObject];
             }
             
             cell.selectionStyle = UITableViewCellSelectionStyleNone;
-            cell.pinglunShuLbl.text = [NSString stringWithFormat:@"(%ld)",_dataPingLunArray.count];
+            [cell prepareUI:[NSString stringWithFormat:@"(%ld)",_dataPingLunArray.count]];
+            
            
             cell.BgView.tag = 888;
-            cell.BgView.hidden = !_ispinglun;
+           cell.BgView.hidden = !_ispinglun;
             cell.pinglunBtn.tag = 880;
             [cell.pinglunBtn addTarget:self action:@selector(ActionPinjia:) forControlEvents:UIControlEventTouchUpInside];
-            [cell.jubaoBtn addTarget:self action:@selector(ActionjubaoBtn) forControlEvents:UIControlEventTouchUpInside];
-            [cell.showBtn addTarget:self action:@selector(actionShow:) forControlEvents:UIControlEventTouchUpInside];
+           [cell.jubaoBtn addTarget:self action:@selector(ActionjubaoBtn) forControlEvents:UIControlEventTouchUpInside];
+           [cell.showBtn addTarget:self action:@selector(actionShow:) forControlEvents:UIControlEventTouchUpInside];
             
             
             
@@ -560,7 +567,7 @@
                                     
                                     };
     
-    
+    /*
    // [self showLoading:iszhuan AndText:nil];
     [self.requestManager requestWebWithParaWithURL:@"api/travel/detail.json" Parameter:Parameterdic IsLogin:YES Finish:^(NSDictionary *resultDic) {
         //[self hideHud];
@@ -581,7 +588,7 @@
     }];
     
     
-    
+    */
     
 }
 
@@ -611,6 +618,7 @@
         collection = @"api/travle/collection/add.json";
         
     }
+    /*
     [_deleGate zhuan:nil];
     //[self showLoading:YES AndText:nil];
     [self.requestManager requestWebWithParaWithURL:collection Parameter:Parameterdic IsLogin:YES Finish:^(NSDictionary *resultDic) {
@@ -634,7 +642,7 @@
         NSLog(@"失败");
     }];
     
-    
+    */
     
     
 }
@@ -646,19 +654,16 @@
                                     @"travelId":_home_model.id,
                                     
                                     };
+    
+    
     if (iszhuan)
     [_deleGate zhuan:nil];
 
     //[self showLoading:iszhuan AndText:nil];
-    [_requestManager requestWebWithParaWithURL:@"api/travel/comment/query.json" Parameter:Parameterdic IsLogin:NO Finish:^(NSDictionary *resultDic) {
-        //[self hideHud];
+    [_requestManager postWithUrl:@"api/travel/comment/query.json" refreshCache:NO params:Parameterdic IsNeedlogin:NO success:^(id resultDic) {
         [_deleGate stop:nil];
         NSLog(@"成功");
         NSLog(@"评论列表返回==%@",resultDic);
-        
-        
-        //        [_dataPingLunArray removeAllObjects];
-        
         for (NSDictionary * dic in resultDic[@"object"]) {
             pinglunModel * model = [pinglunModel mj_objectWithKeyValues:dic];
             
@@ -667,17 +672,17 @@
             
         }
         
-        [_tableView footerEndRefreshing];
+//        [_tableView footerEndRefreshing];
         [_tableView reloadData];
         
-        
-        
-    } Error:^(AFHTTPRequestOperation *operation, NSError *error, NSString *description) {
-        [_tableView footerEndRefreshing];
-//        [self hideHud];
-//        [self showAllTextDialog:description];
-       [_deleGate stop:nil];
+
+    } fail:^(NSURLSessionDataTask *operation, NSError *error, NSString *description) {
+//        [_tableView footerEndRefreshing];
+        //        [self hideHud];
+        //        [self showAllTextDialog:description];
+        [_deleGate stop:nil];
         NSLog(@"失败");
+
     }];
     
     
@@ -687,8 +692,20 @@
 #pragma mark-评价
 -(void)ActionPinjia:(UIButton*)btn{
     
-    if (btn.tag == 880) {
+    UIView * view = (UIView*)[self viewWithTag:888];
+    if (view.hidden) {
+        view.hidden = NO;
+        _ispinglun = YES;
+    }
+    else
+    {
+        view.hidden = YES;
+        _ispinglun = NO;
+    }
+
     
+    if (btn.tag == 880) {
+        if (_deleGate)
     [_deleGate pinglunModel:_home_model Index:_indexId IsHuifu:NO PinglunModel:nil];
     
     }else
@@ -723,7 +740,7 @@
 #pragma mark-评论发送
 -(void)actionsend{
     
-    
+    /*
     [rgFadeView.msgTextView resignFirstResponder];
     rgFadeView.hidden = YES;
     
@@ -740,6 +757,8 @@
                                     @"targetId":_home_model.id,
                                     @"content":rgFadeView.msgTextView.text
                                     };
+     */
+    /*
     
     [_deleGate zhuan:nil];
     //[self showLoading:YES AndText:nil];
@@ -767,6 +786,7 @@
         [_deleGate stop:description];
         NSLog(@"失败");
     }];
+     */
     
 }
 -(void)tap:(UITapGestureRecognizer*)tap{
@@ -793,18 +813,29 @@
     
 }
 -(void)actionclose{
-    
+    /*
     [rgFadeView.msgTextView resignFirstResponder];
     rgFadeView.msgTextView.text = @"";
     
     rgFadeView.hidden = YES;
     rgFadeView = nil;
     [rgFadeView removeFromSuperview];
+     */
 }
 #pragma mark-举报
 -(void)ActionjubaoBtn{
     
-    
+    UIView * view = (UIView*)[self viewWithTag:888];
+    if (view.hidden) {
+        view.hidden = NO;
+        _ispinglun = YES;
+    }
+    else
+    {
+        view.hidden = YES;
+        _ispinglun = NO;
+    }
+
     
     //发送通知
     [[NSNotificationCenter defaultCenter] postNotificationName:@"didjubaoObjNotification" object:_home_model.id];

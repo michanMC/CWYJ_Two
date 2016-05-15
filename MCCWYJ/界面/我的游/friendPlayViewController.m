@@ -7,12 +7,14 @@
 //
 
 #import "friendPlayViewController.h"
-
+#import "homeYJModel.h"
+#import "YJTableViewCell.h"
 @interface friendPlayViewController ()<UITableViewDataSource,UITableViewDelegate>
 {
     UITableView *_tableView;
     
-    
+    NSMutableArray *_dataAarray;//数据源
+    NSInteger  _pageStr;
     
 }
 
@@ -20,20 +22,46 @@
 @end
 
 @implementation friendPlayViewController
+-(void)disquery2Obj:(NSNotification*)notication{
+    _pageStr = 1;
+    [self loadData];
+    
+}
 
 - (void)viewDidLoad {
     [super viewDidLoad];
+    //刷新数据
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(disquery2Obj:) name:@"disquery2ObjNotification" object:nil];
+    
+    _dataAarray  =[NSMutableArray array];
+    _pageStr = 1;
+
 //    self.view.backgroundColor = [UIColor yellowColor];
     _tableView = [[UITableView alloc]initWithFrame:CGRectMake(0, 0, Main_Screen_Width, Main_Screen_Height - 44 - 64 - 49) style:UITableViewStyleGrouped];
     _tableView.delegate =self;
     _tableView.dataSource = self;
     [self.view addSubview:_tableView];
-
+    _tableView.mj_header = [MJRefreshNormalHeader headerWithRefreshingTarget:self refreshingAction:@selector(RefreshHeader)];
+    _tableView.mj_footer = [MJRefreshAutoNormalFooter footerWithRefreshingTarget:self refreshingAction:@selector(RefreshFooter)];
+    [self loadData];
     // Do any additional setup after loading the view.
 }
+-(void)RefreshHeader{
+    _pageStr = 1;
+    [self loadData];
+    
+    
+}
+-(void)RefreshFooter{
+    _pageStr ++;
+    [self loadData];
+    
+    
+}
+
 -(NSInteger)numberOfSectionsInTableView:(UITableView *)tableView
 {
-    return 10;
+    return _dataAarray.count;
 }
 -(NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section{
     return 1;
@@ -45,12 +73,90 @@
     return 0.001;
 }
 -(CGFloat)tableView:(UITableView *)tableView heightForRowAtIndexPath:(NSIndexPath *)indexPath{
-    return 100;
+    return 100 *MCHeightScale + 15 + 20 + 15;
 }
 -(UITableViewCell*)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath
 {
+    
+    if (_dataAarray.count > indexPath.section) {
+        static NSString * cellid = @"mc1";
+        YJTableViewCell * cell = [tableView dequeueReusableCellWithIdentifier:cellid];
+        if (!cell) {
+            cell = [[YJTableViewCell alloc]initWithStyle:UITableViewCellStyleDefault reuseIdentifier:cellid];
+        }
+        //        cell.selectionStyle =
+        homeYJModel * model= _dataAarray[indexPath.section];
+        [cell prepareUI:model];
+        return cell;
+    }
+    
+    
+    
     return [[UITableViewCell alloc]init];
 }
+-(void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath
+{
+    [tableView deselectRowAtIndexPath:indexPath animated:YES];
+    homeYJModel * model = _dataAarray[indexPath.section];
+    NSDictionary * dic = @{
+                           @"model":model,
+                           @"dataArray":_dataAarray,
+                           @"index": [NSString stringWithFormat:@"%zd", indexPath.section]
+                           };
+    
+    //发送通知
+    [[NSNotificationCenter defaultCenter] postNotificationName:@"disXQDatadetailObjNotification" object:dic];
+}
+#pragma mark-加载数据
+-(void)loadData{
+    NSMutableDictionary * Parameterdic = [NSMutableDictionary dictionary];
+    
+    [Parameterdic  setObject:@(_pageStr) forKey:@"page"];
+    //    [Parameterdic  setObject:@(0) forKey:@"spotId"];
+    //    [Parameterdic  setObject:@(0) forKey:@"classify"];
+    //
+    //    [Parameterdic  setObject:@(5000) forKey:@"distance"];
+    //    [Parameterdic  setObject:@(0) forKey:@"isRecommend"];
+    
+    [Parameterdic setObject:@([MCMApManager sharedInstance].la) forKey:@"lat"];
+    [Parameterdic setObject:@([MCMApManager sharedInstance].lo) forKey:@"lng"];
+    
+    [self showLoading];
+    [self.requestManager postWithUrl:@"api/travel/query.json" refreshCache:NO params:Parameterdic IsNeedlogin:NO success:^(id resultDic) {
+        [self stopshowLoading];
+        NSLog(@"resultDic == %@",resultDic);
+        NSArray * objectArray = resultDic[@"object"];
+        for (NSDictionary* dic in objectArray) {
+            homeYJModel * model = [homeYJModel mj_objectWithKeyValues:dic];
+            model.userModel = [YJUserModel mj_objectWithKeyValues:dic[@"user"]];
+            NSLog(@"%@",model.userModel.isNew);
+            
+            if (model.photos) {
+                for (NSDictionary * photodic in model.photos) {
+                    YJphotoModel * photomodel = [YJphotoModel mj_objectWithKeyValues:photodic];
+                    [model.YJphotos addObject:photomodel];
+                }
+            }
+            
+            
+            [_dataAarray addObject:model];
+        }
+        [_tableView reloadData];
+        [_tableView.mj_header endRefreshing];
+        [_tableView.mj_footer endRefreshing];
+        
+    } fail:^(NSURLSessionDataTask *operation, NSError *error, NSString *description) {
+        [self stopshowLoading];
+        [self showAllTextDialog:description];
+        [_tableView.mj_header endRefreshing];
+        [_tableView.mj_footer endRefreshing];
+        
+        
+    }];
+    
+    
+}
+
 
 - (void)didReceiveMemoryWarning {
     [super didReceiveMemoryWarning];

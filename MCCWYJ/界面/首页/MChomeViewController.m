@@ -47,7 +47,7 @@
 //    [self.navigationController.navigationBar setShadowImage:[UIImage new]];//用于去除导航栏的底线，也就是周围的边线
     
     //刷新头像，地址
-        [_headBtn sd_setBackgroundImageWithURL:[NSURL URLWithString:[MCUserDefaults objectForKey:@"thumbnail"]] forState:0 placeholderImage:[UIImage imageNamed:@"home_mine_avatar2"]];
+        [_headBtn sd_setBackgroundImageWithURL:[NSURL URLWithString:[MCUserDefaults objectForKey:@"thumbnail"]] forState:0 placeholderImage:[UIImage imageNamed:@"home_Avatar_44"]];
     
     
     
@@ -66,8 +66,9 @@
 }
 - (void)viewDidLoad {
     [super viewDidLoad];
-    self.title = @"";
-    self.navigationController.title = @"首页";
+   // self.title = @"";
+//    self.navigationController.title = @"首页";
+    self.navigationItem.titleView = [[UIView alloc]init];
     _bannerArray = [NSMutableArray array];
     //监听头像的刷新
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(disTouXiangObj:) name:@"disTouXiangObjNotification" object:nil];
@@ -108,7 +109,7 @@
 
 -(void)disTouXiangObj:(NSNotification*)notication{
     //刷新头像，地址
-    [_headBtn sd_setBackgroundImageWithURL:[NSURL URLWithString:[MCUserDefaults objectForKey:@"thumbnail"]] forState:0 placeholderImage:[UIImage imageNamed:@"home_mine_avatar2"]];
+    [_headBtn sd_setBackgroundImageWithURL:[NSURL URLWithString:[MCUserDefaults objectForKey:@"thumbnail"]] forState:0 placeholderImage:[UIImage imageNamed:@"home_Avatar_44"]];
     
 }
 -(void)prepareCollectionView{
@@ -266,9 +267,9 @@
 
             
             
-            if (indexPath.section == 1|| indexPath.section == 2)
-                headView.backgroundColor = [UIColor whiteColor];
-            else
+//            if (indexPath.section == 1|| indexPath.section == 2)
+//                headView.backgroundColor = [UIColor whiteColor];
+//            else
                 headView.backgroundColor = [UIColor groupTableViewBackgroundColor];
 
 
@@ -301,8 +302,11 @@
 //    if (indexPath.section == 2)
     //item
 //    return CGSizeMake((Main_Screen_Width - 10)/2, 110*MCHeightScale + 85);
-    return CGSizeMake((Main_Screen_Width - 30)/2, 110*MCHeightScale + 85);
+    else if (indexPath.section == 3)
 
+    return CGSizeMake((Main_Screen_Width - 30)/2, 110*MCHeightScale + 85 + 30);
+
+    return CGSizeMake((Main_Screen_Width - 30)/2, 110*MCHeightScale + 85);
 
 }
 //定义每个UICollectionView 的 margin

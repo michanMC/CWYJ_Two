@@ -26,6 +26,12 @@
         view.layer.borderWidth = .5;
         view.layer.borderColor = [UIColor lightGrayColor].CGColor;
         [self.contentView addSubview:view];
+        UIImageView *imgview = [[UIImageView alloc]initWithFrame:CGRectMake(10, 10, 20, 20)];
+        //        imgview.backgroundColor = [UIColor redColor];
+        imgview.image = [UIImage imageNamed:@"login_user"];
+        imgview.contentMode = UIViewContentModeScaleAspectFit;
+        [view addSubview:imgview];
+
         _nameTextField = [[UITextField alloc]initWithFrame:CGRectMake(40, 0, view.mj_w - 45, h)];
         _nameTextField.placeholder = @"请输入账号";
         _nameTextField.textColor = [UIColor grayColor];
@@ -43,6 +49,12 @@
         view.layer.borderWidth = .5;
         view.layer.borderColor = [UIColor lightGrayColor].CGColor;
         [self.contentView addSubview:view];
+        imgview = [[UIImageView alloc]initWithFrame:CGRectMake(10, 10, 20, 20)];
+        //        imgview.backgroundColor = [UIColor redColor];
+        imgview.image = [UIImage imageNamed:@"login_lock"];
+        imgview.contentMode = UIViewContentModeScaleAspectFit;         [view addSubview:imgview];
+        
+
         _pwdTextField = [[UITextField alloc]initWithFrame:CGRectMake(40, 0, view.mj_w - 45, h)];
         _pwdTextField.placeholder = @"请输入密码";
         _pwdTextField.textColor = [UIColor grayColor];
