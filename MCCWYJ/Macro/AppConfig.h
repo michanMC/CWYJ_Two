@@ -43,8 +43,8 @@ typedef NS_OPTIONS(NSUInteger, HYHidenControlOptions) {
 #define AppFont     [UIFont systemFontOfSize:14]
 #define AppBgCOLOR      RGBACOLOR(240, 240, 240, 1);
 
-#define AppURL @"http://203.195.168.151:9000/hedgehogTravels/"
-//#define AppURL @"http://183.57.151.10:8080/hedgehogTravels/"
+//#define AppURL @"http://203.195.168.151:9000/hedgehogTravels/"
+#define AppURL @"http://183.57.151.10:8080/hedgehogTravels/"
 
 //#define AppURL @"http://app.cardm.net:8080/hedgehogTravels/"
 

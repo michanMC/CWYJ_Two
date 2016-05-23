@@ -13,7 +13,10 @@
 #import "friendPlayViewController.h"
 #import "ProductionViewController.h"
 #import "homeYJModel.h"
-@interface MCplayViewController ()<UIScrollViewDelegate>
+#import "MakeViewController.h"
+#import "MCscreenView.h"
+#import "SearchViewController.h"
+@interface MCplayViewController ()<UIScrollViewDelegate,MCscreenViewDelegate>
 {
     UITextField *_searchtext;
     HMSegmentedControl *_SegmentView;
@@ -22,6 +25,8 @@
     friendPlayViewController *_friendViewCtl;
 
 
+    BOOL _isShowScree;
+    MCscreenView * _screenview;
 
 }
 
@@ -51,6 +56,23 @@
     [self addfriendView];
     // Do any additional setup after loading the view.
 }
+#pragma mark-actionMake
+-(void)actionMake{
+    [self MCscreenhidden];
+
+    MakeViewController * ctl = [[MakeViewController alloc]init];
+   
+    
+    
+    [self pushNewViewController:ctl];
+    
+    
+    
+}
+
+
+
+
 -(void)setUpNavBar{
 
      MCIucencyView * seachView = [[MCIucencyView alloc]initWithFrame:CGRectMake(0, 0, Main_Screen_Width - 100, 30)];
@@ -75,7 +97,10 @@
      
      self.navigationItem.titleView = seachView;
     
- self.navigationItem.rightBarButtonItem = [[UIBarButtonItem alloc]initWithBarButtonSystemItem:UIBarButtonSystemItemCamera target:self action:nil];
+ self.navigationItem.rightBarButtonItem = [[UIBarButtonItem alloc]initWithBarButtonSystemItem:UIBarButtonSystemItemCamera target:self action:@selector(actionMake)];
+    
+    
+    
     CGFloat x = 10;
     CGFloat y = 25;
     CGFloat width = 30;
@@ -85,8 +110,49 @@
     
     [_screenBtn setImage:[UIImage imageNamed:@"home_mine_screened"] forState:0];
     self.navigationItem.leftBarButtonItem = [[UIBarButtonItem alloc]initWithCustomView:_screenBtn];
+    [_screenBtn addTarget:self action:@selector(action_screenBtn) forControlEvents:UIControlEventTouchUpInside];
+
+    
+    
 
 }
+-(void)action_screenBtn{
+    if (_isShowScree) {
+        _isShowScree = NO;
+        [_screenview removeFromSuperview];
+        
+    }
+    else
+    {
+        _isShowScree = YES;
+        _screenview = [[MCscreenView alloc]initWithFrame:CGRectMake(0, 64, Main_Screen_Width, Main_Screen_Height  - 64)];
+        NSDictionary * dic = @{
+                               @"like":@"0",
+                               @"classify":@"0",
+                               @"distance":@"0"
+                               };
+        
+        _screenview.delegate = self;
+        [_screenview IsMYBuy:NO DataDic:dic];
+        [_screenview showInWindow];
+        
+    }
+    
+    
+}
+-(void)MCscreenhidden
+{
+    _isShowScree = NO;
+    [_screenview removeFromSuperview];
+    
+}
+-(void)MCscreenselsctDic:(NSMutableDictionary *)selectDic
+{
+    [self MCscreenhidden];
+    NSLog(@"selectDic ==%@",selectDic);
+    
+}
+
 -(void)addAllSelect{
     //选择框
     _SegmentView = [[HMSegmentedControl alloc] initWithFrame:CGRectMake(0, 64, Main_Screen_Width, 44)];
@@ -115,8 +181,9 @@
 }
 #pragma mark-点搜索
 -(void)ActionsearchBtn{
-    
-    
+    [self MCscreenhidden];
+    SearchViewController  * ctl = [[SearchViewController alloc]init];
+    [self pushNewViewController:ctl];
     
 }
 -(void)prepareCurrentScrollView{

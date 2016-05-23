@@ -6,14 +6,14 @@
 //  Copyright © 2016年 MC. All rights reserved.
 //
 
-#import "SettViewViewController.h"
+#import "SettViewController.h"
 #import "changNameViewController.h"
 #import "AddressViewController.h"
 #import "SafetyViewController.h"
 #import "AboutViewController.h"
 #import "SystemSettViewController.h"
 #import "GengxinViewController.h"
-@interface SettViewViewController ()<UITableViewDelegate,UITableViewDataSource,UIActionSheetDelegate,UIImagePickerControllerDelegate,UINavigationControllerDelegate>
+@interface SettViewController ()<UITableViewDelegate,UITableViewDataSource,UIActionSheetDelegate,UIImagePickerControllerDelegate,UINavigationControllerDelegate>
 {
     UITableView * _tableView;
     UIButton * _headBtn;
@@ -25,7 +25,7 @@
 
 @end
 
-@implementation SettViewViewController
+@implementation SettViewController
 
 - (void)viewDidLoad {
     [super viewDidLoad];

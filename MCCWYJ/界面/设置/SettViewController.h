@@ -8,6 +8,6 @@
 
 #import "BaseViewController.h"
 
-@interface SettViewViewController : BaseViewController
+@interface SettViewController : BaseViewController
 
 @end

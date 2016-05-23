@@ -12,10 +12,10 @@
 #import "MCMApManager.h"
 #import "LoginController.h"
 #import "AppDelegate.h"
-#import "SettViewViewController.h"
+#import "SettViewController.h"
 #import "HomeCollectionViewCell.h"
 #import "HomeHeaderCollectionReusableView.h"
-
+#import "CarteViewController.h"
 @interface MChomeViewController ()<UICollectionViewDelegate,UICollectionViewDataSource,UICollectionViewDelegateFlowLayout>
 {
     
@@ -88,7 +88,7 @@
     [[[self.navigationController.navigationBar subviews]objectAtIndex:0] setAlpha:1];
 
        if ([objcStr isEqualToString:@"设置"]) {
-        SettViewViewController * ctl = [[SettViewViewController alloc]init];
+        SettViewController * ctl = [[SettViewController alloc]init];
         [self pushNewViewController:ctl];
     }
     
@@ -102,7 +102,7 @@
         city = @"未知";
     }
     CGFloat w = [MCIucencyView heightforString:city andHeight:25 fontSize:14]+20;
-    _cityBtn.frame = CGRectMake(_cityBtn.mj_x, 0, w, _cityBtn.mj_h);
+    _cityBtn.frame = CGRectMake(_cityBtn.mj_x, (44 -_cityBtn.mj_h)/2 , w, _cityBtn.mj_h);
     [_cityBtn setTitle:city forState:0];
 
 }
@@ -170,7 +170,7 @@
         city = @"未知";
     }
    CGFloat w = [MCIucencyView heightforString:city andHeight:25 fontSize:14]+20;
-    _cityBtn = [[UIButton alloc]initWithFrame:CGRectMake(Main_Screen_Width - 10 - w, (40-25)/2, w, 25)];
+    _cityBtn = [[UIButton alloc]initWithFrame:CGRectMake(Main_Screen_Width - 10 - w, (44-25)/2, w, 25)];
     [_cityBtn setTitle:city forState:0];
     ViewRadius(_cityBtn, 25/2);
     [_cityBtn setTitleColor:[UIColor whiteColor] forState:0];
@@ -335,17 +335,29 @@
     }
     if (indexPath.section == 4) {
         [cell prepareYJUI];
+        [cell.headerimgBtn addTarget:self action:@selector(ActionheaderimgBtn:) forControlEvents:UIControlEventTouchUpInside];
+
     }
    else if (indexPath.section == 3) {
         [cell prepareHotUI];
+       [cell.headerimgBtn addTarget:self action:@selector(ActionheaderimgBtn:) forControlEvents:UIControlEventTouchUpInside];
+
     }
     else
     {
     [cell prepareMeUI];
+        [cell.headerimgBtn addTarget:self action:@selector(ActionheaderimgBtn:) forControlEvents:UIControlEventTouchUpInside];
     }
     return cell;
 }
-
+#pragma mark-点击头像
+-(void)ActionheaderimgBtn:(UIButton*)btn{
+    CarteViewController *ctl = [[CarteViewController alloc]init];
+    ctl.isfriend = YES;
+    [self pushNewViewController:ctl];
+    
+    
+}
 
 
 

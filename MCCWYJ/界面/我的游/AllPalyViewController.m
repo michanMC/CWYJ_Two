@@ -9,12 +9,14 @@
 #import "AllPalyViewController.h"
 #import "homeYJModel.h"
 #import "YJTableViewCell.h"
+#import "YJNoDataTableViewCell.h"
 @interface AllPalyViewController ()<UITableViewDelegate,UITableViewDataSource>
 {
     
     UITableView *_tableView;
     NSMutableArray *_dataAarray;//数据源
     NSInteger  _pageStr;
+    BOOL _isNoData;
 
 }
 
@@ -59,6 +61,9 @@
 }
 -(NSInteger)numberOfSectionsInTableView:(UITableView *)tableView
 {
+    if (_isNoData) {
+        return 1;
+    }
     return _dataAarray.count;
 }
 -(NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section{
@@ -71,10 +76,29 @@
     return 0.001;
 }
 -(CGFloat)tableView:(UITableView *)tableView heightForRowAtIndexPath:(NSIndexPath *)indexPath{
+    if (_isNoData) {
+        return self.view.mj_h;
+    }
+    
     return 100 *MCHeightScale + 15 + 20 + 15;
 }
 -(UITableViewCell*)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath
 {
+    if (_isNoData) {
+        YJNoDataTableViewCell * cell = [tableView dequeueReusableCellWithIdentifier:@"mc2"];
+        if (!cell) {
+            cell = [[YJNoDataTableViewCell alloc]initWithStyle:UITableViewCellStyleDefault reuseIdentifier:@"mc2"];
+        }
+        cell.selectionStyle = UITableViewCellSelectionStyleNone;
+        [cell prepareNoDataUI:self.view.mj_h TitleStr:@"再怎么找也没有游记啦，你行你来写"];
+        [cell.tapBtn addTarget:self action:@selector(actionTapBtn) forControlEvents:UIControlEventTouchUpInside];
+        return cell;
+
+        
+        
+    }
+    
+    
     
     if (_dataAarray.count > indexPath.section) {
         static NSString * cellid = @"mc1";
@@ -82,6 +106,8 @@
         if (!cell) {
             cell = [[YJTableViewCell alloc]initWithStyle:UITableViewCellStyleDefault reuseIdentifier:cellid];
         }
+        cell.selectionStyle = UITableViewCellSelectionStyleNone;
+
 //        cell.selectionStyle =
         homeYJModel * model= _dataAarray[indexPath.section];
         [cell prepareUI:model];
@@ -104,6 +130,17 @@
 
     //发送通知
     [[NSNotificationCenter defaultCenter] postNotificationName:@"disXQDatadetailObjNotification" object:dic];
+}
+-(void)actionTapBtn{
+
+    
+    if (![MCUserDefaults objectForKey:@"sessionId"]||![[MCUserDefaults objectForKey:@"sessionId"] length]) {
+
+        
+        return;
+    }
+
+    
 }
 #pragma mark-加载数据
 -(void)loadData{
@@ -139,6 +176,14 @@
             
             [_dataAarray addObject:model];
         }
+        if (_dataAarray.count) {
+            _isNoData = NO;
+        }
+        else
+        {
+            _isNoData = YES;
+
+        }
         [_tableView reloadData];
         [_tableView.mj_header endRefreshing];
         [_tableView.mj_footer endRefreshing];
@@ -148,6 +193,17 @@
         [self showAllTextDialog:description];
         [_tableView.mj_header endRefreshing];
         [_tableView.mj_footer endRefreshing];
+        if (_dataAarray.count) {
+            _isNoData = NO;
+            [_tableView  reloadData];
+
+        }
+        else
+        {
+            _isNoData = YES;
+            [_tableView  reloadData];
+            
+        }
 
         
     }];

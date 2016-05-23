@@ -9,14 +9,18 @@
 #import "MCMyshoppingViewController.h"
 #import "MCMyshoppingTableViewCell.h"
 #import "YJTableViewCell.h"
-
-@interface MCMyshoppingViewController ()<UITableViewDelegate,UITableViewDataSource>
+#import "MakeBuyViewController.h"
+#import "MCscreenView.h"
+#import "SearchViewController.h"
+#import "CarteViewController.h"
+@interface MCMyshoppingViewController ()<UITableViewDelegate,UITableViewDataSource,MCscreenViewDelegate>
 {
     UITextField *_searchtext;
     
     UITableView *_tableView;
     
-
+    BOOL _isShowScree;
+    MCscreenView * _screenview;
 }
 
 @end
@@ -78,6 +82,8 @@
     }
     
     [cell  prepareNotitleUI];
+        [cell.headerimgBtn addTarget:self action:@selector(ActionheaderimgBtn:) forControlEvents:UIControlEventTouchUpInside];
+
     return cell;
     }
     if (indexPath.section == 1) {
@@ -87,6 +93,8 @@
         }
         
         [cell  prepareHastitleUI];
+        [cell.headerimgBtn addTarget:self action:@selector(ActionheaderimgBtn:) forControlEvents:UIControlEventTouchUpInside];
+
         return cell;
 
     }
@@ -98,11 +106,20 @@
         //        cell.selectionStyle =
 //        homeYJModel * model= _dataAarray[indexPath.section];
         [cell prepareUI:nil];
+        [cell.headerimgBtn addTarget:self action:@selector(ActionheaderimgBtn:) forControlEvents:UIControlEventTouchUpInside];
+
         return cell;
 
     }
     
     return [[UITableViewCell alloc]init];
+}
+#pragma mark-点击头像
+-(void)ActionheaderimgBtn:(UIButton*)btn{
+    CarteViewController *ctl = [[CarteViewController alloc]init];
+    [self pushNewViewController:ctl];
+    
+    
 }
 
 
@@ -131,23 +148,66 @@
     
     self.navigationItem.titleView = seachView;
     
-    self.navigationItem.rightBarButtonItem = [[UIBarButtonItem alloc]initWithBarButtonSystemItem:UIBarButtonSystemItemCamera target:self action:nil];
+    self.navigationItem.rightBarButtonItem = [[UIBarButtonItem alloc]initWithBarButtonSystemItem:UIBarButtonSystemItemCamera target:self action:@selector(actionrightBtn)];
     CGFloat x = 10;
     CGFloat y = 25;
     CGFloat width = 30;
     CGFloat height = 30;
     
     UIButton * _screenBtn = [[UIButton alloc]initWithFrame:CGRectMake(x, y, width, height)];
-    
+    [_screenBtn addTarget:self action:@selector(action_screenBtn) forControlEvents:UIControlEventTouchUpInside];
     [_screenBtn setImage:[UIImage imageNamed:@"home_mine_screened"] forState:0];
     self.navigationItem.leftBarButtonItem = [[UIBarButtonItem alloc]initWithCustomView:_screenBtn];
+    
+}
+-(void)actionrightBtn{
+    [self MCscreenhidden];
+    MakeBuyViewController * ctl = [[MakeBuyViewController alloc]init];
+    [self pushNewViewController:ctl];
+    
+}
+-(void)action_screenBtn{
+    if (_isShowScree) {
+        _isShowScree = NO;
+        [_screenview removeFromSuperview];
+        
+    }
+    else
+    {
+        _isShowScree = YES;
+        _screenview = [[MCscreenView alloc]initWithFrame:CGRectMake(0, 64, Main_Screen_Width, Main_Screen_Height  - 64)];
+        NSDictionary * dic = @{
+                               @"like":@"0",
+                               @"classify":@"0"
+                               };
+        
+        _screenview.delegate = self;
+        [_screenview IsMYBuy:YES DataDic:dic];
+        [_screenview showInWindow];
+
+    }
+    
+
+}
+-(void)MCscreenhidden
+{
+    _isShowScree = NO;
+    [_screenview removeFromSuperview];
+ 
+}
+-(void)MCscreenselsctDic:(NSMutableDictionary *)selectDic
+{
+    [self MCscreenhidden];
+    NSLog(@"selectDic ==%@",selectDic);
     
 }
 #pragma mark-点搜索
 -(void)ActionsearchBtn{
     
-    
-    
+    [self MCscreenhidden];
+    SearchViewController * ctl = [[SearchViewController alloc]init];
+    [self pushNewViewController:ctl];
+
 }
 
 
