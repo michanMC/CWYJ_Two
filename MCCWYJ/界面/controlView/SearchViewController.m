@@ -62,7 +62,22 @@
     
     return [[UITableViewCell alloc]init];
 }
+-(void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath
+{
+    
+    if (_isshaidan) {
+        if (_delegate) {
+            [_delegate selectTitleStr:@"111 " Key:_isdaigoudian];
+        }
+    }
+    
+    [self.navigationController popViewControllerAnimated:YES];
 
+    
+    
+    
+    
+}
 -(void)setUpNavBar{
     
     MCIucencyView * seachView = [[MCIucencyView alloc]initWithFrame:CGRectMake(0, 0, Main_Screen_Width , 30)];
@@ -102,6 +117,12 @@
     
 }
 -(void)actionBack{
+    if (_isshaidan) {
+        if (_delegate) {
+            [_delegate selectTitleStr:@"" Key:_isdaigoudian];
+        }
+    }
+
     [self.navigationController popViewControllerAnimated:YES];
 }
 

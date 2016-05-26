@@ -23,6 +23,7 @@
     
     UIImageView * _imgView = [[UIImageView alloc]initWithFrame:CGRectMake(x, y, w, w)];
     _imgView.image = [UIImage imageNamed:@"buy_default-photo"];
+    _imgView.userInteractionEnabled = YES;
     [self.contentView addSubview:_imgView];
     UIImageView *_biaoshiImg = [[UIImageView alloc]initWithFrame:CGRectMake(-5, -5, 30, 25)];
     

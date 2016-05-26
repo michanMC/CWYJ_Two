@@ -8,6 +8,20 @@
 
 #import "BaseViewController.h"
 
+@protocol SearchViewControllerDelegate <NSObject>
+
+-(void)selectTitleStr:(NSString*)str;
+
+-(void)selectTitleStr:(NSString *)str Key:(NSString*)isKey;
+
+@end
 @interface SearchViewController : BaseViewController
+
+@property(nonatomic,weak)id<SearchViewControllerDelegate>delegate;
+@property(nonatomic,assign)BOOL isshaidan;
+
+@property(nonatomic,copy)NSString *isdaigoudian;
+
+
 
 @end

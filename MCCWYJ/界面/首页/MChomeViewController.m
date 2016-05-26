@@ -353,7 +353,7 @@
 #pragma mark-点击头像
 -(void)ActionheaderimgBtn:(UIButton*)btn{
     CarteViewController *ctl = [[CarteViewController alloc]init];
-    ctl.isfriend = YES;
+   ctl.isfriend = YES;
     [self pushNewViewController:ctl];
     
     

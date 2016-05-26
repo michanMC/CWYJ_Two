@@ -9,7 +9,12 @@
 #import "CarteViewController.h"
 #import "ItemView.h"
 #import "CarteTableViewCell.h"
-@interface CarteViewController ()<UITableViewDataSource,UITableViewDelegate,ItemViewDelegate>
+#import "AddFriendViewController.h"
+#import "MCCapacityView.h"
+#import "FriendYJViewController.h"
+#import "SellViewController.h"
+#import "BuyOnViewController.h"
+@interface CarteViewController ()<UITableViewDataSource,UITableViewDelegate,ItemViewDelegate,MCCapacityViewDelegate>
 {
     UITableView *_tableView;
     UIButton * _headBtn;
@@ -19,15 +24,62 @@
     UIImageView * _headerView;
     ItemView*_itemView;
 
-    
+    BOOL _isShowCapacity;
+    MCCapacityView * _CapacityView;
     
 }
 
 @end
 
 @implementation CarteViewController
+
+
+-(void)viewWillDisappear:(BOOL)animated{
+    [super viewWillDisappear:animated];
+    [self MCCapacityViewhidden];
+}
+
+
 -(void)actionnav_popup{
     
+    
+    if (_isShowCapacity) {
+        _isShowCapacity = NO;
+        [_CapacityView removeFromSuperview];
+        
+    }
+    else
+    {
+        _isShowCapacity = YES;
+        NSArray * array = [NSArray array];
+        if (_isfriend) {
+            array = @[@"分享该名片",@"举报",@"删除"];
+        }
+        else
+            array = @[@"发送该名片",@"举报"];
+
+        
+        _CapacityView = [[MCCapacityView alloc]initWithFrame:CGRectMake(0, 64, Main_Screen_Width, Main_Screen_Height - 64) TitleArray:array];
+        _CapacityView.delegate = self;
+
+        [_CapacityView showInWindow];
+        
+        
+    }
+
+    
+    
+}
+-(void)MCCapacityViewselsctTitle:(NSString *)titleDic
+{
+    [self MCCapacityViewhidden];
+    
+    NSLog(titleDic);
+}
+-(void)MCCapacityViewhidden
+{
+    _isShowCapacity = NO;
+    [_CapacityView removeFromSuperview];
 }
 - (void)viewDidLoad {
     [super viewDidLoad];
@@ -136,13 +188,27 @@
         [btn setTitle:@"加好友" forState:0];
 
     ViewRadius(btn, 5);
+    [btn addTarget:self action:@selector(actionBtn) forControlEvents:UIControlEventTouchUpInside];
     [btn setTitleColor:[UIColor whiteColor] forState:0];
     [view addSubview:btn];
     
     
     
 }
-
+-(void)actionBtn{
+    if (_isfriend) {
+        
+    }
+    else
+    {
+        AddFriendViewController * ctl = [[AddFriendViewController alloc]init];
+        [self pushNewViewController:ctl];
+    }
+    
+    
+    
+    
+}
 
 #pragma mark-_itemView代理
 -(void)itemH:(CGFloat)itemh
@@ -243,8 +309,6 @@
     }
 
     
-    
-    
     static  NSString * cellid = @"CarteTableViewCell";
     CarteTableViewCell * cell = [tableView dequeueReusableCellWithIdentifier:cellid];
     if (!cell) {
@@ -252,11 +316,72 @@
         cell.selectionStyle = UITableViewCellSelectionStyleNone;
     }
     cell.accessoryType = UITableViewCellAccessoryDisclosureIndicator;
-    [cell prepareUI:@"代购单"];
-    return cell;
+    if (indexPath.row == 0) {
+        [cell prepareUI:@"游记"];
+        return cell;
+
+    }
+    if (indexPath.row == 1) {
+        [cell prepareUI:@"代购单"];
+        return cell;
+        
+    }
+    if (indexPath.row == 2) {
+        [cell prepareUI:@"售卖单"];
+        return cell;
+        
+    }
+
     return [[UITableViewCell alloc]init];
 }
+-(void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath
+{
+    
+    if (_isfriend) {
+        if (indexPath.row == 3) {
+            
+            
+            return;
+        }
+    }
+    else
+    {
+        if (indexPath.row == 1) {
+            
+            return;
+        }
+        
+        
+    }
+    
+    if (indexPath.row == 0) {
+        FriendYJViewController * ctl = [[FriendYJViewController alloc]init];
+        [self pushNewViewController:ctl];
+    }
+    else if (indexPath.row == 1){
+        BuyOnViewController *ctl = [[BuyOnViewController alloc]init];
+        [self pushNewViewController:ctl];
+    }
+    else if (indexPath.row == 2){
+        SellViewController * ctl = [[SellViewController alloc]init];
+        [self pushNewViewController:ctl];
 
+        
+    }
+    
+    
+    
+
+    
+    
+    
+    
+    
+    
+    
+    
+    
+}
 
 - (void)didReceiveMemoryWarning {
     [super didReceiveMemoryWarning];

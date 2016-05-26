@@ -1,81 +1,81 @@
 //
-//  MCMyshoppingViewController.m
-//  CWYouJi
+//  SellViewController.m
+//  MCCWYJ
 //
-//  Created by MC on 16/4/28.
+//  Created by MC on 16/5/24.
 //  Copyright © 2016年 MC. All rights reserved.
 //
 
-#import "MCMyshoppingViewController.h"
-#import "MCMyshoppingTableViewCell.h"
-#import "YJTableViewCell.h"
-#import "MakeBuyViewController.h"
-#import "MCscreenView.h"
+#import "SellViewController.h"
 #import "SearchViewController.h"
-#import "CarteViewController.h"
-#import "WNImagePicker.h"
-@interface MCMyshoppingViewController ()<UITableViewDelegate,UITableViewDataSource,MCscreenViewDelegate>
-{
+#import "MCMyshoppingTableViewCell.h"
+@interface SellViewController ()<UITableViewDelegate,UITableViewDataSource>{
     UITextField *_searchtext;
+
+    
     
     UITableView *_tableView;
+    NSMutableArray *_dataAarray;//数据源
+    NSInteger  _pageStr;
+    BOOL _isNoData;
+
     
-    BOOL _isShowScree;
-    MCscreenView * _screenview;
 }
 
 @end
 
-@implementation MCMyshoppingViewController
+@implementation SellViewController
 
 - (void)viewDidLoad {
     [super viewDidLoad];
-    self.view.backgroundColor = [UIColor whiteColor];
     [self setUpNavBar];
-    
-    
-     _tableView = [[UITableView alloc]initWithFrame:CGRectMake(0, 64, Main_Screen_Width, Main_Screen_Height - 64 - 49) style:UITableViewStyleGrouped];
+    _tableView = [[UITableView alloc]initWithFrame:CGRectMake(0, 64, Main_Screen_Width, Main_Screen_Height - 64) style:UITableViewStylePlain];
     _tableView.delegate =self;
     _tableView.dataSource = self;
     [self.view addSubview:_tableView];
+
     // Do any additional setup after loading the view.
 }
 -(NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section{
-    return 1;
+    return 10;
 }
--(CGFloat)tableView:(UITableView *)tableView heightForFooterInSection:(NSInteger)section{
-    return 0.01;
-}
+
 -(CGFloat)tableView:(UITableView *)tableView heightForHeaderInSection:(NSInteger)section{
     return 10;
 }
 -(NSInteger)numberOfSectionsInTableView:(UITableView *)tableView
 {
-    return 3;
+    return 1;
 }
 -(CGFloat)tableView:(UITableView *)tableView heightForRowAtIndexPath:(NSIndexPath *)indexPath{
+    
+    
+    return 100 *MCHeightScale + 15 + 20 + 10;
+
+    
     //3种状态
     if (indexPath.section == 0) {
-
-    return 100 *MCHeightScale + 15 + 20 + 10;
+        
+        return 100 *MCHeightScale + 15 + 20 + 10;
     }
     if (indexPath.section == 1) {
         return 100 *MCHeightScale + 15 + 20 + 10 + 44;
-
+        
     }
     if(indexPath.section == 2){
-    return 100 *MCHeightScale + 15 + 20 + 15;
+        return 100 *MCHeightScale + 15 + 20 + 15;
     }
-
+    
     return 44;
 }
+
 -(UITableViewCell*)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath
 {
     static NSString * cellid1 = @"MCMyshoppingTableViewCell1";
     static NSString * cellid2 = @"MCMyshoppingTableViewCell2";
     static NSString * cellid3 = @"mc3";
-
-    if (indexPath.section == 0) {
+    
+    
     
     MCMyshoppingTableViewCell * cell = [tableView dequeueReusableCellWithIdentifier:cellid1];
     if (!cell) {
@@ -83,10 +83,30 @@
     }
     
     [cell  prepareNotitleUI];
-        [cell.headerimgBtn addTarget:self action:@selector(ActionheaderimgBtn:) forControlEvents:UIControlEventTouchUpInside];
-
+    [cell.headerimgBtn addTarget:self action:@selector(ActionheaderimgBtn:) forControlEvents:UIControlEventTouchUpInside];
+    
     return cell;
+
+    
+    /*
+    
+    
+    
+    if (indexPath.section == 0) {
+        
+        MCMyshoppingTableViewCell * cell = [tableView dequeueReusableCellWithIdentifier:cellid1];
+        if (!cell) {
+            cell = [[MCMyshoppingTableViewCell alloc]initWithStyle:UITableViewCellStyleDefault reuseIdentifier:cellid1];
+        }
+        
+        [cell  prepareNotitleUI];
+        [cell.headerimgBtn addTarget:self action:@selector(ActionheaderimgBtn:) forControlEvents:UIControlEventTouchUpInside];
+        
+        return cell;
     }
+    
+    
+    
     if (indexPath.section == 1) {
         MCMyshoppingTableViewCell * cell = [tableView dequeueReusableCellWithIdentifier:cellid2];
         if (!cell) {
@@ -95,9 +115,9 @@
         
         [cell  prepareHastitleUI];
         [cell.headerimgBtn addTarget:self action:@selector(ActionheaderimgBtn:) forControlEvents:UIControlEventTouchUpInside];
-
+        
         return cell;
-
+        
     }
     if (indexPath.section == 2) {
         YJTableViewCell * cell = [tableView dequeueReusableCellWithIdentifier:cellid3];
@@ -105,23 +125,24 @@
             cell = [[YJTableViewCell alloc]initWithStyle:UITableViewCellStyleDefault reuseIdentifier:cellid3];
         }
         //        cell.selectionStyle =
-//        homeYJModel * model= _dataAarray[indexPath.section];
+        //        homeYJModel * model= _dataAarray[indexPath.section];
         [cell prepareUI:nil];
         [cell.headerimgBtn addTarget:self action:@selector(ActionheaderimgBtn:) forControlEvents:UIControlEventTouchUpInside];
-
+        
         return cell;
-
+        
     }
     
     return [[UITableViewCell alloc]init];
+     */
 }
-#pragma mark-点击头像
+
 -(void)ActionheaderimgBtn:(UIButton*)btn{
-    CarteViewController *ctl = [[CarteViewController alloc]init];
-    [self pushNewViewController:ctl];
+    
     
     
 }
+
 
 
 
@@ -149,73 +170,36 @@
     
     self.navigationItem.titleView = seachView;
     
-    self.navigationItem.rightBarButtonItem = [[UIBarButtonItem alloc]initWithBarButtonSystemItem:UIBarButtonSystemItemCamera target:self action:@selector(actionrightBtn)];
-    CGFloat x = 10;
-    CGFloat y = 25;
-    CGFloat width = 30;
-    CGFloat height = 30;
-    
-    UIButton * _screenBtn = [[UIButton alloc]initWithFrame:CGRectMake(x, y, width, height)];
-    [_screenBtn addTarget:self action:@selector(action_screenBtn) forControlEvents:UIControlEventTouchUpInside];
-    [_screenBtn setImage:[UIImage imageNamed:@"home_mine_screened"] forState:0];
-    self.navigationItem.leftBarButtonItem = [[UIBarButtonItem alloc]initWithCustomView:_screenBtn];
-    
-}
--(void)actionrightBtn{
-    [self MCscreenhidden];
-    WNImagePicker *pickerVC  = [[WNImagePicker alloc]init];
-
-    [self pushNewViewController:pickerVC];
-
     
     
-    MakeBuyViewController * ctl = [[MakeBuyViewController alloc]init];
+    
+    
+    
+//    CGFloat x = 10;
+//    CGFloat y = 25;
+//    CGFloat width = 30;
+//    CGFloat height = 30;
+//    
+////    UIButton * _screenBtn = [[UIButton alloc]initWithFrame:CGRectMake(x, y, width, height)];
+//
+//    [_screenBtn setImage:[UIImage imageNamed:@"home_mine_screened"] forState:0];
+//    self.navigationItem.rightBarButtonItem = [[UIBarButtonItem alloc]initWithCustomView:_screenBtn];
+//    [_screenBtn addTarget:self action:@selector(action_screenBtn) forControlEvents:UIControlEventTouchUpInside];
+    
+    self.navigationItem.leftBarButtonItem = [[UIBarButtonItem alloc]initWithImage:[UIImage imageNamed:@"nav_icon_back_normal"] style:UIBarButtonItemStylePlain target:self action:@selector(actionBack)];
+    
     
 }
--(void)action_screenBtn{
-    if (_isShowScree) {
-        _isShowScree = NO;
-        [_screenview removeFromSuperview];
-        
-    }
-    else
-    {
-        _isShowScree = YES;
-        _screenview = [[MCscreenView alloc]initWithFrame:CGRectMake(0, 64, Main_Screen_Width, Main_Screen_Height  - 64)];
-        NSDictionary * dic = @{
-                               @"like":@"0",
-                               @"classify":@"0"
-                               };
-        
-        _screenview.delegate = self;
-        [_screenview IsMYBuy:YES DataDic:dic];
-        [_screenview showInWindow];
-
-    }
-    
-
-}
--(void)MCscreenhidden
-{
-    _isShowScree = NO;
-    [_screenview removeFromSuperview];
- 
-}
--(void)MCscreenselsctDic:(NSMutableDictionary *)selectDic
-{
-    [self MCscreenhidden];
-    NSLog(@"selectDic ==%@",selectDic);
+-(void)actionBack{
+    [self.navigationController popViewControllerAnimated:YES];
     
 }
 #pragma mark-点搜索
 -(void)ActionsearchBtn{
-    
-    [self MCscreenhidden];
-    SearchViewController * ctl = [[SearchViewController alloc]init];
+    SearchViewController  * ctl = [[SearchViewController alloc]init];
     [self pushNewViewController:ctl];
-
+    
 }
-
 
 - (void)didReceiveMemoryWarning {
     [super didReceiveMemoryWarning];

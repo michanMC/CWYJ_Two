@@ -99,7 +99,7 @@
     }
     
     
-    w = Main_Screen_Width - x - 10 - 30 -5;
+    w = Main_Screen_Width - x - 7 - 30  - 30;
     y = _imgView.mj_y;
     h = 20;
     UILabel * titleLbl = [[UILabel alloc]initWithFrame:CGRectMake(x, y, w, h)];
@@ -108,13 +108,23 @@
     [self.contentView addSubview:titleLbl];
     
     
-    x = Main_Screen_Width - 10 - 30;
-    w = 33;
+    x = Main_Screen_Width - 7 - 30;
+    w = 30;
     h = 30;
     y -= 5;
-    UIButton * _shiBtn = [[UIButton alloc]initWithFrame:CGRectMake(x, y, w, h)];
+    UIButton * _caiBtn = [[UIButton alloc]initWithFrame:CGRectMake(x, y, w, h)];
+    [_caiBtn setImage:[UIImage imageNamed:@"踩"] forState:0];
+    [self.contentView addSubview:_caiBtn];
+    
+    x -=w;
+    UIButton * _shiBtn = [[UIButton alloc]initWithFrame:CGRectMake(x, y, w+3, h)];
     [_shiBtn setImage:[UIImage imageNamed:@"食"] forState:0];
     [self.contentView addSubview:_shiBtn];
+
+    
+    
+    
+    
 
     x = _imgView.mj_x + _imgView.mj_w + 10;
     y = titleLbl.mj_y + titleLbl.mj_h + 5;
