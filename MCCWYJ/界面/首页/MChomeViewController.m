@@ -251,7 +251,7 @@
     {
         HomeHeaderCollectionReusableView *headView = [collectionView dequeueReusableSupplementaryViewOfKind:kind withReuseIdentifier:@"headerView" forIndexPath:indexPath];
         if(indexPath.section == 0){
-            [headView prepareADUI];
+            [headView prepareADUI:_bannerArray];
             headView.backgroundColor = [UIColor whiteColor];
         }
         else

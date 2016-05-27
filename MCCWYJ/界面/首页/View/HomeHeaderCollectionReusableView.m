@@ -8,14 +8,27 @@
 
 #import "HomeHeaderCollectionReusableView.h"
 
+
+@interface HomeHeaderCollectionReusableView (){
+    
+    
+    
+    NSMutableArray * _adArray;
+}
+
+@end
+
+
+
+
 @implementation HomeHeaderCollectionReusableView
 
 
--(void)prepareADUI{
+-(void)prepareADUI:(NSMutableArray*)array{
 //    self.backgroundColor = [UIColor whiteColor];
     for (UIView* obj in self.subviews)
         [obj removeFromSuperview];
-
+    _adArray =array;
     _adView  = [[ZZCarousel alloc]initWithFrame:CGRectMake(0, 0, Main_Screen_Width, 150*MCHeightScale)];
     /*
      *   carouseScrollTimeInterval  ---  此属性为设置轮播多长时间滚动到下一张
@@ -69,7 +82,7 @@
 //    if (_bannerArray.count) {
 //        return _bannerArray.count;
 //    }
-    return 3;
+    return _adArray.count;
 }
 -(ZZCarouselView *)zzcarousel:(UICollectionView *)zzcarousel viewForItemAtIndex:(NSIndexPath *)index itemsIndex:(NSInteger)itemsIndex identifire:(NSString *)identifire ZZCarousel:(ZZCarousel *)zZCarousel
 {
@@ -87,12 +100,12 @@
     /*
      *  itemsIndex 参数   ※ 注意
      */
-//    if (_bannerArray.count) {
-//        NSDictionary * model = [_bannerArray objectAtIndex:itemsIndex];
-//        
-//        [cell.imageView sd_setImageWithURL:[NSURL URLWithString:model[@"image"]] placeholderImage:[UIImage imageNamed:@"home_banner_default-chart"]];
-//    }
-//    else
+    if (_adArray.count) {
+       NSDictionary * model = [_adArray objectAtIndex:itemsIndex];
+        
+        [cell.imageView sd_setImageWithURL:[NSURL URLWithString:model[@"image"]] placeholderImage:[UIImage imageNamed:@"home_banner_default-chart"]];
+    }
+    else
     
         cell.imageView.image = [UIImage imageNamed:@"home_banner"];
     //

@@ -65,6 +65,7 @@
     
     sideMenuViewController.panGestureEnabled = YES;
     [self stopshowLoading];
+//    _isloaddata = NO;
 
 }
 
@@ -202,6 +203,7 @@
         [_tableView reloadData];
     } fail:^(NSURLSessionDataTask *operation, NSError *error, NSString *description) {
         [self stopshowLoading];
+        NSLog(@"%@",description);
         [self showAllTextDialog:description];
         NSLog(@"失败");
         _isloaddata = NO;

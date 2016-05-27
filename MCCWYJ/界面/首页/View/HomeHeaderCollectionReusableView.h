@@ -14,7 +14,7 @@
 
 @property(nonatomic,strong)ZZCarousel* adView;
 
--(void)prepareADUI;
+-(void)prepareADUI:(NSMutableArray*)array;
 
 -(void)prepareUI:(NSString*)str;
 

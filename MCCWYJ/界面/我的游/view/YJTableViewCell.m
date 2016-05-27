@@ -104,7 +104,7 @@
     h = 20;
     UILabel * titleLbl = [[UILabel alloc]initWithFrame:CGRectMake(x, y, w, h)];
     titleLbl.textColor = [UIColor darkTextColor];
-    titleLbl.text = model.title;//@"西太平洋的新海角";
+    titleLbl.text = model.title?model.title:@"西太平洋的新海角";//@"西太平洋的新海角";
     [self.contentView addSubview:titleLbl];
     
     
@@ -133,7 +133,7 @@
     
     UILabel *_subtitleLbl =[[UILabel alloc]initWithFrame:CGRectMake(x, y, w, h)];
     _subtitleLbl.textColor = [UIColor grayColor];
-    _subtitleLbl.text = model.content;;//@"北马里亚娜依稀太平洋的新";
+    _subtitleLbl.text = model.content?model.content:@"北马里亚娜依稀太平洋的新";//@"北马里亚娜依稀太平洋的新";
     _subtitleLbl.font = [UIFont systemFontOfSize:13];
     _subtitleLbl.numberOfLines = 0;
     [self.contentView addSubview:_subtitleLbl];

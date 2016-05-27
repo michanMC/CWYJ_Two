@@ -68,10 +68,10 @@
         y +=h + 10;
         
         _deteBtn = [[UIButton alloc]initWithFrame:CGRectMake(Main_Screen_Width - 30 - 20, (y - 30)/2, 30, 30)];
-        _deteBtn.backgroundColor = AppRegTextCOLOR;
+//        _deteBtn.backgroundColor = AppRegTextCOLOR;
+        [_deteBtn setImage:[UIImage imageNamed:@"删除"] forState:0];
         [self.contentView addSubview:_deteBtn];
 
-        
         
     }
     return self;

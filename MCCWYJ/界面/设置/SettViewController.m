@@ -13,6 +13,7 @@
 #import "AboutViewController.h"
 #import "SystemSettViewController.h"
 #import "GengxinViewController.h"
+#import "MyIntegralViewController.h"
 @interface SettViewController ()<UITableViewDelegate,UITableViewDataSource,UIActionSheetDelegate,UIImagePickerControllerDelegate,UINavigationControllerDelegate>
 {
     UITableView * _tableView;
@@ -33,11 +34,11 @@
     //监听修改昵称
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(dischangenameObj:) name:@"dischangenameObjNotification" object:nil];
     _titleArray = @[
-                    @[@"昵称",@"我的积分",@"地址管理"],
+                    @[@"昵称",@"二维码",@"我的积分",@"地址管理"],
                     @[@"安全中心",@"关于我们",@"系统消息",@"系统设置"]
                     ];
     _detailArray = @[
-                     @[@"修改昵称",@"积分",@"修改收货地址"],
+                     @[@"修改昵称",@"",@"积分",@"修改收货地址"],
                      @[@"修改密码",@"意见反馈放在这了",@"消息提醒",@"清理缓存"]
                      
                      ];
@@ -282,7 +283,7 @@
            
             cell.detailTextLabel.text = [MCUserDefaults objectForKey:@"nickname"];
         }
-        if (indexPath.row == 1) {
+        if (indexPath.row == 2) {
             cell.detailTextLabel.textColor = [UIColor darkTextColor];
             
             cell.detailTextLabel.text = @"123";
@@ -304,6 +305,11 @@
             [self pushNewViewController:ctl];
         }
         if (indexPath.row == 2) {
+            MyIntegralViewController * ctl = [[MyIntegralViewController alloc]init];
+            [self pushNewViewController:ctl];
+        }
+
+        if (indexPath.row == 3) {
             AddressViewController * ctl = [[AddressViewController alloc]init];
             [self pushNewViewController:ctl];
 

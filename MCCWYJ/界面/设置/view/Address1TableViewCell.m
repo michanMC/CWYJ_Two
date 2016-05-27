@@ -16,7 +16,8 @@
     if (self) {
         
         UIImageView * imgView = [[UIImageView alloc]initWithFrame:CGRectMake(10, 10, 30, 30)];
-        imgView.backgroundColor = AppRegTextCOLOR;
+//        imgView.backgroundColor = AppRegTextCOLOR;
+        imgView.image = [UIImage imageNamed:@"icon_add"];
         [self.contentView addSubview:imgView];
         
         UILabel *lbl = [[UILabel alloc]initWithFrame:CGRectMake(50, 0, 100, 50)];

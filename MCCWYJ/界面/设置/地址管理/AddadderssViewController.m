@@ -178,7 +178,10 @@
     h = 30;
     x = _bgView2.mj_w - 10 - w;
     _seleBtn = [[UIButton alloc]initWithFrame:CGRectMake(x, y, w, h)];
-    _seleBtn.backgroundColor = [UIColor redColor];
+//    _seleBtn.backgroundColor = [UIColor redColor];
+    [_seleBtn setImage:[UIImage imageNamed:@"radio-btn_nor"] forState:UIControlStateNormal];
+    [_seleBtn setImage:[UIImage imageNamed:@"radio-btn_selected"] forState:UIControlStateSelected];
+
     [_bgView2 addSubview:_seleBtn];
     if ([_titleStr isEqualToString:@"编辑收货地址"]) {
         [self isbianjiAdderss];

@@ -23,7 +23,7 @@
         CGFloat x = 40;
         UIImageView *imgview = [[UIImageView alloc]initWithFrame:CGRectMake(x, 0, imgW, imgh)];
 //        imgview.backgroundColor = [UIColor redColor];
-        imgview.image = [UIImage imageNamed:@"微信"];
+        imgview.image = [UIImage imageNamed:@"微信1"];
         imgview.contentMode = UIViewContentModeScaleAspectFit;  
         [self.contentView addSubview:imgview];
         _weixinBtn = [[UIButton alloc]initWithFrame:CGRectMake(x, 0, imgW, imgh)];
