@@ -7,8 +7,11 @@
 //
 
 #import "BaseViewController.h"
-
+#import "homeYJModel.h"
 @interface CarteViewController : BaseViewController
+
+
+@property(nonatomic,strong)YJUserModel *userModel;
 
 @property(nonatomic,assign)BOOL isfriend;
 

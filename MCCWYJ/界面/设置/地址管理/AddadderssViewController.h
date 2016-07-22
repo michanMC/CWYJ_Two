@@ -7,7 +7,8 @@
 //
 
 #import "BaseViewController.h"
-
+#import "AddressModel.h"
 @interface AddadderssViewController : BaseViewController
+@property(nonatomic,strong)AddressModel*model;
 @property(nonatomic,copy)NSString*titleStr;
 @end

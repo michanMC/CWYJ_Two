@@ -13,5 +13,6 @@
 @property(nonatomic,copy)NSString * nameStr;
 @property(nonatomic,copy)NSString * titleStr;
 @property(nonatomic,strong)UIButton * huifuBtn;
+@property(nonatomic,strong)UIButton * headerBtn;
 
 @end

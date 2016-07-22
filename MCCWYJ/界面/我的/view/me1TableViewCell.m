@@ -24,6 +24,7 @@
         UILabel * lbl = [[UILabel alloc]initWithFrame:CGRectMake(x, y, selfViewW - 20, h)];
         lbl.textColor = AppTextCOLOR;
         lbl.text = str;
+        lbl.numberOfLines = 0;
         lbl.font = AppFont;
         [self.contentView addSubview:lbl];
         
@@ -50,7 +51,7 @@
     w = 5;
     h = 5;
     UIView * hongview = [[UIView alloc]initWithFrame:CGRectMake(x, y, w, h)];
-    hongview.backgroundColor = [UIColor orangeColor];
+    hongview.backgroundColor = AppCOLOR;//[UIColor orangeColor];
     [self.contentView addSubview:hongview];
     ViewRadius(hongview, 5/2);
     hongview.hidden = !ishong;

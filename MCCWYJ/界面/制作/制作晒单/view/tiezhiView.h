@@ -8,14 +8,14 @@
 
 #import <UIKit/UIKit.h>
 #import "MakeshaidanViewController.h"
-
+#import "DecalsModel.h"
 @interface tiezhiView : UIView
 
 
 @property(nonatomic,strong)UIScrollView *ScrollView;
 @property (nonatomic,weak)MakeshaidanViewController *delegate;
 
-
+@property (nonatomic,strong)NSMutableArray *dataArray;
 
 
 @end

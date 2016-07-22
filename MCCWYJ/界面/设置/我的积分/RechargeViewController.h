@@ -9,5 +9,5 @@
 #import "BaseViewController.h"
 
 @interface RechargeViewController : BaseViewController
-
+@property(nonatomic,copy)NSString*rechargeIntegral;
 @end

@@ -12,8 +12,11 @@
 #import "homeYJModel.h"
 #import "UIImageView+LBBlurredImage.h"
 #import "HcCustomKeyboard.h"
+#import "HZPhotoBrowser.h"
+#import "CarteViewController.h"
+#import "fenxianView.h"
 
-@interface ProductionViewController ()<zuopinDataViewDeleGate,UIScrollViewDelegate,UITextViewDelegate,HcCustomKeyboardDelegate>
+@interface ProductionViewController ()<zuopinDataViewDeleGate,UIScrollViewDelegate,UITextViewDelegate,HcCustomKeyboardDelegate,HZPhotoBrowserDelegate>
 {
     JT3DScrollView *_scrollView;
     UIButton * _backBtn;
@@ -43,10 +46,75 @@
         _viewArray = [NSMutableArray array];
 
                 [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(didSelectjubaoObj:) name:@"didjubaoObjNotification" object:nil];
+        
+        [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(didshowTupianjubaoObj:) name:@"didshowObjNotification" object:nil];
+        
+        
+                [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(didCarteObj:) name:@"didCarteObjNotification" object:nil];
+
     }
     
     return self;
 }
+-(void)didCarteObj:(NSNotification*)Notification{
+    NSString *sessionId = [MCUserDefaults objectForKey:@"sessionId"];
+    if (!sessionId.length) {
+        LoginController * ctl = [[LoginController alloc]init];
+        [self pushNewViewController:ctl];
+        return;
+    }
+
+    homeYJModel * model =Notification.object;
+    CarteViewController *ctl = [[CarteViewController alloc]init];
+    ctl.userModel = model.userModel;
+    [self pushNewViewController:ctl];
+
+    
+}
+#pragma mark-浏览图片监听
+-(void)didshowTupianjubaoObj:(NSNotification*)Notification{
+    //发送通知
+    [[NSNotificationCenter defaultCenter] postNotificationName:@"disyemianjisuanObjNotification" object:@"6"];
+    //  NSLog(@"%@",Notification.object);
+    NSInteger index = [Notification.object integerValue] - 400;
+    
+    //启动图片浏览器
+    HZPhotoBrowser *browserVc = [[HZPhotoBrowser alloc] init];
+    browserVc.sourceImagesContainerView = self.view; // 原图的父控件
+    NSInteger x = (_scrollView.contentOffset.x )/(Main_Screen_Width-80);
+    NSLog(@"===%ld",x);
+    
+    homeYJModel * model = _dataArray[_index];
+    browserVc.model =model;
+    
+    NSLog(@"---------%ld",model.photos.count);
+    browserVc.imageCount = model.photos.count; // 图片总数
+    browserVc.currentImageIndex =(int)index;
+    browserVc.delegate = self;
+    [browserVc show];
+    
+}
+#pragma mark - photobrowser代理方法
+- (UIImage *)photoBrowser:(HZPhotoBrowser *)browser placeholderImageForIndex:(NSInteger)index
+{
+    return [UIImage imageNamed:@"home_banner_default-chart"];
+}
+
+- (NSURL *)photoBrowser:(HZPhotoBrowser *)browser highQualityImageURLForIndex:(NSInteger)index
+{
+    NSInteger x = (_scrollView.contentOffset.x )/(Main_Screen_Width-80);
+    
+    
+    homeYJModel * model =_dataArray[_index];
+    if (model.photos.count) {
+        YJphotoModel * photoModel = model.YJphotos[index];
+        NSString * imgurl = photoModel.raw;//[NSString stringWithFormat:@"%@%@",];
+        
+        return [NSURL URLWithString:[NSString stringWithFormat:@"%@",imgurl]];
+    }
+    return [NSURL URLWithString:@""];
+}
+
 - (void)viewWillAppear:(BOOL)animated
 {
     [super viewWillAppear:animated];
@@ -67,11 +135,32 @@
 
     _bgimgView = [[UIImageView alloc]initWithFrame:CGRectMake(0, 0, Main_Screen_Width, Main_Screen_Height)];
     [self.view addSubview:_bgimgView];
-    [_bgimgView setImageToBlur:[UIImage imageNamed:@"login_bg_720"] completionBlock:^{
+    if (_bgimg) {
+        [_bgimgView setImageToBlur:_bgimg completionBlock:^{
+            
+        }];
         
-    }];
+    }
+//    [_bgimgView setImageToBlur:[UIImage imageNamed:@"login_bg_720"] completionBlock:^{
+//        
+//    }];
+    [self showLoading];
+    dispatch_queue_t _globalQueue;
+    dispatch_queue_t _mainQueue;
+    _mainQueue = dispatch_get_main_queue();
+    _globalQueue = dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0);
+    dispatch_async(_globalQueue, ^{
+        dispatch_async(_mainQueue, ^{
+            [self stopshowLoading];
+            
+            [self prepareUI2];
+            
+        });
+        
+    });
 
-    [self prepareUI2];
+    
+    
     // Do any additional setup after loading the view.
 }
 -(void)prepareUI2{
@@ -108,6 +197,7 @@
     
     
 }
+
 - (void)createCardWithColor:(NSInteger)index
 {
     CGFloat width = CGRectGetWidth(_scrollView.frame);
@@ -124,25 +214,15 @@
     zuoView.home_model = model;
     zuoView.deleGate = self;
     
+
    [_viewArray addObject:zuoView];
     if (index == _index ) {
-        if ( model.photos) {
+//        NSLog(@"bg_imgView == %@",zuoView.bg_imgView.image);
+        if (zuoView.bg_imgView.image) {
+            [_bgimgView setImageToBlur:zuoView.bg_imgView.image completionBlock:^{
+                
+            }];
             
-            //  NSDictionary * dicimg = model.photos[0];
-            __weak typeof(UIImageView*)bg_imgView = _bgimgView;
-            UIImageView * imgViewmc = [[UIImageView alloc]init];
-            YJphotoModel * photoModel = model.YJphotos[0];
-            [imgViewmc sd_setImageWithURL:[NSURL URLWithString:photoModel.raw] placeholderImage:[UIImage imageNamed:@"login_bg_720"] completed:^(UIImage *image, NSError *error, SDImageCacheType cacheType, NSURL *imageURL) {
-                
-                
-            }];
-        }
-        else
-        {
-            // _bgimgView.image = [self blurryImage:[UIImage imageNamed:@"login_bg_720"]  withBlurLevel:44];
-            [_bgimgView setImageToBlur:[UIImage imageNamed:@"login_bg_720"] completionBlock:^{
-                
-            }];
         }
         [zuoView loadData:YES];
     }
@@ -160,9 +240,9 @@
 -(void)stop:(NSString *)str
 {
     [self stopshowLoading];
-//    if (str) {
-//        [self showHint:str];
-//    }
+    if (str) {
+        [self showHint:str];
+    }
     
 }
 #pragma mark-返回
@@ -186,7 +266,8 @@
         //[view.tableView reloadData];
     }
     homeYJModel * model = _dataArray[_index];
-    
+//    [MCIucencyView travelStr:model.id];
+
     if (view.bg_imgView.image) {
         
         float kCompressionQuality = 0.3;
@@ -196,9 +277,15 @@
         
         
         // _bgimgView.image  = img;
+//        _bgimgView.alpha = 0;
+
         [_bgimgView setImageToBlur:img completionBlock:^{
             
         }];
+//        [UIView animateWithDuration:1 animations:^{
+//            _bgimgView.alpha = 1;
+//
+//        }];
         
         
     }
@@ -261,17 +348,11 @@
                 NSRange rr = {0,3};
                 [ss deleteCharactersInRange:rr];
                 TextView.text = ss;
-                //                NSMutableAttributedString*  btn_arrstring = [[NSMutableAttributedString alloc] initWithString:titleStr];
-                //
-                //                [btn_arrstring setAttributes:@{NSForegroundColorAttributeName : RGBCOLOR(249, 77, 33),	NSFontAttributeName : [UIFont systemFontOfSize:13]} range:NSMakeRange(0, 4)];
-                //                [_titleLbl setAttributedText:btn_arrstring];
+
                 
             }
             else
             {
-                //                _titleLbl.text = titleStr;
-                //                // [_titleLbl setAttributedText:titleStr];
-                //
             }
         }
         else
@@ -438,11 +519,91 @@
     NSString * youjiid = Notification.object;
     
     jubaoViewController * ctl = [[jubaoViewController alloc]init];
+    ctl._typeindex = @"0";
     ctl._youjiId = youjiid;
+    
     [self pushNewViewController:ctl];
     
     
 }
+-(void)action_Fenxian:(UIButton*)btn{
+    if (_dataArray.count > _index) {
+        
+        homeYJModel *model = _dataArray[_index];
+        
+        fenxianView *shareView = [fenxianView createViewFromNib];
+        shareView.backgroundColor = [UIColor clearColor];
+        
+        shareView.titleLbl.textColor = AppTextCOLOR;
+        ViewRadius(shareView.bgView, 5);
+        
+        __weak ProductionViewController * weakSelf = self;
+        [shareView.deleBtn handleControlEvent:UIControlEventTouchUpInside withBlock:^(id sender) {
+            [shareView hideView];
+            
+            // [self.navigationController popToRootViewControllerAnimated:YES];
+            
+            
+        }];
+        [shareView.weibobtn handleControlEvent:UIControlEventTouchUpInside withBlock:^(id sender) {
+            [shareView hideView];
+            NSMutableDictionary * dic = [NSMutableDictionary dictionary];
+            NSString * url = [NSString stringWithFormat:@"%@api/travel/travelDetailOfH5.jhtml?travelId=%@",AppURL,model.id];
+            [dic setObject:url forKey:@"url"];
+            [dic setObject:model.title forKey:@"title"];
+            [dic setObject:@"分享游记详情" forKey:@"titlesub"];
+            
+            [weakSelf actionFenxian:SSDKPlatformTypeSinaWeibo PopToRoot:NO SsDic:dic];
+            //   [weakSelf.navigationController popToRootViewControllerAnimated:YES];
+            NSLog(@"微博");
+        }];
+        [shareView.qqbtn handleControlEvent:UIControlEventTouchUpInside withBlock:^(id sender) {
+            [shareView hideView];
+            NSMutableDictionary * dic = [NSMutableDictionary dictionary];
+            NSString * url = [NSString stringWithFormat:@"%@api/travel/travelDetailOfH5.jhtml?travelId=%@",AppURL,model.id];
+            [dic setObject:url forKey:@"url"];
+            [dic setObject:model.title forKey:@"title"];
+            [dic setObject:@"分享游记详情" forKey:@"titlesub"];
+            
+            [weakSelf actionFenxian:SSDKPlatformTypeQQ PopToRoot:NO SsDic:dic];
+            // [weakSelf.navigationController popToRootViewControllerAnimated:YES];
+            NSLog(@"QQ");
+        }];
+        [shareView.weixinbtn handleControlEvent:UIControlEventTouchUpInside withBlock:^(id sender) {
+            [shareView hideView];
+            NSMutableDictionary * dic = [NSMutableDictionary dictionary];
+            NSString * url = [NSString stringWithFormat:@"%@api/travel/travelDetailOfH5.jhtml?travelId=%@",AppURL,model.id];
+            [dic setObject:url forKey:@"url"];
+            [dic setObject:model.title forKey:@"title"];
+            [dic setObject:@"分享游记详情" forKey:@"titlesub"];
+            
+            [weakSelf actionFenxian:SSDKPlatformSubTypeWechatSession PopToRoot:NO SsDic:dic];
+            //  [weakSelf.navigationController popToRootViewControllerAnimated:YES];
+            NSLog(@"weixin");
+        }];
+        [shareView.tubtn handleControlEvent:UIControlEventTouchUpInside withBlock:^(id sender) {
+            [shareView hideView];
+            NSMutableDictionary * dic = [NSMutableDictionary dictionary];
+            NSString * url = [NSString stringWithFormat:@"%@api/travel/travelDetailOfH5.jhtml?travelId=%@",AppURL,model.id];
+            [dic setObject:url forKey:@"url"];
+            [dic setObject:model.title forKey:@"title"];
+            [dic setObject:@"分享游记详情" forKey:@"titlesub"];
+            
+            [weakSelf actionFenxian:SSDKPlatformSubTypeWechatTimeline PopToRoot:NO SsDic:dic];
+            //[weakSelf.navigationController popToRootViewControllerAnimated:YES];
+            NSLog(@"土豆");
+        }];
+        [shareView showInWindow];
+        
+        
+        // NSLog(@"%@",_dataArray[])
+        
+    }
+    
+    
+}
+
+
 - (void)didReceiveMemoryWarning {
     [super didReceiveMemoryWarning];
     // Dispose of any resources that can be recreated.

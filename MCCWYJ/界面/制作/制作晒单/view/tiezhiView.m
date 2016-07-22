@@ -46,40 +46,50 @@
         _ScrollView = [[UIScrollView alloc]initWithFrame:CGRectMake(0, 40, frame.size.width, 64 + 20)];
         [self addSubview:_ScrollView];
 
-        CGFloat x = 0;
-        CGFloat y = 0;
-        CGFloat w = 64;
-        CGFloat h = w;
-        for (NSInteger i = 0; i < 10; i++) {
-            UIButton * btn = [[UIButton alloc]initWithFrame:CGRectMake(x, y, w, h)];
-            
-            [btn setBackgroundImage:[UIImage imageNamed:@"buy_default-photo"] forState:0];
-            [btn addTarget:self action:@selector(actionBtn:) forControlEvents:UIControlEventTouchUpInside];
-            [_ScrollView addSubview:btn];
-            
-            UILabel * lbl = [[UILabel alloc]initWithFrame:CGRectMake(x, y+w, w, 20)];
-            lbl.textColor = AppTextCOLOR;
-            lbl.font = AppFont;
-            lbl.text = @"穿搭新建";
-            lbl.textAlignment = NSTextAlignmentCenter;
-            [_ScrollView addSubview:lbl];
-
-            x +=w +5;
-            
-        }
-        
-        _ScrollView.contentSize = CGSizeMake(x , 0);
-        
-        
         
         
         
     }
     return self;
 }
+-(void)setDataArray:(NSMutableArray *)dataArray
+{
+    
+    _dataArray = dataArray;
+    CGFloat x = 0;
+    CGFloat y = 0;
+    CGFloat w = 64;
+    CGFloat h = w;
+    for (NSInteger i = 0; i < _dataArray.count; i++) {
+        DecalsModel * model = _dataArray[i];
+        
+        UIButton * btn = [[UIButton alloc]initWithFrame:CGRectMake(x, y, w, h)];
+        
+//        [btn setBackgroundImage:[UIImage imageNamed:@"buy_default-photo"] forState:0];
+        [btn sd_setImageWithURL:[NSURL URLWithString:model.image] forState:0 placeholderImage:[UIImage imageNamed:@"buy_default-photo"]];
+        btn.tag = 300+i;
+        [btn addTarget:self action:@selector(actionBtn:) forControlEvents:UIControlEventTouchUpInside];
+        [_ScrollView addSubview:btn];
+        
+        UILabel * lbl = [[UILabel alloc]initWithFrame:CGRectMake(x, y+w, w, 20)];
+        lbl.textColor = AppTextCOLOR;
+        lbl.font = AppFont;
+        lbl.text = model.title;//@"穿搭新建";
+        lbl.textAlignment = NSTextAlignmentCenter;
+        [_ScrollView addSubview:lbl];
+        
+        x +=w +5;
+        
+    }
+    
+    _ScrollView.contentSize = CGSizeMake(x , 0);
+    
+    
 
+    
+}
 -(void)actionBtn:(UIButton*)btn{
-    [_delegate addteizhi];
+    [_delegate addteizhi:btn];
     
     
 }

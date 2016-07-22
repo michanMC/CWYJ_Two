@@ -8,7 +8,7 @@
 
 #import "payPwdViewController.h"
 #import "RegisterTableViewCell.h"
-
+#import "ApplyViewController.h"
 @interface payPwdViewController ()<UITableViewDataSource,UITableViewDelegate,UITextFieldDelegate>
 {
     
@@ -25,11 +25,16 @@
 - (void)viewDidLoad {
     [super viewDidLoad];
     self.title = @"修改密码";
+    if ([_verifyStr isEqualToString:@"3"]) {
+        self.title =  @"绑定手机号码";
+    }
     _tableView = [[UITableView alloc]initWithFrame:CGRectMake(0, 64, Main_Screen_Width, Main_Screen_Height - 64) style:UITableViewStyleGrouped];
     _tableView.backgroundColor = [UIColor whiteColor];
     _tableView.delegate =self;
     _tableView.dataSource = self;
     [self.view addSubview:_tableView];
+    _tableView.backgroundColor = AppMCBgCOLOR;
+
     [self prepareFooer];
 
     // Do any additional setup after loading the view.
@@ -66,13 +71,16 @@
         _pwd1Str = textField.text;
     }
     else if(textField.tag == 511){
-        _pwd1Str = textField.text;
+        _pwd2Str = textField.text;
         
     }
     //[_tableView reloadData];
 }
 
 -(NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section{
+    if ([_verifyStr isEqualToString:@"3"]) {
+        return 1;
+    }
     return 2;
 }
 -(CGFloat)tableView:(UITableView *)tableView heightForFooterInSection:(NSInteger)section{
@@ -122,10 +130,230 @@
     return [[UITableViewCell alloc]init];
 }
 -(void)okbtn{
+    [self shoujianpan];
+
+    
+    
+    
+    if (!_pwd1Str.length) {
+        [self showAllTextDialog:@"请输入密码"];
+        return;
+    }
+    if (![_verifyStr isEqualToString:@"3"]) {
+
+    if (!_pwd2Str.length) {
+        [self showAllTextDialog:@"请输入确定密码"];
+        return;
+    }
+    }
+    if (_pwd1Str.length < 6 || _pwd1Str.length > 30 ) {
+        [self showAllTextDialog:@"请输入6-30位的密码"];
+        return;
+        
+    }
+    if (![_verifyStr isEqualToString:@"3"]) {
+        
+    
+    if (![_pwd1Str isEqualToString:_pwd2Str]) {
+        [self showAllTextDialog:@"两次输入密码不一致"];
+        return;
+    }
+    }
+//    [self showLoading];
+
+        [self showLoading];
+    
+    
+    
+    
+    NSString *sign = [CommonUtil md5:_pwd1Str];
+
+    NSDictionary * dic = @{
+                         @"password":sign,
+                         @"code":_cvvStr
+                           };
+    BOOL islogin = YES;
+    NSString *url= @"";
+    if ([_verifyStr isEqualToString:@"1"]) {
+        dic = @{
+                @"password":sign,
+                @"mobile":_phoneStr,
+                @"code":_cvvStr
+                };
+//        islogin = NO;
+        url = @"api/user/changePassword.json";
+
+    }
+   else if ([_verifyStr isEqualToString:@"3"]) {
+       islogin = YES;
+       dic = @{
+               @"password":sign,
+               @"mobile":_phoneStr,
+               @"Code":_cvvStr
+               };
+       //        islogin = NO;
+       url = @"api/user/relateMobile.json";
+
+       
+       
+   }
+    else
+    url = @"api/purse/payPassword.json";
+
+    
+    
+    
+    [self.requestManager postWithUrl:url refreshCache:NO params:dic IsNeedlogin:islogin success:^(id resultDic) {
+        [self stopshowLoading];
+        NSLog(@"resultDic ===%@",resultDic);
+        if ([_verifyStr isEqualToString:@"1"]) {
+//            [self showHint:@"密码成功"];
+
+            [self logout];
+            
+            
+        }
+        else
+        {
+            [self showHint:@"密码设置成功"];
+
+        dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(0.5 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
+            
+            
+            for (UIViewController *vc in self.navigationController.viewControllers) {
+                
+                if ([vc isKindOfClass:objc_getClass("SettViewController")]) {
+                    
+                    [self.navigationController popToViewController:vc animated:YES];
+                    
+                    return;
+                }
+            }
+            
+            for (UIViewController *vc in self.navigationController.viewControllers) {
+                
+                if ([vc isKindOfClass:objc_getClass("PaymentViewController")]) {
+                    
+                    [self.navigationController popToViewController:vc animated:YES];
+                    
+                    return;
+                }
+            }
+
+
+            
+        });
+        }
+        
+        
+    } fail:^(NSURLSessionDataTask *operation, NSError *error, NSString *description) {
+        if (description.length > 30) {
+            NSRange r = {17,9};
+            NSString *ss = [description substringWithRange:r];
+            description = ss;
+            
+        }
+        [self stopshowLoading];
+        [self showAllTextDialog:description];
+    }];
+
+    
     
     
     
 }
+#pragma mark-注销
+-(void)logout{
+    /*保存数据－－－－－－－－－－－－－－－－－begin*/
+    NSUserDefaults *defaults=[NSUserDefaults standardUserDefaults];
+    [defaults setObject :@"" forKey:@"Pwd"];
+    [defaults setObject :@"" forKey:@"uid"];
+    
+    [defaults setObject :@"" forKey:@"thumbnail"];
+    
+    [defaults setObject :@"" forKey:@"sessionId"];
+    [defaults setObject :@"" forKey:@"nickname"];
+    [defaults setObject :@"" forKey:@"mobile"];
+    [defaults setObject :@"" forKey:@"id"];
+    [defaults setObject :@"" forKey:@"password"];
+    [defaults setObject:@"" forKey:@"isLogOut"];
+    
+    [self.requestManager.httpClient.requestSerializer setValue:@"" forHTTPHeaderField:@"user_session"];
+    
+    if ([[defaults objectForKey:@"type"]  isEqual: @(3)]) {
+        
+        [ShareSDK cancelAuthorize:SSDKPlatformTypeSinaWeibo];
+        
+    }
+    if ([[defaults objectForKey:@"type"]  isEqual: @(1)]) {
+        
+        [ShareSDK cancelAuthorize:SSDKPlatformTypeWechat];
+        
+    }
+    if ([[defaults objectForKey:@"type"]  isEqual: @(2)]) {
+        
+        [ShareSDK cancelAuthorize:SSDKPlatformTypeQQ];
+        
+    }
+    //强制让数据立刻保存
+    [defaults synchronize];
+    __weak payPwdViewController *weakSelf = self;
+    
+    dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+        
+        
+        EMError *error = [[EMClient sharedClient] logout:YES];
+        dispatch_async(dispatch_get_main_queue(), ^{
+            
+            [weakSelf stopshowLoading];
+            //                if (error != nil) {
+            //
+            //                    [weakSelf showHint:error.errorDescription];
+            //                }
+            //                else{
+            [self showAllTextDialog:@"修改成功，请重新登录"];
+            
+            
+            [[ApplyViewController shareController] clear];
+            [[NSNotificationCenter defaultCenter] postNotificationName:KNOTIFICATION_LOGINCHANGE object:@NO];
+            //发送通知
+            [[NSNotificationCenter defaultCenter] postNotificationName:@"didNewObjNotification" object:@""];
+            //发送通知
+            [[NSNotificationCenter defaultCenter] postNotificationName:@"didMCMyshoppingObjNotification" object:@""];
+            //发送通知
+            [[NSNotificationCenter defaultCenter] postNotificationName:@"disquery2ObjNotification" object:@""];
+            
+            dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(0.5 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
+                [self.navigationController popToRootViewControllerAnimated:YES];
+                //发送通知
+                [[NSNotificationCenter defaultCenter] postNotificationName:@"disCtlViewObjNotification" object:@"登录"];
+                //                        [self.navigationController popViewControllerAnimated:YES];
+                
+                
+            });
+            
+            //}
+        });
+    });
+    
+    return;
+    [self showLoading];
+    [self.requestManager postWithUrl:@"api/user/logout.json" refreshCache:NO params:nil IsNeedlogin:YES success:^(id resultDic) {
+        NSLog(@"成功");
+        NSLog(@"返回==%@",resultDic);
+    } fail:^(NSURLSessionDataTask *operation, NSError *error, NSString *description) {
+        [self stopshowLoading];
+        [self showAllTextDialog:description];
+        NSLog(@"失败");
+        
+    }];
+    
+    
+    
+    
+}
+
+
 - (void)didReceiveMemoryWarning {
     [super didReceiveMemoryWarning];
     // Dispose of any resources that can be recreated.

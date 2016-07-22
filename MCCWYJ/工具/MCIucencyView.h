@@ -9,6 +9,7 @@
 #import <UIKit/UIKit.h>
 
 @interface MCIucencyView : UIView
+@property (strong, nonatomic) NSDate *lastPlaySoundDate;
 
 @property(nonatomic,strong)UIView *bgView;
 @property(nonatomic,strong)UIView*PaomaView;
@@ -82,4 +83,83 @@
 //加模糊效果，image是图片，blur是模糊度
 + (UIImage *)blurryImage:(UIImage *)image withBlurLevel:(CGFloat)blur ;
 
+
+/**
+ 检测首页头像红点
+ */
++ (BOOL)HomeRemind;
+/**
+ 检测通讯录红点
+ */
++ (BOOL)addressBookRemind;
+/**
+ 检测游记红点
+ */
++ (BOOL)travelRemind;
+/**
+ 检测晒红点
+ */
++ (BOOL)showRemind;
+/**
+ 检测代购红点
+ */
++ (BOOL)pickRemind;
+/**
+ 检测售红点
+ */
++ (BOOL)sellRemind;
+
+/**
+ 获取游记数组
+ */
+
++ (NSMutableArray*)travelRemindArray;
+
+/**
+ 浏览游记
+ */
++(void)travelStr:(NSString*)travelID;
+
+
+/**
+ 获取晒数组
+ */
+
++ (NSMutableArray*)showRemindArray;
+
+/**
+ 浏览晒
+ */
++(void)showStr:(NSString*)showlID;
+
+/**
+ 获取求数组
+ */
+
++ (NSMutableArray*)pickRemindArray;
+
+/**
+ 浏览求
+ */
++(void)pickStr:(NSString*)picklID;
+
+
+/**
+ 获取售数组
+ */
+
++ (NSMutableArray*)sellRemindArray;
+/**
+ 浏览售
+ */
++(void)sellStr:(NSString*)picklID;
+
+/**
+ 收到消息时，播放音频
+ */
++ (void)playSoundAndVibration;
+/**
+ 消除所有红点
+ */
++(void)remRemind;
 @end

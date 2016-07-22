@@ -81,6 +81,7 @@
 - (void)presentRightMenuViewController;
 - (void)hideMenuViewController;
 - (void)setContentViewController:(UIViewController *)contentViewController animated:(BOOL)animated;
+- (void)removeOriginControls;
 
 @end
 

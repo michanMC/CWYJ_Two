@@ -13,6 +13,7 @@
 -(void)MCactionTapimg;
 
 //@property(nonatomic,strong)UIImageView * imgView;
+@property(nonatomic,strong)NSMutableDictionary *commodity_Dic;
 
 -(void)removeMCshaidanView;
 
@@ -21,7 +22,7 @@
 
 
 
--(void)addteizhi;
+-(void)addteizhi:(UIButton*)btn;
 
 
 @end

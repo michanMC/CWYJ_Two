@@ -8,6 +8,9 @@
 
 #import "MakeViewController.h"
 #import "zhizuoZP2ViewController.h"
+#import "MCMApManager.h"
+#import "jingdianModel.h"
+
 @interface MakeViewController ()<UIScrollViewDelegate,UITextFieldDelegate,UITableViewDelegate,UITableViewDataSource>
 {
     UIScrollView * _ScrollView;
@@ -48,6 +51,14 @@
     UIView *_bgtableView;
     
     
+    
+    jingdianModel * _jingdiangModel;
+    NSString * _jingdianStr;
+    NSMutableArray *_dataArray;
+
+    
+    
+    
 }
 
 @end
@@ -57,32 +68,34 @@
 - (void)viewDidLoad {
     [super viewDidLoad];
     self.title = @"制作游记";
+    
     _zanseleIndex = 700;
     _caiseleIndex = 800;
 
 //    _zanTitleArray = [NSArray array];
 //    _caiTitleArray = [NSArray array];
     _zanTitleArray = @[
+                       @"东西好吃得不要不要的",
+                       @"三星级的价格，五星级的享受",
+                       @"景美，我和我的小伙伴都惊呆了！",
+                       @"买买买"
+                       ];
+    _caiTitleArray = @[
                        @"食之无味，弃之也不浪费",
                        @"除了不淋雨，其实就是天桥底",
                        @"世界有多大，此景有多差！",
                        @"钱包好空虚，宝宝好委屈"
                        ];
-    _caiTitleArray = @[
-                       @"食之无味，弃之也不浪费2",
-                       @"除了不淋雨，其实就是天桥底2",
-                       @"世界有多大，此景有多差2！",
-                       @"钱包好空虚，宝宝好委屈2"
-                       ];
 
     
     
-    
+    _dataArray = [NSMutableArray array];
     
     _ScrollView = [[UIScrollView alloc]initWithFrame:CGRectMake(0, 64, Main_Screen_Width, Main_Screen_Height - 64)];
-    
+    _ScrollView.backgroundColor = AppMCBgCOLOR;
     _ScrollView.delegate =self;
     [self.view addSubview:_ScrollView];
+    [self loadWeizi];
     [self preapreheadViewUI];
     // Do any additional setup after loading the view.
 }
@@ -214,7 +227,8 @@
         UILabel * titleLbl = [[UILabel alloc]initWithFrame:CGRectMake(x, y, w, h)];
         titleLbl.text = _zanTitleArray[i];
         titleLbl.textColor = AppTextCOLOR;
-        titleLbl.font = AppFont;
+        titleLbl.font = [UIFont systemFontOfSize:12*MCWidthScale];
+//        titleLbl.adjustsFontSizeToFitWidth = YES;
         [_zanBgView addSubview:titleLbl];
         y +=h+0.5;
     
@@ -284,7 +298,9 @@
         UILabel * titleLbl = [[UILabel alloc]initWithFrame:CGRectMake(x, y, w, h)];
         titleLbl.text = _caiTitleArray[i];
         titleLbl.textColor = AppTextCOLOR;
-        titleLbl.font = AppFont;
+        
+        titleLbl.font = [UIFont systemFontOfSize:12*MCWidthScale];
+//        titleLbl.adjustsFontSizeToFitWidth = YES;
         [_caiBgView addSubview:titleLbl];
         y +=h+0.5;
         
@@ -354,6 +370,7 @@
     [_ScrollView addSubview:bgview];
 
     _jingdianTextField = [[UITextField alloc]initWithFrame:CGRectMake(10, 0, bgview.mj_w - 20, h)];
+    _jingdianTextField.text = _jingdianStr;
     _jingdianTextField.placeholder = @"输入景点试试?";
     _jingdianTextField.textColor = AppTextCOLOR;
     _jingdianTextField.backgroundColor = [UIColor groupTableViewBackgroundColor];
@@ -389,8 +406,7 @@
     [self preaprepushView];
 }
 -(void)textFieldDidEndEditing:(UITextField *)textField{
-    
-    
+    textField.text = _jingdianStr;
     
     
 }
@@ -413,7 +429,6 @@
 #pragma mark-搜索景点
 -(void)EditingChanged:(NSString*)textStr{
     NSLog(@"textStr == %@",textStr);
-    _bgtableView.hidden = NO;
     NSDictionary * Parameterdic = @{
                                     @"keyWord":textStr
                                     };
@@ -422,8 +437,38 @@
     
     [self.requestManager postWithUrl:@"api/travel/searchSpots.json" refreshCache:NO params:Parameterdic IsNeedlogin:YES success:^(id resultDic) {
         
-    } fail:^(NSURLSessionDataTask *operation, NSError *error, NSString *description) {
         
+        [self stopshowLoading];
+        NSLog(@"成功");
+        NSLog(@"返回》》==%@",resultDic);
+        [_dataArray removeAllObjects];
+        NSArray * objectArray = resultDic[@"object"];
+        for (NSDictionary *dic in objectArray) {
+            jingdianModel * modle = [jingdianModel mj_objectWithKeyValues:dic];
+            [_dataArray addObject:modle];
+        }
+        
+        if (_dataArray.count) {
+            _bgtableView.hidden = NO;
+            [_tableView reloadData];
+            
+        }
+        else
+        {
+            _bgtableView.hidden = YES;
+
+        }
+        
+        
+
+        
+        
+        
+        
+        
+    } fail:^(NSURLSessionDataTask *operation, NSError *error, NSString *description) {
+        _bgtableView.hidden = YES;
+
     }];
     
     
@@ -486,19 +531,42 @@
     
 }
 -(NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section{
-    return 10;
+    return _dataArray.count;
 }
 -(CGFloat)tableView:(UITableView *)tableView heightForRowAtIndexPath:(NSIndexPath *)indexPath{
     return 44;
 }
 -(UITableViewCell*)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath
 {
+    
+    UITableViewCell * cell = [tableView dequeueReusableCellWithIdentifier:@"mc2"];
+    if (!cell) {
+        cell = [[UITableViewCell alloc]initWithStyle:UITableViewCellStyleDefault reuseIdentifier:@"mc2"];
+        cell.selectionStyle = UITableViewCellSelectionStyleNone;
+    }
+    if (_dataArray.count > indexPath.row) {
+       jingdianModel*  jingdiangModel = _dataArray[indexPath.row];
+        cell.textLabel.text = jingdiangModel.nameCH;
+        cell.textLabel.textColor = AppCOLOR;
+        cell.textLabel.font = AppFont;
+        return cell;
+    }
+    
     return [[UITableViewCell alloc]init];
 }
 
 -(void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath
 {
     _bgtableView.hidden = YES;
+    
+    if (_dataArray.count > indexPath.row) {
+        _jingdiangModel = _dataArray[indexPath.row];
+        _jingdianTextField.text = _jingdiangModel.nameCH;
+        _jingdianStr = _jingdiangModel.nameCH;
+
+    }
+
+    
 
 }
 
@@ -524,7 +592,67 @@
 }
 -(void)pushView{
     
+    NSInteger tagIndex = 100;
+    if (_zanBtn.selected) {
+        tagIndex = 700;
+        NSLog(@"赞");
+    }
+    if (_caiBtn.selected) {
+        tagIndex = 800;
+
+        NSLog(@"踩");
+    }
+//i + 700;
+    NSString * str2= @"";
+
+    for (int i = 0; i < 4; i++) {
+        
+        UIButton * btn = (UIButton*)[self.view viewWithTag:i + tagIndex];
+        
+        if (btn.selected) {
+            if (tagIndex == 700) {
+                str2 = _zanTitleArray[i];
+
+            }
+            else if (tagIndex == 800)
+            {
+                str2 = _caiTitleArray[i];
+
+            }
+            break;
+        }
+    }
+    
+    if (tagIndex == 100) {
+        kAlertMessage(@"请选择你对此景点的看法");
+        return;
+    }
+    if (!str2.length) {
+        kAlertMessage(@"请选择你对此景点的看法");
+        return;
+    }
+    if (!_jingdianStr.length || !_jingdiangModel.id) {
+        kAlertMessage(@"请输入你的景点");
+        return;
+    }
+    if (!_timeStr.length) {
+        kAlertMessage(@"请选择你出游的时间");
+        return;
+    }
+
+    NSLog(@"str2 == %@",str2);
+    NSLog(@"_jingdianStr == %@",_jingdianStr);
+    NSLog(@"_timeStr == %@",_timeStr);
+    NSMutableDictionary * dic = [NSMutableDictionary dictionary];
+    [dic setObject:@(tagIndex) forKey:@"isRecommend"];
+    [dic setObject:str2 forKey:@"classify"];
+    [dic setObject:_jingdiangModel.id forKey:@"spotId"];
+    [dic setObject:_timeStr forKey:@"startTime"];
+    [dic setObject:_jingdianStr forKey:@"jingdianStr"];
+    
     zhizuoZP2ViewController * ctl = [[zhizuoZP2ViewController alloc]init];
+    ctl.dataDic = dic;
+
     [self pushNewViewController:ctl];
 }
 
@@ -640,6 +768,37 @@
     UITapGestureRecognizer *tap = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(hiddenInputView)];
     [_maskView addGestureRecognizer:tap];
 }
+#pragma mark-位置
+-(void)loadWeizi{
+    
+    if (![MCMApManager sharedInstance].lo || ![MCMApManager sharedInstance].la) {
+        return;
+    }
+    NSDictionary * Parameterdic = @{
+                                    @"lat":@([MCMApManager sharedInstance].la),
+                                    @"lng":@([MCMApManager sharedInstance].lo)
+                                    };
+    
+    //[self showLoading:isjuhua AndText:nil];
+    [self.requestManager postWithUrl:@"api/travel/searchRecentSpot.json" refreshCache:NO params:Parameterdic IsNeedlogin:YES success:^(id resultDic) {
+        [self stopshowLoading];
+        NSLog(@"shang成功");
+        NSLog(@"返回==%@",resultDic);
+        
+        _jingdiangModel = [jingdianModel mj_objectWithKeyValues:resultDic[@"object"]];
+        _jingdianStr = _jingdiangModel.nameCH;
+
+        
+    } fail:^(NSURLSessionDataTask *operation, NSError *error, NSString *description) {
+        [self stopshowLoading];
+        
+        
+        NSLog(@"shang失败%@",description);
+    }];
+    
+}
+
+
 
 
 

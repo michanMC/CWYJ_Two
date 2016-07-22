@@ -133,6 +133,8 @@ blue:((float)(rgbValue & 0xFF))/255.0 alpha:1.0]
 +(NSString*)getProvinceKey:(NSInteger)provinceKey CityKey:(NSInteger)cityKey AreaKey:(NSInteger)areaKey;
 
 
++(NSString *) md5:(NSString *)str;
++(NSString*) createMd5Sign:(NSMutableDictionary*)dict Key:(NSString*)key;
 
 
 /**
@@ -153,4 +155,7 @@ blue:((float)(rgbValue & 0xFF))/255.0 alpha:1.0]
 
 
 +(NSMutableAttributedString *)formatString:(NSString *)str textColor:(UIColor *)acolor font:(CGFloat )afont textordinaryColor:(UIColor*)ordinaryColor startNum:(NSInteger)startnum toNum:(NSInteger)tonum;
+
++ (BOOL )getMonthBeginAndEndWith;
+
 @end

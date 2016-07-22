@@ -7,7 +7,10 @@
 //
 
 #import "BaseViewController.h"
-
+#import "MyIntegralModel.h"
+#import "DepositView1Controller.h"
 @interface DepositViewController : BaseViewController
+@property(nonatomic,strong)MyIntegralModel * seleModel;
+@property(weak,nonatomic)DepositView1Controller* delegate;
 
 @end

@@ -10,6 +10,8 @@
 @class MCbackButton;
 @interface zuopinQxTableViewCell : UITableViewCell
 @property(nonatomic,strong)MCbackButton *shouchangBtn;
+@property(nonatomic,strong) UIButton *headimgBtn;
+
 @property(nonatomic,assign)BOOL ishiddenShouC;
 
 @property(nonatomic,copy)NSString *titleStr;

@@ -12,8 +12,8 @@
 #import "YJTableViewCell.h"
 #import "YJNoDataTableViewCell.h"
 #import "homeYJModel.h"
-
-@interface FriendYJViewController ()<MCscreenViewDelegate,UITableViewDelegate,UITableViewDataSource>
+#import "ProductionViewController.h"
+@interface FriendYJViewController ()<MCscreenViewDelegate,UITableViewDelegate,UITableViewDataSource,SearchViewControllerDelegate>
 {
     
     UITextField *_searchtext;
@@ -25,6 +25,10 @@
     NSMutableArray *_dataAarray;//数据源
     NSInteger  _pageStr;
     BOOL _isNoData;
+    NSMutableDictionary * Parameterdic;
+    NSDictionary *_all2Dic;
+    NSMutableDictionary * _allDic;
+
 
     
 }
@@ -44,45 +48,122 @@
 
     _dataAarray  =[NSMutableArray array];
     _pageStr = 1;
+    Parameterdic = [NSMutableDictionary dictionary];
+    
+    [Parameterdic  setObject:@(_pageStr) forKey:@"page"];
+
+    
+    [Parameterdic setObject:@([_uid integerValue]) forKey:@"destUid"];
+//    [Parameterdic setObject:@([MCMApManager sharedInstance].lo) forKey:@"lng"];
+    _all2Dic = @{
+                 @"like":@"0",
+                 @"classify":@"0",
+                 @"distance":@"0"
+                 };
+
+    _allDic = [NSMutableDictionary dictionary];
+    [_allDic setObject:@"" forKey:@"isRecommend"];
+    [_allDic setObject:@"" forKey:@"classify"];
+    [_allDic setObject:@"" forKey:@"distance"];
+
     _tableView = [[UITableView alloc]initWithFrame:CGRectMake(0, 64, Main_Screen_Width, Main_Screen_Height -64) style:UITableViewStylePlain];
     _tableView.delegate =self;
     _tableView.dataSource = self;
-//    _tableView.mj_header = [MJRefreshNormalHeader headerWithRefreshingTarget:self refreshingAction:@selector(RefreshHeader)];
-//    _tableView.mj_footer = [MJRefreshAutoNormalFooter footerWithRefreshingTarget:self refreshingAction:@selector(RefreshFooter)];
+    _tableView.mj_header = [MJRefreshNormalHeader headerWithRefreshingTarget:self refreshingAction:@selector(RefreshHeader)];
+    _tableView.mj_footer = [MJRefreshBackStateFooter footerWithRefreshingTarget:self refreshingAction:@selector(RefreshFooter)];
     [self.view addSubview:_tableView];
-//    [self loadData];
+    _tableView.backgroundColor = AppMCBgCOLOR;
+
+    [self loadData];
 
     
     // Do any additional setup after loading the view.
 }
 -(void)RefreshHeader{
     _pageStr = 1;
-//    [self loadData];
+    [_dataAarray removeAllObjects];
+    [self loadData];
     
     
 }
 -(void)RefreshFooter{
     _pageStr ++;
-//    [self loadData];
+    [self loadData];
     
     
 }
--(NSInteger)numberOfSectionsInTableView:(UITableView *)tableView
-{
-       return 1;
+-(void)loadData{
+    
+    [Parameterdic  setObject:@(_pageStr) forKey:@"page"];
+    
+    [self showLoading];
+    [self.requestManager postWithUrl:@"api/travel/myTravels.json" refreshCache:NO params:Parameterdic IsNeedlogin:YES success:^(id resultDic) {
+        [self stopshowLoading];
+        NSLog(@"resultDic == %@",resultDic);
+        NSArray * objectArray = resultDic[@"object"];
+        for (NSDictionary* dic in objectArray) {
+            homeYJModel * model = [homeYJModel mj_objectWithKeyValues:dic];
+            model.userModel = [YJUserModel mj_objectWithKeyValues:dic[@"user"]];
+            NSLog(@"%@",model.userModel.isNew);
+            
+            if (model.photos) {
+                for (NSDictionary * photodic in model.photos) {
+                    YJphotoModel * photomodel = [YJphotoModel mj_objectWithKeyValues:photodic];
+                    [model.YJphotos addObject:photomodel];
+                }
+            }
+            
+            
+            [_dataAarray addObject:model];
+        }
+        if (_dataAarray.count) {
+            _isNoData = NO;
+        }
+        else
+        {
+            _isNoData = YES;
+            
+        }
+        [_tableView reloadData];
+        [_tableView.mj_header endRefreshing];
+        [_tableView.mj_footer endRefreshing];
+        
+    } fail:^(NSURLSessionDataTask *operation, NSError *error, NSString *description) {
+        [self stopshowLoading];
+        [self showAllTextDialog:description];
+        [_tableView.mj_header endRefreshing];
+        [_tableView.mj_footer endRefreshing];
+        if (_dataAarray.count) {
+            _isNoData = NO;
+            [_tableView  reloadData];
+            
+        }
+        else
+        {
+            _isNoData = YES;
+            [_tableView  reloadData];
+            
+        }
+        
+        
+    }];
+    
 
+    
+    
+    
 }
 -(NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section{
     if (_isNoData) {
         return 1;
     }
-    return 10;//_dataAarray.count;
+    return _dataAarray.count;
 }
 -(CGFloat)tableView:(UITableView *)tableView heightForFooterInSection:(NSInteger)section{
     return 0.001;
 }
 -(CGFloat)tableView:(UITableView *)tableView heightForHeaderInSection:(NSInteger)section{
-    return 10;
+    return 0.001;
 }
 -(CGFloat)tableView:(UITableView *)tableView heightForRowAtIndexPath:(NSIndexPath *)indexPath{
     if (_isNoData) {
@@ -109,25 +190,42 @@
     
     
     
-//    if (_dataAarray.count > indexPath.section) {
+   if (_dataAarray.count > indexPath.row) {
         static NSString * cellid = @"mc1";
         YJTableViewCell * cell = [tableView dequeueReusableCellWithIdentifier:cellid];
         if (!cell) {
             cell = [[YJTableViewCell alloc]initWithStyle:UITableViewCellStyleDefault reuseIdentifier:cellid];
         }
         cell.selectionStyle = UITableViewCellSelectionStyleNone;
-        
-        //        cell.selectionStyle =
-//        homeYJModel * model= _dataAarray[indexPath.section];
-        [cell prepareUI:nil];
-        return cell;
-//    }
+       homeYJModel * model= _dataAarray[indexPath.row];
+       [cell prepareUI:model];
+//       cell.imgView.userInteractionEnabled = YES;
+//       cell.headerimgBtn.tag = indexPath.section + 430;
+//       [cell.headerimgBtn addTarget:self action:@selector(actionHearBtn:) forControlEvents:UIControlEventTouchDown];
+       return cell;
+    }
     
     
     
     return [[UITableViewCell alloc]init];
 }
+-(void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath
+{
+    
+    [tableView deselectRowAtIndexPath:indexPath animated:YES];
+    homeYJModel * model = _dataAarray[indexPath.row];
+    ProductionViewController *ctl = [[ProductionViewController alloc]init];
+    ctl.home_model = model;
+    ctl.dataArray = _dataAarray;
+    ctl.index = indexPath.row ;//indexPath.section;
+    
+    [self pushNewViewController:ctl];
+    
 
+    
+    
+    
+}
 -(void)setUpNavBar{
     
     MCIucencyView * seachView = [[MCIucencyView alloc]initWithFrame:CGRectMake(0, 0, Main_Screen_Width - 100, 30)];
@@ -140,7 +238,7 @@
     _searchtext.textColor  =[UIColor lightGrayColor];
     _searchtext.font = AppFont;
     _searchtext.enabled = NO;
-    _searchtext.clearButtonMode = UITextFieldViewModeAlways;
+//    _searchtext.clearButtonMode = UITextFieldViewModeAlways;
     [seachView addSubview:_searchtext];
     UIButton *_searchBtn = [[UIButton alloc]initWithFrame:_searchtext.bounds];
     [_searchBtn addTarget:self action:@selector(ActionsearchBtn) forControlEvents:UIControlEventTouchUpInside];
@@ -174,8 +272,6 @@
     
 }
 -(void)actionBack{
-    
-    
     [self.navigationController popViewControllerAnimated:YES];
     
     
@@ -190,14 +286,12 @@
     {
         _isShowScree = YES;
         _screenview = [[MCscreenView alloc]initWithFrame:CGRectMake(0, 64, Main_Screen_Width, Main_Screen_Height  - 64)];
-        NSDictionary * dic = @{
-                               @"like":@"0",
-                               @"classify":@"0",
-                               @"distance":@"0"
-                               };
         
         _screenview.delegate = self;
-        [_screenview IsMYBuy:NO DataDic:dic];
+        NSLog(@"_all2Dic == %@",_all2Dic);
+
+        [_screenview IsMYBuy:NO DataDic:_all2Dic];
+
         [_screenview showInWindow];
         
     }
@@ -214,14 +308,165 @@
 {
     [self MCscreenhidden];
     NSLog(@"selectDic ==%@",selectDic);
+    _all2Dic = selectDic;
+    
+    
+    if ([selectDic[@"distance"] integerValue]==0) {
+        [_allDic setObject:@"" forKey:@"distance"];
+    }
+    else
+    {
+        if ([selectDic[@"distance"] integerValue] == 1) {
+            [_allDic setObject:@"5000" forKey:@"distance"];
+            
+        }
+        if ([selectDic[@"distance"] integerValue] == 2) {
+            [_allDic setObject:@"10000" forKey:@"distance"];
+            
+        }
+        if ([selectDic[@"distance"] integerValue] == 3) {
+            [_allDic setObject:@"50000" forKey:@"distance"];
+            
+        }
+        if ([selectDic[@"distance"] integerValue] == 4) {
+            [_allDic setObject:@"100000" forKey:@"distance"];
+            
+        }
+        
+    }
+    
+    
+    if ([selectDic[@"like"] integerValue]==0) {
+        [_allDic setObject:@"" forKey:@"isRecommend"];
+        
+    }
+    else
+    {
+        [_allDic setObject:selectDic[@"like"] forKey:@"isRecommend"];
+        
+    }
+    
+    
+    
+    if ([selectDic[@"classify"] integerValue]==0) {
+        [_allDic setObject:@"" forKey:@"classify"];
+        
+    }
+    else
+    {
+        [_allDic setObject:selectDic[@"classify"] forKey:@"classify"];
+        
+    }
+    
+    
+    [self selectAlldic:_allDic];
+    
+
+}
+-(void)selectAlldic:(NSDictionary*)dic{
+    _pageStr = 1;
+    
+    //    [Parameterdic  setObject:@(0) forKey:@"spotId"];
+    NSString * classify = @"";
+    if ([dic[@"classify"] isEqualToString:@"0"]) {
+        classify = @"";
+    }
+    if ([dic[@"classify"] isEqualToString:@"1"]) {
+        classify = @"0";
+    }
+    if ([dic[@"classify"] isEqualToString:@"2"]) {
+        classify = @"1";
+    }
+    if ([dic[@"classify"] isEqualToString:@"3"]) {
+        classify = @"2";
+    }
+    if ([dic[@"classify"] isEqualToString:@"4"]) {
+        classify = @"3";
+    }
+    
+    
+    [Parameterdic  setObject:classify forKey:@"classify"];
+    NSInteger _spotIdStr = -1;
+    if ([dic[@"spotId"] length]) {
+        _spotIdStr = [dic[@"spotId"] integerValue];
+        
+    }
+    if (_spotIdStr >=  0 ) {
+        [Parameterdic  setObject:@(_spotIdStr) forKey:@"spotId"];
+        
+    }
+    else
+    {
+        [Parameterdic  setObject:@"" forKey:@"spotId"];
+        
+    }
+    
+    
+    
+    
+    
+    [Parameterdic  setObject:dic[@"distance"] forKey:@"distance"];
+    
+    
+    
+    
+    NSString * isRecommend = @"";
+    if ([dic[@"isRecommend"] isEqualToString:@"0"]) {
+        isRecommend = @"";
+    }
+    if ([dic[@"isRecommend"] isEqualToString:@"1"]) {
+        isRecommend = @"1";
+    }
+    if ([dic[@"isRecommend"] isEqualToString:@"2"]) {
+        isRecommend = @"0";
+    }
+    
+    
+    
+    [Parameterdic  setObject:isRecommend forKey:@"isRecommend"];
+    [self RefreshHeader];
     
 }
+
 
 #pragma mark-点搜索
 -(void)ActionsearchBtn{
     [self MCscreenhidden];
     SearchViewController  * ctl = [[SearchViewController alloc]init];
+    ctl.SearchType = SearchType_scenic;
+    ctl.delegate = self;
+    ctl.Search_Str = _searchtext.text;
+
     [self pushNewViewController:ctl];
+    
+}
+-(void)selectTitleModel:(jingdianModel *)model
+{
+    if (model) {
+        _searchtext.text = model.nameCH;
+        [_allDic setObject:model.id forKey:@"spotId"];
+        
+    }
+    else
+    {
+        _searchtext.text = @"";
+        [_allDic setObject:@"" forKey:@"spotId"];
+        
+    }
+    
+    [self selectAlldic:_allDic];
+    
+}
+
+-(void)actionTapBtn{
+    
+    
+    if (![MCUserDefaults objectForKey:@"sessionId"]||![[MCUserDefaults objectForKey:@"sessionId"] length]) {
+        
+        
+        return;
+    }
+    
     
 }
 

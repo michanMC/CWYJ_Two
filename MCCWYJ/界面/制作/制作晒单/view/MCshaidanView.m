@@ -27,6 +27,8 @@
     UITextField * _colourField;//颜色
 
     NSString *_commodityStr;
+    NSString *_commodityid;
+
     NSString *_brandStr;
     NSString *_priceStr;
     NSString *_numStr;
@@ -34,7 +36,8 @@
     NSString *_modelStr;
     NSString *_colourStr;
 
-    
+    NSInteger _seleindex;
+
     
 }
 
@@ -230,7 +233,14 @@
         [_MCbgView addSubview:btn];
 
         y += h ;
-        _MCbgView.frame = CGRectMake(0, (Main_Screen_Height - y )/2, Main_Screen_Width, y);
+//        if (iPhone6||iPhone6plus) {
+//            _MCbgView.frame = CGRectMake(0, (Main_Screen_Height - y )/2, Main_Screen_Width, y);
+//
+//        }
+//        else
+//        {
+            _MCbgView.frame = CGRectMake(0, (Main_Screen_Height - y )/2 - 40, Main_Screen_Width, y);
+//        }
         
         
         
@@ -238,6 +248,39 @@
     }
 
     return self;
+}
+-(void)setCommodityDic:(NSMutableDictionary *)commodityDic
+{
+    
+    _commodityDic = commodityDic;
+    
+    _commodityStr = commodityDic[@"commodity"]?commodityDic[@"commodity"]:@"";
+    _commodityid = commodityDic[@"commodityid"]?commodityDic[@"commodityid"]:@"";
+    _commodityLbl.text = commodityDic[@"commodity"]?commodityDic[@"commodity"]:@"代购点";
+    
+    _priceStr = commodityDic[@"price"]?commodityDic[@"price"]:@"";
+    _priceField.text = _priceStr;
+    
+
+    _numStr = commodityDic[@"num"]?commodityDic[@"num"]:@"";
+    _numField.text = _numStr;
+    
+
+    _brandStr = commodityDic[@"brand"]?commodityDic[@"brand"]:@"";
+    _brandLbl.text = commodityDic[@"brand"]?commodityDic[@"brand"]:@"品牌";
+
+    
+
+    _nameStr = commodityDic[@"name"]?commodityDic[@"name"]:@"";
+    _nameField.text =_nameStr;
+
+    _modelStr = commodityDic[@"model"]?commodityDic[@"model"]:@"";
+    _modelField.text = _modelStr;
+    
+    
+    _colourStr = commodityDic[@"colour"]?commodityDic[@"colour"]:@"";
+    _colourField.text = _colourStr;
+    
 }
 -(void)textFieldDidEndEditing:(UITextField *)textField
 {
@@ -269,7 +312,7 @@
     
 }
 -(void)actionQD{
-    for (NSString *i  in @[@"200",@"201",@"202",@"203"]) {
+    for (NSString *i  in @[@"200",@"201",@"202",@"203",@"204"]) {
         NSInteger tabindex = [i integerValue];
         UITextField * text = [self viewWithTag:tabindex];
         [text resignFirstResponder];
@@ -277,6 +320,8 @@
         
     }
     NSLog(@"_commodityStr =%@",_commodityStr);
+    NSLog(@"_commodityid =%@",_commodityid);
+
     NSLog(@"_priceStr =%@",_priceStr);
     NSLog(@"_priceStr =%@",_numStr);
     NSLog(@"_priceStr =%@",_brandStr);
@@ -288,6 +333,10 @@
         kAlertMessage(@"请输入代购点");
         return;
     }
+    if (!_commodityid.length) {
+        kAlertMessage(@"无效代购点id");
+        return;
+    }
     if (!_priceStr.length) {
         kAlertMessage(@"请输入单价");
         return;
@@ -296,10 +345,10 @@
         kAlertMessage(@"请输入数量");
         return;
     }
-    if (!_brandStr.length) {
-        kAlertMessage(@"请输入品牌");
-        return;
-    }
+//    if (!_brandStr.length) {
+//        kAlertMessage(@"请输入品牌");
+//        return;
+//    }
     if (!_nameStr.length) {
         kAlertMessage(@"请输入商品名");
         return;
@@ -308,9 +357,10 @@
     
     NSDictionary * dic = @{
                            @"commodity":_commodityStr,
+                           @"commodityid":_commodityid,
                            @"price":_priceStr,
                            @"num":_numStr,
-                           @"brand":_brandStr,
+                           @"brand":_brandStr?_brandStr:@"",
                            @"name":_nameStr,
                            @"model":_modelStr?_modelStr:@"",
                            @"colour":_colourStr?_colourStr:@""
@@ -363,7 +413,7 @@
 
 -(void)actionBtn:(UIButton*)btn{
     
-    for (NSString *i  in @[@"200",@"201",@"202",@"203"]) {
+    for (NSString *i  in @[@"200",@"201",@"202",@"203",@"204"]) {
         NSInteger tabindex = [i integerValue];
         UITextField * text = [self viewWithTag:tabindex];
         [text resignFirstResponder];
@@ -373,16 +423,22 @@
     
     SearchViewController  * ctl = [[SearchViewController alloc]init];
     ctl.delegate=self;
-    ctl.isshaidan = YES;
+//    ctl.isshaidan = YES;
 
     if (btn.tag == 900) {
        
-        ctl.isdaigoudian = @"1";
+//        ctl.isdaigoudian = @"1";
+        ctl.SearchType = SearchType_POP;
+         _seleindex = 1;
+
         
         
     }
     else if (btn.tag == 901){
-        ctl.isdaigoudian = @"0";
+        ctl.SearchType = SearchType_brand;
+        _seleindex = 2;
+
+//        ctl.isdaigoudian = @"0";
  
     }
     
@@ -391,6 +447,49 @@
 
     
 }
+-(void)selectTitleModel:(jingdianModel*)model{
+    
+    NSLog(@"model == %@",model);
+    if (_seleindex == 1) {
+        if ([model.nameChs isEqualToString:@""]) {
+            _commodityLbl.text = @"代购点";
+            
+            if (_commodityStr.length) {
+                
+                _commodityLbl.text = _commodityStr;//@"代购点";
+                
+                
+            }
+            
+        }
+        else{
+            _commodityLbl.text = model.nameChs;
+            _commodityStr = model.nameChs;
+            _commodityid = model.id;
+        }
+ 
+    }
+    else
+    {
+        if ([model.nameChs isEqualToString:@""]) {
+            _brandLbl.text =@"品牌";
+            if (_brandStr.length) {
+                _brandLbl.text = _brandStr;//@
+                
+            }
+            
+        }
+        else
+        {
+            _brandLbl.text = model.nameChs;
+            _brandStr = model.nameChs;
+        }
+  
+    }
+    [self hiddenView:NO];
+
+}
+
 -(void)selectTitleStr:(NSString *)str Key:(NSString *)isKey
 {
     

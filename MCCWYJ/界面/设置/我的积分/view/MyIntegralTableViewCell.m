@@ -10,8 +10,8 @@
 
 @implementation MyIntegralTableViewCell
 
--(void)prepareUI1{
-    
+-(void)prepareUI1:(MyIntegralModel*)model{
+
     for (UIView * view in self.contentView.subviews) {
         [view removeFromSuperview];
     }
@@ -39,7 +39,7 @@
     x += w + 5;
     w = Main_Screen_Width - x - 80;
     lbl = [[UILabel alloc]initWithFrame:CGRectMake(x, y, w, h)];
-    lbl.text = @"100000";
+    lbl.text = model.rechargeIntegral? model.rechargeIntegral :@"0";//@"100000";
     lbl.textColor = AppCOLOR;
     lbl.font = [UIFont systemFontOfSize:16];
     [self.contentView addSubview:lbl];
@@ -65,7 +65,8 @@
     x += w + 5;
     w = Main_Screen_Width - x - 80;
     lbl = [[UILabel alloc]initWithFrame:CGRectMake(x, y, w, h)];
-    lbl.text = @"￥100000";
+    NSString * str = model.systemIntegral ?  model.systemIntegral :@"0";
+    lbl.text = [NSString stringWithFormat:@"￥%@",str];
     lbl.textColor = [UIColor darkTextColor];
     lbl.font = [UIFont systemFontOfSize:15];
     [self.contentView addSubview:lbl];
@@ -132,21 +133,70 @@
 
     UILabel * lbl = [[UILabel alloc]initWithFrame:CGRectMake(x, y, w, h)];
     lbl.textColor = [UIColor darkTextColor];
-    lbl.text = @"采点";
+    NSString * ss;
+    if ([_QXModel.integralType isEqualToString:@"0"]) {
+        ss = @"采点";
+    }
+    else
+    {
+        ss = @"赠点";
+ 
+    }
+    lbl.text = ss;//@"采点";
     [self.contentView addSubview:lbl];
     
     
     y +=h + 8;
     lbl = [[UILabel alloc]initWithFrame:CGRectMake(x, y, w, h)];
     lbl.textColor = [UIColor grayColor];
-    lbl.text = @"充值";
+    if ([_QXModel.tradeType isEqualToString:@"0"]) {
+        ss = @"充值";
+    }
+    else if([_QXModel.tradeType isEqualToString:@"1"]){
+        ss = @"做任务";
+
+    }
+    else if([_QXModel.tradeType isEqualToString:@"2"]){
+        ss = @"出售商品";
+        
+    }
+    else if([_QXModel.tradeType isEqualToString:@"3"]){
+        ss = @"代购单退款";
+        
+    }
+    else if([_QXModel.tradeType isEqualToString:@"4"]){
+        ss = @"完成代购";
+        
+    }
+    else if([_QXModel.tradeType isEqualToString:@"5"]){
+        ss = @"购买商品退款";
+        
+    }
+    else if([_QXModel.tradeType isEqualToString:@"6"]){
+        ss = @"发布代购单";
+        
+    }
+    else if([_QXModel.tradeType isEqualToString:@"10"]){
+        ss = @"提现";
+        
+    }
+    else if([_QXModel.tradeType isEqualToString:@"12"]){
+        ss = @"购买商品";
+        
+    }
+
+
+    lbl.text = ss;//@"充值";
     lbl.font = AppFont;
     [self.contentView addSubview:lbl];
     
     y += h + 10;
     lbl = [[UILabel alloc]initWithFrame:CGRectMake(x, y, w, h)];
     lbl.textColor = [UIColor grayColor];
-    lbl.text = @"2015-09-09 13:22";
+    //
+    
+    ss = [CommonUtil getStringWithLong:[_QXModel.modifyDate longLongValue] Format:@"yyyy-MM-dd HH:mm"];
+    lbl.text = ss;//@"2015-09-09 13:22";
     lbl.font = AppFont;
     [self.contentView addSubview:lbl];
     y += h + 8;
@@ -160,7 +210,17 @@
     lbl = [[UILabel alloc]initWithFrame:CGRectMake(x, y, w, h)];
     lbl.textAlignment = NSTextAlignmentRight;
     lbl.textColor = AppCOLOR;//[UIColor grayColor];
-    lbl.text = @"+18888.00";
+    if ([_QXModel.tradeType isEqualToString:@"3"]||[_QXModel.tradeType isEqualToString:@"5"]||[_QXModel.tradeType isEqualToString:@"10"]||[_QXModel.tradeType isEqualToString:@"12"]) {
+        ss = @"-";
+        
+        
+    }
+    else
+    {
+        ss = @"+";
+    }
+    ss = [NSString stringWithFormat:@"%@%@",ss,_QXModel.integral];
+    lbl.text = ss;//@"+18888.00";
     [self.contentView addSubview:lbl];
     
     

@@ -21,4 +21,9 @@
 @property(nonatomic,strong)NSDictionary * user;
 
 @property(nonatomic,strong)YJUserModel *userModel;
+@property(nonatomic,copy)NSString * imageUrl;
+@property(nonatomic,copy)NSString * nickname;
+@property(nonatomic,copy)NSString * userId;
+
+
 @end

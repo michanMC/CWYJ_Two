@@ -20,7 +20,7 @@
         CGFloat lblw =[MCIucencyView heightforString:str andHeight:h fontSize:15];
         
         CGFloat linew = (Main_Screen_Width - 80 - lblw - 10 ) /2;
-        CGFloat liney = (h -1)/2;
+        CGFloat liney = (h -.5)/2;
         
         UILabel * lbl = [[UILabel alloc]initWithFrame:CGRectMake(0, 0, Main_Screen_Width, h)];
         lbl.textAlignment = NSTextAlignmentCenter;
@@ -29,10 +29,10 @@
         lbl.text = str;
         [self.contentView addSubview:lbl];
         
-        UIView * lineView = [[UIView alloc]initWithFrame:CGRectMake(40, liney, linew, 1)];
+        UIView * lineView = [[UIView alloc]initWithFrame:CGRectMake(40, liney, linew, .5)];
         lineView.backgroundColor = [UIColor lightGrayColor];
         [self.contentView addSubview:lineView];
-        lineView = [[UIView alloc]initWithFrame:CGRectMake(Main_Screen_Width - 40 - linew, liney, linew, 1)];
+        lineView = [[UIView alloc]initWithFrame:CGRectMake(Main_Screen_Width - 40 - linew, liney, linew, .5)];
         lineView.backgroundColor = [UIColor lightGrayColor];
         [self.contentView addSubview:lineView];
         

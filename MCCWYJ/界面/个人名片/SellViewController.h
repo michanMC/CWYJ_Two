@@ -9,5 +9,6 @@
 #import "BaseViewController.h"
 
 @interface SellViewController : BaseViewController
+@property(nonatomic,copy)NSString * uid;
 
 @end

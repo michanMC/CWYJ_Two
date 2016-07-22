@@ -11,7 +11,7 @@
 @interface MCshaidanView : UIView
 
 @property(nonatomic,weak)MakeshaidanViewController *delegate;
-
+@property(nonatomic,strong)NSMutableDictionary *commodityDic;
 
 - (void)showInWindow;
 

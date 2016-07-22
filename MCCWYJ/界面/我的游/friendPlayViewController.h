@@ -7,7 +7,9 @@
 //
 
 #import "BaseViewController.h"
-
+#import "MCplayViewController.h"
 @interface friendPlayViewController : BaseViewController
+@property(nonatomic,weak)MCplayViewController * delegate;
+-(void)selectfridic:(NSDictionary*)dic;
 
 @end

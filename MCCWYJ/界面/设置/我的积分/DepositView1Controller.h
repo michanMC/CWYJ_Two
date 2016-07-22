@@ -7,7 +7,16 @@
 //
 
 #import "BaseViewController.h"
+#import "MyIntegralModel.h"
 
 @interface DepositView1Controller : BaseViewController
+@property(nonatomic,strong)UITableView *tableView;
 
+
+@property(nonatomic,copy)NSString * paymentAccountId;
+
+
+@property(nonatomic,copy)NSString *integral;
+
+@property(nonatomic,strong)MyIntegralModel * seleModel;
 @end

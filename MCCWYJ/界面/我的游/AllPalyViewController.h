@@ -7,7 +7,11 @@
 //
 
 #import "BaseViewController.h"
-
+#import "MCplayViewController.h"
 @interface AllPalyViewController : BaseViewController
+@property(nonatomic,weak)MCplayViewController * delegate;
+
+-(void)selectAlldic:(NSDictionary*)dic;
+
 
 @end

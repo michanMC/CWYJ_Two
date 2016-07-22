@@ -10,5 +10,6 @@
 
 @interface FriendYJViewController : BaseViewController
 
+@property(nonatomic,copy)NSString * uid;
 
 @end

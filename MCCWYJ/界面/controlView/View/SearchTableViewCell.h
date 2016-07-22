@@ -12,4 +12,10 @@
 
 @property(nonatomic,strong)UILabel *titleLbl;
 
+
+
+@property(nonatomic,strong)UIImageView *originalGrade;
+@property(nonatomic,strong)UIImageView *currentGrade;
+@property(nonatomic,strong)UIImageView *trend;
+
 @end

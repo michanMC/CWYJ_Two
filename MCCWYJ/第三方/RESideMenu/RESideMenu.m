@@ -46,6 +46,17 @@
 #pragma mark -
 #pragma mark Instance lifecycle
 
+- (void)removeOriginControls {
+    
+    [self.tabBarController.tabBar.subviews enumerateObjectsWithOptions:NSEnumerationConcurrent usingBlock:^(id obj, NSUInteger idx, BOOL *stop) {
+        
+        if ([obj isKindOfClass:[UIControl class]]) {
+            
+            [obj removeFromSuperview];
+        }
+    }];
+}
+
 - (id)init
 {
     self = [super init];
@@ -102,7 +113,7 @@
     
     _bouncesHorizontally = YES;
     
-    _panGestureEnabled = YES;
+    _panGestureEnabled = NO;
     _panFromEdge = YES;
     _panMinimumOpenThreshold = 60.0;
     
@@ -191,6 +202,7 @@
         UIImageView *imageView = [[UIImageView alloc] initWithFrame:self.view.bounds];
         imageView.image = self.backgroundImage;
         imageView.contentMode = UIViewContentModeScaleAspectFill;
+
         imageView.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
         imageView;
     });

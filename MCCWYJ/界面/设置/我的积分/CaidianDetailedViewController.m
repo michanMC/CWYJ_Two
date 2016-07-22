@@ -11,8 +11,8 @@
 #import "AllDetailedViewController.h"
 #import "CaiDetailedViewController.h"
 #import "ZenDetailedViewController.h"
-
-@interface CaidianDetailedViewController ()<UIScrollViewDelegate>
+#import "MCIntegralScreenView.h"
+@interface CaidianDetailedViewController ()<UIScrollViewDelegate,MCscreenViewDelegate>
 {
     
     HMSegmentedControl *_SegmentView;
@@ -20,14 +20,29 @@
     AllDetailedViewController * _addctl;
     CaiDetailedViewController * _Caictl;
     ZenDetailedViewController * _Zenctl;
+    MCIntegralScreenView * _screenview;
+    BOOL _isShowScree;
+    
+    NSInteger _indeSele;
+    NSString* _startTime;
+    NSString* _endTime;
+
+    
+
 }
 @end
 
 @implementation CaidianDetailedViewController
-
+-(void)viewWillDisappear:(BOOL)animated
+{
+    [super viewWillDisappear:animated];
+    [self MCscreenhidden];
+    
+}
 - (void)viewDidLoad {
     [super viewDidLoad];
     self.title = @"采点明细";
+    _indeSele = -1;
     CGFloat x = 10;
     CGFloat y = 25;
     CGFloat width = 30;
@@ -53,19 +68,96 @@
 }
 -(void)action_screenBtn{
     
+    if (_isShowScree) {
+        _isShowScree = NO;
+        [_screenview removeFromSuperview];
+        
+    }
+    else
+    {
+        _screenview = [[MCIntegralScreenView alloc]initWithFrame:CGRectMake(0, 65, Main_Screen_Width, Main_Screen_Height  - 65)];
+        _screenview.startTime = _startTime;
+        _screenview.endTime = _endTime;
+
+        _screenview.seleIndex = _indeSele;
+        
+        _isShowScree = YES;
+        _screenview.delegate = self;
+        
+        [_screenview showInWindow];
+        
+    }
+    
+    
+}
+-(void)MCscreenhidden
+{
+    _isShowScree = NO;
+    [_screenview removeFromSuperview];
+    
+}
+-(void)MCscreenselsctDic:(NSMutableDictionary*)selectDic
+{
+    [self MCscreenhidden];
+    
+    NSString * ss = selectDic[@"seleindex"];
+    // times     0,当天，1当月，2，自定义；
+     _startTime = @"";
+    _endTime = @"";
+
+    
+    if ([ss isEqualToString:@"0"]) {
+        _indeSele = -1;
+    }
+    if ([ss isEqualToString:@"1"]) {
+        _indeSele = 0;
+    }
+    if ([ss isEqualToString:@"2"]) {
+        _indeSele = 1;
+    }
+    if ([ss isEqualToString:@"3"]) {
+        _indeSele = 2;
+        _startTime = selectDic[@"start"];
+        _endTime = selectDic[@"endTime"];
+
+    }
+    
+    _addctl.seleIndex = _indeSele;
+    _addctl.startTime = _startTime;
+    _addctl.endTime = _endTime;
+    [_addctl RefreshHeader];
+    
+    _Caictl.seleIndex = _indeSele;
+    _Caictl.startTime = _startTime;
+    _Caictl.endTime = _endTime;
+    [_Caictl RefreshHeader];
+
+    
+    _Zenctl.seleIndex = _indeSele;
+    _Zenctl.startTime = _startTime;
+    _Zenctl.endTime = _endTime;
+    [_Zenctl RefreshHeader];
+
     
     
 }
 -(void)addAllView{
      _addctl= [[AllDetailedViewController alloc]init];
     _addctl.view.frame = CGRectMake(0, 0, Main_Screen_Width, _mainScrollView.mj_h);
+    _addctl.seleIndex = _indeSele;
+    _addctl.deleGate = self;
     [_mainScrollView addSubview:_addctl.view];
+    [_addctl loadData2];
     
 }
 -(void)addCaiView{
     _Caictl = [[CaiDetailedViewController alloc]init];
     _Caictl.view.frame = CGRectMake(Main_Screen_Width, 0, Main_Screen_Width, _mainScrollView.mj_h);
+    _Caictl.deleGate = self;
+    _Caictl.seleIndex = _indeSele;
+
     [_mainScrollView addSubview:_Caictl.view];
+    [_Caictl loadData2];
 
     
 }
@@ -73,9 +165,13 @@
     
     _Zenctl = [[ZenDetailedViewController alloc]init];
     _Zenctl.view.frame = CGRectMake(Main_Screen_Width * 2, 0, Main_Screen_Width, _mainScrollView.mj_h);
+    _Zenctl.deleGate = self;
+    _Zenctl.seleIndex = _indeSele;
+
     [_mainScrollView addSubview:_Zenctl.view];
 
-    
+    [_Zenctl loadData2];
+
     
 }
 -(void)addAllSelect{

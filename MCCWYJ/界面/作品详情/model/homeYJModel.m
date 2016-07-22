@@ -13,6 +13,9 @@
 @implementation YJphotoModel
 
 @end
+@implementation YJoptsModel
+
+@end
 
 @implementation homeYJModel
 
@@ -21,6 +24,7 @@
     self = [super init];
     if (self) {
         _YJphotos = [NSMutableArray array];
+        _YJoptsArray = [NSMutableArray array];
     }
     return self;
 }

@@ -20,7 +20,7 @@
     
     UIView *_foorView;
     
-    UIImageView * _headimgView;
+//    UIImageView * _headimgView;
     UILabel *_nameLbl;
 }
 
@@ -58,6 +58,7 @@
         width = 20;
         _keyImgView = [[UIImageView alloc]initWithFrame:CGRectMake(x, y, width, height)];
         _keyImgView.image = [UIImage imageNamed:@"景"];
+//        _keyImgView.backgroundColor = AppCOLOR;
         [self.contentView addSubview:_keyImgView];
         x += width + 5;
         _tuijanImgView = [[UIImageView alloc]initWithFrame:CGRectMake(x, y, width, height)];
@@ -126,13 +127,13 @@
         y = 20;
         width = 35;
         height = 35;
-        _headimgView = [[UIImageView alloc]initWithFrame:CGRectMake(x, y, width, height)];
-        _headimgView.image = [UIImage imageNamed:@"home_default-avatar"];
-        ViewRadius(_headimgView, 35/2);
-        _headimgView.layer.borderColor = [UIColor whiteColor].CGColor;
-        _headimgView.layer.borderWidth = 1.0;
+        _headimgBtn = [[UIButton alloc]initWithFrame:CGRectMake(x, y, width, height)];
+        [_headimgBtn setImage:[UIImage imageNamed:@"home_Avatar_60"] forState:0];
+        ViewRadius(_headimgBtn, 35/2);
+        _headimgBtn.layer.borderColor = [UIColor whiteColor].CGColor;
+        _headimgBtn.layer.borderWidth = 1.0;
         
-        [_foorView addSubview:_headimgView];
+        [_foorView addSubview:_headimgBtn];
         
         x += width + 5;
         width = 130;
@@ -181,11 +182,13 @@
     
     if (isshouchang) {
         [_shouchangBtn setTitle:@"已收藏" forState:0];
+        [_shouchangBtn setTitleColor:[UIColor orangeColor] forState:0];
         [_shouchangBtn setImage:[UIImage imageNamed:@"travels_icon_favorite_pressed"] forState:0];
     }
     else
     {
         [_shouchangBtn setTitle:@"收藏" forState:0];
+        [_shouchangBtn setTitleColor:[UIColor grayColor] forState:0];
         [_shouchangBtn setImage:[UIImage imageNamed:@"travels_icon_favorite_normal"] forState:0];
         
     }
@@ -247,7 +250,8 @@
 }
 -(void)setHeadimgStr:(NSString *)headimgStr
 {
-    [_headimgView sd_setImageWithURL:[NSURL URLWithString:headimgStr] placeholderImage:[UIImage imageNamed:@"home_default-avatar"]];
+    
+    [_headimgBtn sd_setImageWithURL:[NSURL URLWithString:headimgStr] forState:0 placeholderImage:[UIImage imageNamed:@"home_Avatar_60"]];
     
 }
 -(void)setIshiddenShouC:(BOOL)ishiddenShouC

@@ -59,6 +59,7 @@
     _selectBtn = [[UIButton alloc]initWithFrame:CGRectMake(Main_Screen_Width - 10 - 30, 6, 30, 30)];
     [_selectBtn setImage:[UIImage imageNamed:@"radio-btn_nor"] forState:UIControlStateNormal];
     [_selectBtn setImage:[UIImage imageNamed:@"radio-btn_selected"] forState:UIControlStateSelected];
+    _selectBtn.userInteractionEnabled = NO;
     [self.contentView addSubview:_selectBtn];
 
     
@@ -80,18 +81,14 @@
     [self.contentView addSubview:lbl];
     
     _textField = [[UITextField alloc]initWithFrame:CGRectMake(80, 0,Main_Screen_Width - 90, 44)];
-    _textField.placeholder = @"请输入充值金额";
+    _textField.placeholder = @"请输入充值金额,至少一元";
     _textField.font = AppFont;
     _textField.textColor = [UIColor darkTextColor];
     //    _textField.textAlignment = NSTextAlignmentRight;
     [self.contentView addSubview:_textField];
-
-    
-    
-    
-    
     
 }
+
 - (void)awakeFromNib {
     [super awakeFromNib];
     // Initialization code

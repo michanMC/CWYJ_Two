@@ -29,6 +29,8 @@
     _tableView.dataSource =self;
     _tableView.separatorStyle = UITableViewCellSeparatorStyleNone;
     [self.view addSubview:_tableView];
+    _tableView.backgroundColor = AppMCBgCOLOR;
+
 
     // Do any additional setup after loading the view.
 }
@@ -64,7 +66,7 @@
         cell.textLabel.textColor = AppTextCOLOR;
         cell.detailTextLabel.text = [CommonUtil getStringWithLong:_Gemodel.modifyDate Format:@"YYYY年MM月dd日"];//@"2015月09月01日";        //cell.detailTextLabel.font = [UIFont systemFontOfSize:12];
         cell.detailTextLabel.textColor = [UIColor grayColor];
-        cell.contentView.backgroundColor = [UIColor groupTableViewBackgroundColor];
+        cell.contentView.backgroundColor = AppMCBgCOLOR;//[UIColor groupTableViewBackgroundColor];
 
         return cell;
 

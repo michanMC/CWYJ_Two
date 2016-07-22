@@ -54,7 +54,7 @@
         _buyclassarray = @[@"全部",@"晒",@"求",@"售"];
         
         
-        _Nobuyclassarray = @[@"全部",@"食",@"住",@"景",@"购"];
+        _Nobuyclassarray = @[@"全部",@"食",@"住",@"景",@"特产"];
         _distancearray = @[@"不限",@"5公里",@"10公里",@"50公里",@"100公里"];
         _selectDic = [NSMutableDictionary dictionary];
        
@@ -98,7 +98,22 @@
 -(void)IsMYBuy:(BOOL)isMYBuy DataDic:(NSDictionary*)dic{
     
     _isMYBuy = isMYBuy;
-    _dataDic = dic;
+    _selectDic = [NSMutableDictionary dictionaryWithDictionary:dic];
+    if (!_selectDic) {
+        _selectDic = [NSMutableDictionary dictionary];
+        
+        [_selectDic setObject:@"0" forKey:@"like"];
+        [_selectDic setObject:@"0" forKey:@"classify"];
+        [_selectDic setObject:@"0" forKey:@"distance"];
+  
+    }
+    
+    
+    _likeStr = _selectDic[@"like"];
+     _classify = _selectDic[@"classify"];
+    _distanceStr = _selectDic[@"distance"];
+    
+    
     
     [_tableView reloadData];
     
@@ -124,7 +139,7 @@
 -(NSInteger)numberOfSectionsInTableView:(UITableView *)tableView
 {
     if (_isMYBuy) {
-        return 2;
+        return 1;
     }
     return 3;
 }
@@ -144,6 +159,11 @@
     titleLbl.font = AppFont;
     [view addSubview:titleLbl];
     if (section == 0) {
+        if (_isMYBuy) {
+            titleLbl.text = @"分类";
+
+        }
+        else
         titleLbl.text = @"喜好";
     }
     else if (section == 1)
@@ -161,10 +181,10 @@
     NSArray * array = [NSArray array];
     if (_isMYBuy) {
         if (indexPath.section == 0) {
-            array = _likearray;
-        }
-        else
             array = _buyclassarray;
+        }
+//        else
+//            array = _buyclassarray;
     }
     else
     {
@@ -211,7 +231,9 @@
     cell.delegate = self;
     if (_isMYBuy) {
         if (indexPath.section == 0) {
-            [cell prepareUI:_likearray Datadic:_likeStr?_likeStr:@"0" Tabindex:400];
+            [cell prepareUI:_buyclassarray Datadic:_classify?_classify:@"0" Tabindex:500];
+
+//            [cell prepareUI:_likearray Datadic:_likeStr?_likeStr:@"0" Tabindex:400];
             return cell;
         }
         if (indexPath.section == 1) {
@@ -245,9 +267,13 @@
 -(void)selsctTabinde:(NSInteger)tabindex SeleStr:(NSString *)selectStr
 {
     if (_isMYBuy) {
-        if (tabindex == 400) {
-            _likeStr = selectStr;
-            [_selectDic setObject:selectStr forKey:@"like"];
+        if (tabindex == 500) {
+            
+//            _likeStr = selectStr;
+//            
+//            [_selectDic setObject:selectStr forKey:@"like"];
+            _classify = selectStr;
+            [_selectDic setObject:selectStr forKey:@"classify"];
 
         }
         else if (tabindex == 500){
@@ -261,6 +287,7 @@
     {
         if (tabindex == 600) {
             _likeStr = selectStr;
+            
             [_selectDic setObject:selectStr forKey:@"like"];
             
         }

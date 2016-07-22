@@ -18,7 +18,10 @@
 @end
 
 @interface WNImagePicker : UIViewController
+@property(nonatomic,strong)NSMutableDictionary *commodityDic;
 
+@property(nonatomic,copy)NSString * imgViewUrl;
+@property(nonatomic,assign)BOOL isshaiDan;
 @property (nonatomic, assign)id<WNImagePickerDelegate>delegate;
 
 @end

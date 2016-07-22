@@ -11,6 +11,7 @@
 #import "AppDelegate.h"
 #import "RESideMenu.h"
 #import "LoginController.h"
+#import "XMLReader.h"
 static NSString * EPHttpApiBaseURL = AppURL;
 
 static MCNetworkManager *_instanceManager = nil;
@@ -320,15 +321,55 @@ static NSMutableArray *sg_requestTasks;
            IsNeedlogin:(BOOL)isneedlogin success:(HttpResponseSucBlock)completeBlock
                 fail:(HttpResponseErrBlock)errorBlock{
     
+    _instanceManager.isneedlogin =isneedlogin;
+    NSUserDefaults *defaults=[NSUserDefaults standardUserDefaults];
     
+    NSMutableDictionary * paramss =[NSMutableDictionary dictionaryWithDictionary:params];
     
-    [MCNetworkManager postWithUrl:url refreshCache:refreshCache params:params success:^(id resultDic) {
+//    if (_instanceManager.isneedlogin) {
+    if ([[defaults objectForKey:@"sessionId"] length]){
+        [paramss setObject:[defaults objectForKey:@"sessionId"] forKey:@"user_session" ];
+//    }
+    }
+    NSLog(@"paramssURL = %@%@",AppURL,url);
+    //       [paramss setObject:@"077d496de09149525516f9b7a4a53c6c" forKey:@"user_session" ];
+    //        }
+    NSLog(@"paramss === %@",paramss);
+
+    [MCNetworkManager postWithUrl:url refreshCache:refreshCache params:paramss success:^(id resultDic) {
         NSDictionary *result_Dic = nil;
+        NSString *result_Str = nil;
+
         NSError *parserError = nil;
         
         @try {
+            
+            if ([url isEqualToString:@"api/common/locations.json"]) {
+                result_Str = [self datamanagexml:resultDic];//数据处理，data->str
+                
+                 //解析XML为NSDictionary
+       result_Dic = [XMLReader dictionaryForXMLString:result_Str error:&parserError];
+               //  打印 NSDictionary
+                if (resultDic) {
+                    completeBlock(result_Dic);
+
+                }
+                else
+                {
+                    errorBlock(nil,nil,@"请求失败");
+  
+                }
+                return ;
+                
+            }else{
             result_Dic = [self datamanage:resultDic];//数据处理，data->dic
-           // NSLog(@"result_Dic ==%@",result_Dic);
+            }
+            if (isneedlogin){
+            NSLog(@"result_Dic ==%@",result_Dic);
+                
+
+            }
+            
         }
         @catch (NSException *exception) {
             [NSException raise:@"网络接口返回数据异常" format:@"Error domain %@\n,code=%ld\n,userinfo=%@",parserError.domain,(long)parserError.code,parserError.userInfo];
@@ -345,21 +386,34 @@ static NSMutableArray *sg_requestTasks;
                 
             }
             else{
-                
+             
             NSString *logicCode = [NSString stringWithFormat:@"%ld",[result_Dic[@"code"] integerValue]];
-                if ([logicCode isEqualToString:@"30008"]) {
+                NSLog(@"logicCode ==%@",logicCode);
+                
+                
+                
+                if ([logicCode isEqualToString:@"30008"]||[logicCode isEqualToString:@"30006"]) {
+                    
+                    
+                    
                     if (isneedlogin) {
-               
-                    AppDelegate *appDelegate = (AppDelegate *)[[UIApplication sharedApplication] delegate];
-                    
-                    RESideMenu *sideMenuViewController  =(RESideMenu*)  appDelegate.window.rootViewController;
-                    LoginController * ctl = [[LoginController alloc]init];
-                    [sideMenuViewController.navigationController pushViewController:ctl animated:YES];
-                    
+                        
+//                        errorBlock(nil,nil,@"30008");
+                        errorBlock(nil,nil,result_Dic[@"message"]);
+
                     return ;
                     }
+                    else
+                    {
+                        errorBlock(nil,nil,result_Dic[@"message"]);
+ 
+                    }
+                    
+                    
+                    
                 }
                 
+
                 
                 //业务逻辑错误
                 NSString *message = [result_Dic objectForKey:@"message"];
@@ -491,7 +545,7 @@ static NSMutableArray *sg_requestTasks;
         if ([defaults objectForKey:@"sessionId"])
             
             [paramss setObject:[defaults objectForKey:@"sessionId"] forKey:@"user_session" ];
-        
+
 
      session = [_instanceManager.httpClient GET:url parameters:paramss progress:^(NSProgress * _Nonnull downloadProgress) {
          if (progress) {
@@ -517,16 +571,7 @@ static NSMutableArray *sg_requestTasks;
     }
     else if(httpMethod == 2){//POST
         
-        NSUserDefaults *defaults=[NSUserDefaults standardUserDefaults];
-        
-        NSMutableDictionary * paramss =[NSMutableDictionary dictionaryWithDictionary:params];
-
-        if ([defaults objectForKey:@"sessionId"])
-            
-            [paramss setObject:[defaults objectForKey:@"sessionId"] forKey:@"user_session" ];
-
-
-        [_instanceManager.httpClient POST:url parameters:paramss progress:^(NSProgress * _Nonnull uploadProgress) {
+        [_instanceManager.httpClient POST:url parameters:params progress:^(NSProgress * _Nonnull uploadProgress) {
             if (progress) {
                 progress(uploadProgress.completedUnitCount, uploadProgress.totalUnitCount);
             }
@@ -570,7 +615,7 @@ static NSMutableArray *sg_requestTasks;
  *	@param errorBlock				上传失败回调
  *
  */
-- ( void)uploadWithImage:(UIImage *)image
+- ( void)uploadWithImage:(NSArray *)imageArray
                      url:(NSString *)url
                 filename:(NSString *)filename
                     name:(NSString *)name
@@ -582,7 +627,7 @@ static NSMutableArray *sg_requestTasks;
     
     
     
-    [MCNetworkManager uploadWithImage:image url:url filename:filename name:name mimeType:mimeType parameters:parameters progress:^(int64_t bytesWritten, int64_t totalBytesWritten) {
+    [MCNetworkManager uploadWithImage:imageArray url:url filename:filename name:name mimeType:mimeType parameters:parameters progress:^(int64_t bytesWritten, int64_t totalBytesWritten) {
         if (progress) {
             progress(bytesWritten,totalBytesWritten);
             
@@ -626,7 +671,7 @@ static NSMutableArray *sg_requestTasks;
     }];
     
 }
-+ (MCURLSessionTask *)uploadWithImage:(UIImage *)image
++ (MCURLSessionTask *)uploadWithImage:(NSArray *)imageArray
                                   url:(NSString *)url
                              filename:(NSString *)filename
                                  name:(NSString *)name
@@ -638,23 +683,50 @@ static NSMutableArray *sg_requestTasks;
     
     
     MCURLSessionTask *session = nil;
-session = [_instanceManager.httpClient POST:url parameters:parameters constructingBodyWithBlock:^(id<AFMultipartFormData>  _Nonnull formData) {
-    NSData *imageData = UIImageJPEGRepresentation(image, 1);
+    
+    NSUserDefaults *defaults=[NSUserDefaults standardUserDefaults];
+    
+    NSMutableDictionary * paramss =[NSMutableDictionary dictionaryWithDictionary:parameters];
+    
+    if ([defaults objectForKey:@"sessionId"])
+        
+        [paramss setObject:[defaults objectForKey:@"sessionId"] forKey:@"user_session" ];
+    
+    NSLog(@"paramss === %@",paramss);
+
+session = [_instanceManager.httpClient POST:url parameters:paramss constructingBodyWithBlock:^(id<AFMultipartFormData>  _Nonnull formData) {
+    
+    
+    for (UIImage *image in imageArray) {
+        
+        NSData *imageData;
+        imageData = UIImageJPEGRepresentation(image, 1);
+
+//        if (!UIImagePNGRepresentation(image)) {
+//           imageData =  UIImageJPEGRepresentation(image, 1);
+//        }
+//        else
+//        {
+//            imageData =  UIImagePNGRepresentation(image);
+//        }
+        
+        
     NSString *imageFileName = filename;
     if (filename == nil || ![filename isKindOfClass:[NSString class]] || filename.length == 0) {
         NSDateFormatter *formatter = [[NSDateFormatter alloc] init];
         formatter.dateFormat = @"yyyyMMddHHmmss";
         NSString *str = [formatter stringFromDate:[NSDate date]];
-        imageFileName = [NSString stringWithFormat:@"%@.jpg", str];
+        imageFileName = [NSString stringWithFormat:@"emp_Screenshot_%@_.jpeg", str];
     }
-    
+        NSLog(@"name === %@,imageFileName ====%@",name,imageFileName);
     // 上传图片，以文件流的格式
     [formData appendPartWithFileData:imageData name:name fileName:imageFileName mimeType:mimeType];
-    
+    }
 
 } progress:^(NSProgress * _Nonnull uploadProgress) {
     if (progress) {
         progress(uploadProgress.completedUnitCount, uploadProgress.totalUnitCount);
+        
     }
 
 } success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
@@ -682,6 +754,8 @@ session = [_instanceManager.httpClient POST:url parameters:parameters constructi
                   progress:(MCUploadProgress)progress
                    success:(HttpResponseSucBlock)completeBlock
                       fail:(HttpResponseErrBlock)errorBlock{
+    
+    
     
     [MCNetworkManager uploadFileWithUrl:url uploadingFile:uploadingFile progress:^(int64_t bytesWritten, int64_t totalBytesWritten) {
         if (progress) {
@@ -793,6 +867,11 @@ session = [_instanceManager.httpClient POST:url parameters:parameters constructi
 
     
 }
+#pragma mark-数据处理xml
+-(NSString*)datamanagexml:(id)response{
+    NSString *responseString = [[NSString alloc] initWithData:response encoding:NSUTF8StringEncoding];
+    return responseString;
+}
 #pragma mark-数据处理
 -(NSDictionary*)datamanage:(id)response{
     NSString *responseString = [[NSString alloc] initWithData:response encoding:NSUTF8StringEncoding];
@@ -802,12 +881,29 @@ session = [_instanceManager.httpClient POST:url parameters:parameters constructi
     NSString *responseString3 = [responseString2 stringByReplacingOccurrencesOfString:@"\t" withString:@""];
     
     NSData *jsonData = [responseString3 dataUsingEncoding:NSUTF8StringEncoding];
+    if (!jsonData) {
+        return response;
+    }
     NSError *err;
     
     NSDictionary *  resultDic = [NSJSONSerialization JSONObjectWithData:jsonData
                                                                 options:NSJSONReadingMutableContainers
                                                                   error:&err];
     return resultDic;
+    
+}
+-(id)analysis:(NSString*)str{
+    if (!str) {
+        return str;
+    }
+    NSData *jsonData = [str dataUsingEncoding:NSUTF8StringEncoding];
+    NSError *err;
+    
+    id result = [NSJSONSerialization JSONObjectWithData:jsonData
+                                                options:NSJSONReadingMutableContainers
+                                                  error:&err];
+    NSLog(@"result == ======%@",result);
+    return result;
     
 }
 
@@ -820,7 +916,9 @@ static inline NSString *cachePath() {
 }
 // 仅对一级字典结构起作用
 + (NSString *)generateGETAbsoluteURL:(NSString *)url params:(id)params {
-    if (params == nil || ![params isKindOfClass:[NSDictionary class]] || [params count] == 0) {
+    //[params count] == 0
+    ;
+    if (params == nil || ![params isKindOfClass:[NSDictionary class]] || [(NSDictionary*)params count] == 0 ) {
         return url;
     }
     
@@ -1047,7 +1145,7 @@ static inline NSString *cachePath() {
          */
 
         _sharedClient.responseSerializer = [AFHTTPResponseSerializer serializer];
-        
+
 //        _sharedClient.responseSerializer.acceptableContentTypes = [NSSet setWithArray:@[@"application/json",
 //                                                                                  @"text/html",
 //                                                                                  @"text/json",
@@ -1056,11 +1154,11 @@ static inline NSString *cachePath() {
 //                                                                                  @"text/xml",
 //                                                                                  @"image/*"]];
         
-        //_sharedClient.requestSerializer.stringEncoding = NSUTF8StringEncoding;
+        _sharedClient.requestSerializer.stringEncoding = NSUTF8StringEncoding;
 
         
         // 设置允许同时最大并发数量，过大容易出问题
-        _sharedClient.operationQueue.maxConcurrentOperationCount = 3;
+        _sharedClient.operationQueue.maxConcurrentOperationCount = 5;
         
     });
     

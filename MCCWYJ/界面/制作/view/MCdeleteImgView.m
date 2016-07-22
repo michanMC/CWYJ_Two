@@ -32,7 +32,7 @@
         _imgView.clipsToBounds = YES; // 裁剪边缘
 
         [self addSubview:_imgView];
-        _deleteBtn =[[UIButton alloc]initWithFrame:CGRectMake(frame.size.width - 25, -5, 30, 30)];
+        _deleteBtn =[[UIButton alloc]initWithFrame:CGRectMake(frame.size.width - 30, 0, 30, 30)];
         //_deleteBtn.backgroundColor = [UIColor yellowColor];
         
         [_deleteBtn setBackgroundImage:[UIImage imageNamed:@"-travel-notes_icon_delete"] forState:0];

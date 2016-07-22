@@ -10,4 +10,7 @@
 
 @interface verifyViewController : BaseViewController
 
+@property(nonatomic,copy)NSString * verifyStr;//2支付密码
+
+
 @end

@@ -13,6 +13,8 @@
 #import "tiezhiView.h"
 #import "XTPasterStageView.h"
 #import "XTPasterView.h"
+#import "DecalsModel.h"
+#import "ReleaseMakeSellViewController.h"
 @interface MakeshaidanViewController ()<UIScrollViewDelegate,UIAlertViewDelegate>
 {
     
@@ -27,15 +29,20 @@
     MCshaidanView * _shaidanView;
     
     
-    NSDictionary *_commodityDic;
+    NSMutableDictionary *_commodityDic;
     NSInteger _lblViewCount;
     NSTimer *_gameTimer;
     NSMutableArray *_shanBtnArray;
     
     
     CGRect _imgViewRect;
+    NSMutableArray * _decalsArray;
     
     
+    CGFloat _lblView_x;
+    CGFloat _lblView_y;
+
+    NSString * _lblViewAlignmen;
     
 //    UIView * _lblView;
 //    
@@ -53,6 +60,7 @@
     [super viewDidLoad];
     self.title = @"编辑照片";
     
+    _decalsArray = [NSMutableArray array];
     CGFloat imgw = _img.size.width;
     CGFloat imgh = _img.size.height;
     CGFloat w1 = Main_Screen_Width;
@@ -76,9 +84,6 @@
     _imgView.backgroundColor = AppTextCOLOR;
     _imgViewRect = CGRectMake((Main_Screen_Width - w1)/2, 64, w1, h1);
     
-
-    
-    
     
     _imgView.userInteractionEnabled = YES;
 //    UITapGestureRecognizer * tap = [[UITapGestureRecognizer alloc]initWithTarget:self action:@selector(actionTapimg)];
@@ -95,10 +100,17 @@
     [self addAllSelect];
     [self addLabelView];
     [self addTagsView];
-    [self prepareLblview:3 Dic:nil];
+//    [self prepareLblview:3 Dic:nil];
     _gameTimer= [NSTimer scheduledTimerWithTimeInterval:1.0f target:self selector:@selector(updateTimer:) userInfo:nil repeats:YES];
     UIBarButtonItem *rightItem = [[UIBarButtonItem alloc] initWithTitle:@"确定" style:UIBarButtonItemStylePlain target:self action:@selector(rightBarAction)];
     self.navigationItem.rightBarButtonItem = rightItem;
+    
+    
+    if (_commodity_Dic) {
+        [self commodityDic:_commodity_Dic];
+
+    }
+    
 
     // Do any additional setup after loading the view.
 }
@@ -106,13 +118,28 @@
 {
     UIImage *imgResult = [_imgView doneEdit] ;
 
-    if([UIImagePickerController isSourceTypeAvailable: UIImagePickerControllerSourceTypeSavedPhotosAlbum]) {
-        UIImageWriteToSavedPhotosAlbum(imgResult, nil, nil, nil);
-        NSLog(@"MLSelectPhoto : 保存成功");
-    }else{
-        NSLog(@"MLSelectPhoto : 没有用户权限,保存失败");
+    if (!_commodityDic) {
+        [self showHint:@"请给商品添加标签"];
+        return;
     }
+    NSLog(@"_commodityDic == %@",_commodityDic);
+    NSLog(@"_lblView_x == %f",_lblView_x);
+    NSLog(@"_lblView_y == %f",_lblView_y);
+    NSLog(@"_lblViewAlignmen == %@",_lblViewAlignmen);
 
+    ReleaseMakeSellViewController * ctl = [[ReleaseMakeSellViewController alloc]init];
+    ctl.imgViewRect = _imgViewRect;//_imgView.frame;
+    //_imgView
+    ctl.commodityDic = _commodityDic;
+    ctl.lblView_x = _lblView_x;
+    ctl.lblView_y = _lblView_y;
+    ctl.lblViewAlignmen = _lblViewAlignmen;
+    ctl.shanBtnArray = _shanBtnArray;
+    ctl.img =imgResult;
+    [self pushNewViewController:ctl];
+    
+    
+    
     
     
     
@@ -139,7 +166,7 @@
 #pragma mark-点击图片
 -(void)MCactionTapimg{
     
-   // if (!_commodityDic) {
+    if (!_commodityDic) {
     [_imgView clearAllOnFirst];
 
     if (!_shaidanView) {
@@ -148,12 +175,16 @@
         [_shaidanView showInWindow];
 
     }
-   // }
+}
     
 }
 
--(void)addteizhi{
-        [_imgView addPasterWithImg:[UIImage imageNamed:@"贴纸"]] ;
+-(void)addteizhi:(UIButton*)btn{
+//    NSInteger i = index-300;
+    DecalsModel * model = _decalsArray[btn.tag - 300];
+        UIImage*img = btn.imageView.image;
+
+        [_imgView addPasterWithImg:img] ;
 
     
     
@@ -227,9 +258,30 @@
     _tagsView.delegate = self;
     [_mainScrollView addSubview:_tagsView];
 
+    [self loadTagsData];
+}
+-(void)loadTagsData{
+    
+        [self showLoading];
+    NSDictionary * dic = @{
+                         
+                           };
+    [self.requestManager postWithUrl:@"api/decals/query.json" refreshCache:NO params:dic IsNeedlogin:YES success:^(id resultDic) {
+        [self stopshowLoading];
+        NSLog(@"resultDic ===%@",resultDic);
+        for (NSDictionary * dic in resultDic[@"object"]) {
+            DecalsModel * model = [DecalsModel mj_objectWithKeyValues:dic];
+            [_decalsArray addObject:model];
+        }
+        _tagsView.dataArray = _decalsArray;
+        
+    } fail:^(NSURLSessionDataTask *operation, NSError *error, NSString *description) {
+        [self stopshowLoading];
+        [self showAllTextDialog:description];
+    }];
+
     
 }
-
 -(void)addAllSelect{
     //选择框
     _SegmentView = [[HMSegmentedControl alloc] initWithFrame:CGRectMake(0, Main_Screen_Height - 49, Main_Screen_Width, 49)];
@@ -278,25 +330,41 @@
 -(void)commodityDic:(NSDictionary*)dic
 {
     
+    NSLog(@"dic == %@",dic);
     _commodityDic = dic;
     
-    _label.text = @"点击◉可改变标签样式，长按删除标签";
+//    _label.text = @"点击◉可改变标签样式，长按删除标签";
+    _label.text = @"点击标签可修改，长按删除标签";
+    NSInteger count = 4;
+    if ([dic[@"colour"] length]||[dic[@"model"] length]) {
+        count = 4;
+    }
+    else
+    {
+        count = 3;
 
-    [self prepareLblview:4 Dic:nil];
+    }
+    [self prepareLblview:count Dic:dic];
     
     
 }
 
 -(void)prepareLblview:(NSInteger)count Dic:(NSDictionary*)dic{
     
+    
+    MCLblView*lblView;//&& touch.view == _lblView
+    lblView = [self.view viewWithTag:600];
+    [lblView removeFromSuperview];
+    
    MCLblView* _lblView = [[MCLblView alloc]initWithFrame:CGRectMake(Main_Screen_Width/2, 20 + 64, 150 , 20 * 4 + 20 * 3 + 1 * 4)];
+    
     _lblView.index = 0;
     if (count == 3) {
         
          _lblView.frame = CGRectMake(Main_Screen_Width/2, 20 + 64, 150 , 20 * 3 + 20 * 2 + 1 * 3);
 
     }
-    _lblView.tag = 600+_lblViewCount;
+    _lblView.tag = 600+0;
 //    _lblView.backgroundColor  = AppCOLOR;
     UITapGestureRecognizer * tap = [[UITapGestureRecognizer alloc]initWithTarget:self action:@selector(actionTap:)];
     [_lblView addGestureRecognizer:tap];
@@ -314,10 +382,11 @@
     CGFloat  y = 0;
     CGFloat w = 150 - x ;
     CGFloat h = 20;
-    
+    w = [MCIucencyView heightforString:dic[@"commodity"] andHeight:20 fontSize:18];
+
     
     UILabel * lbl = [[UILabel alloc]initWithFrame:CGRectMake(x, y, w, h)];
-    lbl.text = @"法国";
+    lbl.text = dic[@"commodity"];//@"法国";
     lbl.textColor = [UIColor whiteColor];
     lbl.tag = 800+_lblViewCount;
     [_lblView addSubview:lbl];
@@ -326,6 +395,8 @@
     h = 1;
     x = 10;
     w = 50;
+    w = [MCIucencyView heightforString:dic[@"commodity"] andHeight:20 fontSize:18] + 5;
+
     UIImageView * lineImg = [[UIImageView alloc]initWithFrame:CGRectMake(x, y, w, h)];
     lineImg.backgroundColor = [UIColor whiteColor];
     [_lblView addSubview:lineImg];
@@ -339,6 +410,9 @@
     y = _lblView.mj_h  - 1;
     w = 100;
     h = 1;
+    
+    w = [MCIucencyView heightforString:[NSString stringWithFormat:@"%@ %@",dic[@"model"],dic[@"colour"]] ? [NSString stringWithFormat:@"%@ %@",dic[@"model"],dic[@"colour"]] : @"ewq" andHeight:20 fontSize:18] + 5;
+//最后
     lineImg = [[UIImageView alloc]initWithFrame:CGRectMake(x, y, w, h)];
     lineImg.backgroundColor = [UIColor whiteColor];
     [_lblView addSubview:lineImg];
@@ -351,7 +425,7 @@
   UIButton*  _shanBtn = [[UIButton alloc]initWithFrame:CGRectMake(x, y, w, h)];
     [_shanBtn setImage:[UIImage imageNamed:@"icon_lable2"] forState:0];
     [_shanBtn setImage:[UIImage imageNamed:@"icon_lable"] forState:UIControlStateSelected];
-    [_shanBtn addTarget:self action:@selector(actionShanbtn:) forControlEvents:UIControlEventTouchUpInside];
+//    [_shanBtn addTarget:self action:@selector(actionShanbtn:) forControlEvents:UIControlEventTouchUpInside];
     [_lblView addSubview:_shanBtn];
     _shanBtn.tag = 700+_lblViewCount;
     [_shanBtnArray addObject:_shanBtn];
@@ -364,38 +438,42 @@
     y = lbl.mj_y + 20 + 1 + 20;
     w = 150 - x;
     h = 20;
-    
+    w = [MCIucencyView heightforString:[NSString stringWithFormat:@"%@ %@",dic[@"price"],dic[@"num"]] ? [NSString stringWithFormat:@"%@ %@",dic[@"price"],dic[@"num"]] : @"ewqewqe" andHeight:20 fontSize:18] ;
+
     lbl = [[UILabel alloc]initWithFrame:CGRectMake(x, y, w, h)];
-    lbl.text = @"10CNY  6";
+    lbl.text = [NSString stringWithFormat:@"%@ %@",dic[@"price"],dic[@"num"] ];//@"10CNY  6";
     lbl.textColor = [UIColor whiteColor];
     lbl.tag = 801+_lblViewCount;
 
     [_lblView addSubview:lbl];
     
-    lineImg = [[UIImageView alloc]initWithFrame:CGRectMake(10, y +h, 100, 1)];
+    lineImg = [[UIImageView alloc]initWithFrame:CGRectMake(10, y +h, w + 5, 1)];
     lineImg.backgroundColor = [UIColor whiteColor];
     [_lblView addSubview:lineImg];
     
     
     
+    w = [MCIucencyView heightforString:[NSString stringWithFormat:@"%@ %@",dic[@"brand"],dic[@"name"]] ? [NSString stringWithFormat:@"%@ %@",dic[@"brand"],dic[@"name"]] : @"ewqewqe" andHeight:20 fontSize:18] ;
+
     y += h + 1 + 20;
     lbl = [[UILabel alloc]initWithFrame:CGRectMake(x, y, w, h)];
-    lbl.text = @"kebo7 wqwqwq";
+    lbl.text = [NSString stringWithFormat:@"%@ %@",dic[@"brand"],dic[@"name"] ];//@"kebo7 wqwqwq";
     lbl.tag = 802+_lblViewCount;
 
     lbl.textColor = [UIColor whiteColor];
     [_lblView addSubview:lbl];
-    lineImg = [[UIImageView alloc]initWithFrame:CGRectMake(10, y +h, 100, 1)];
+    lineImg = [[UIImageView alloc]initWithFrame:CGRectMake(10, y +h, w+5, 1)];
     lineImg.backgroundColor = [UIColor whiteColor];
     [_lblView addSubview:lineImg];
-    _lblViewCount++;
+//    _lblViewCount++;
 
     if (count >3) {
         
-    
+        w = [MCIucencyView heightforString:[NSString stringWithFormat:@"%@ %@",dic[@"model"],dic[@"colour"]] ? [NSString stringWithFormat:@"%@ %@",dic[@"model"],dic[@"colour"]] : @"ewq" andHeight:20 fontSize:18] + 5;
+
     y += h + 1 + 20;
     lbl = [[UILabel alloc]initWithFrame:CGRectMake(x, y, w, h)];
-    lbl.text = @"LL 红色";
+        lbl.text = [NSString stringWithFormat:@"%@ %@",dic[@"model"]?dic[@"model"] :@"未知",dic[@"colour"]?dic[@"colour"]:@"未知" ];//@"LL 红色";
         lbl.tag = 803+_lblViewCount;
 
     lbl.textColor = [UIColor whiteColor];
@@ -403,9 +481,9 @@
     }
 
     
-    
-    
-    
+    _lblView_x = _lblView.mj_x;
+    _lblView_y = _lblView.mj_y;
+    _lblViewAlignmen = @"左";
 }
 
 -(void)longTap:(UILongPressGestureRecognizer*)tap{
@@ -435,6 +513,9 @@
 
         UIView * view = [self.view viewWithTag:alertView.tag - 200];
         [view removeFromSuperview];
+        _commodityDic = nil;
+        _lblViewAlignmen = @"";
+
         if (_shanBtnArray.count == 0) {
             _label.text = @"点击照片选择添加商品相关信息";
 
@@ -448,8 +529,37 @@
 -(void)actionTap:(UITapGestureRecognizer*)tap{
   NSLog(@"%zd",tap.view.tag);
     MCLblView * lblView = [self.view viewWithTag:tap.view.tag];
+    NSLog(@"_commodityDic ====%@",_commodityDic);
+//    _commodityDic ===={
+//        colour = 123;
+//        price = 12;
+//        model = 213;
+//        brand = nike;
+//        commodity = 广州;
+//        num = 32;
+//        name = 123;
+//    }
     
     
+    [_imgView clearAllOnFirst];
+    if (!_shaidanView) {
+        _shaidanView = [[MCshaidanView alloc]initWithFrame:CGRectMake(0, 0, Main_Screen_Width, Main_Screen_Height)];
+        _shaidanView.delegate =self;
+        _shaidanView.commodityDic = _commodityDic;
+        [_shaidanView showInWindow];
+        
+    }
+
+    
+//    if (!_commodityDic) {
+//        
+//        
+//    }
+
+    
+    
+    
+
     NSLog(@"=======%zd",lblView.index);
     
     
@@ -479,10 +589,17 @@
     
     if (lblView.index==0) {
         lbl2.textAlignment= NSTextAlignmentRight;
+        NSLog(@"右");
+        _lblViewAlignmen = @"右";
+
     }
     else
     {
         lbl2.textAlignment= NSTextAlignmentLeft;
+        NSLog(@"左");
+        _lblViewAlignmen = @"左";
+
+
         
     }
 
@@ -573,9 +690,10 @@
 
 //[self.view viewWithTag:]
     
+    NSLog(@"%f,%f",_lblView.mj_x,_lblView.mj_y);
+    _lblView_x = _lblView.mj_x;
+    _lblView_y = _lblView.mj_y;
 
-    
-    
     NSLog(@"当触摸结束时,调用这个方法");
 }
 
@@ -601,6 +719,15 @@
 -(void)touchesCancelled:(NSSet *)touches withEvent:(UIEvent *)event
 {
     NSLog(@"当触摸被打断时,调用这个方法");
+    UITouch * touch = [touches anyObject];
+    NSLog(@"当在屏幕上进行滑动时,调用这个方法");
+    MCLblView*_lblView;//&& touch.view == _lblView
+    _lblView = [self.view viewWithTag:touch.view.tag];
+
+    _lblView_x = _lblView.mj_x;
+    _lblView_y = _lblView.mj_y;
+    
+
 }
 
 - (void)didReceiveMemoryWarning {

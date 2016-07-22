@@ -14,6 +14,9 @@
 #import "SystemSettViewController.h"
 #import "GengxinViewController.h"
 #import "MyIntegralViewController.h"
+#import "ApplyViewController.h"
+#import "MyIntegralModel.h"
+#import "MCDimensionViewController.h"
 @interface SettViewController ()<UITableViewDelegate,UITableViewDataSource,UIActionSheetDelegate,UIImagePickerControllerDelegate,UINavigationControllerDelegate>
 {
     UITableView * _tableView;
@@ -21,13 +24,21 @@
     BOOL _isshang;
     NSArray * _titleArray;
     NSArray *_detailArray;
+    YJUserModel * _usermodel;
+    MyIntegralModel *  _IntegralModel;
 
 }
 
 @end
 
 @implementation SettViewController
-
+-(void)viewWillAppear:(BOOL)animated
+{
+    [super viewWillAppear:animated];
+    if (_tableView) {
+        [_tableView reloadData];
+    }
+}
 - (void)viewDidLoad {
     [super viewDidLoad];
     self.title = @"设置";
@@ -42,17 +53,41 @@
                      @[@"修改密码",@"意见反馈放在这了",@"消息提醒",@"清理缓存"]
                      
                      ];
-    _tableView = [[UITableView alloc]initWithFrame:CGRectMake(0, 64, Main_Screen_Width, Main_Screen_Height) style:UITableViewStyleGrouped];
+    _tableView = [[UITableView alloc]initWithFrame:CGRectMake(0, 64, Main_Screen_Width, Main_Screen_Height - 64) style:UITableViewStyleGrouped];
     _tableView.delegate = self;
     _tableView.dataSource = self;
     [self.view addSubview:_tableView];
+    _tableView.backgroundColor = AppMCBgCOLOR;
+
     [self prepareHeadView];
     [self prepareFooer];
+    [self loadData];
+//    [self Datadetail];
     // Do any additional setup after loading the view.
 }
+-(void)loadData{
+    
+    //      [self showLoading];
+    NSDictionary * dic = @{
+                           
+                           };
+    [self.requestManager postWithUrl:@"api/purse/getPurse.json" refreshCache:NO params:dic IsNeedlogin:YES success:^(id resultDic) {
+        NSLog(@"resultDic ===%@",resultDic);
+        _IntegralModel = [MyIntegralModel mj_objectWithKeyValues:resultDic[@"object"]];
+        NSLog(@"%@",   _IntegralModel.systemIntegral);
+        [_tableView reloadData];
+        
+        
+    } fail:^(NSURLSessionDataTask *operation, NSError *error, NSString *description) {
+        [self stopshowLoading];
+        [self showAllTextDialog:description];
+    }];
+    
+}
+
 -(void)prepareFooer{
     UIView * view = [[UIView alloc]initWithFrame:CGRectMake(0, 0, Main_Screen_Width, 100)];
-    view.backgroundColor = [UIColor groupTableViewBackgroundColor];
+    view.backgroundColor = AppMCBgCOLOR;//[UIColor groupTableViewBackgroundColor];
     UIButton * btn = [[UIButton alloc]initWithFrame:CGRectMake(40, 100 - 40 -20,Main_Screen_Width - 2* 40, 40)];
     [btn setTitle:@"退出登录" forState:0];
     [btn setTitleColor:[UIColor whiteColor] forState:0];
@@ -63,14 +98,112 @@
     [btn addTarget:self action:@selector(logout) forControlEvents:UIControlEventTouchUpInside];
     _tableView.tableFooterView = view;
 }
+-(void)Datadetail{
+    [self showLoading];
+    [self.requestManager postWithUrl:@"api/user/detail.json" refreshCache:NO params:nil IsNeedlogin:YES success:^(id resultDic) {
+        [self stopshowLoading];
+        
+        NSLog(@"查询资料resultDic == %@",resultDic);
+        _usermodel  = [YJUserModel mj_objectWithKeyValues:resultDic[@"object"]];
+        
+        
+        
+        [_tableView reloadData];
+    } fail:^(NSURLSessionDataTask *operation, NSError *error, NSString *description) {
+        [self stopshowLoading];
+        NSLog(@"失败");
+        
+    }];
+    
+}
+
 #pragma mark-注销
 -(void)logout{
     
     [self showLoading];
     [self.requestManager postWithUrl:@"api/user/logout.json" refreshCache:NO params:nil IsNeedlogin:YES success:^(id resultDic) {
-        [self stopshowLoading];
         NSLog(@"成功");
         NSLog(@"返回==%@",resultDic);
+        /*保存数据－－－－－－－－－－－－－－－－－begin*/
+        NSUserDefaults *defaults=[NSUserDefaults standardUserDefaults];
+        [defaults setObject :@"" forKey:@"Pwd"];
+        [defaults setObject :@"" forKey:@"uid"];
+        
+        [defaults setObject :@"" forKey:@"thumbnail"];
+        
+        [defaults setObject :@"" forKey:@"sessionId"];
+        [defaults setObject :@"" forKey:@"nickname"];
+        [defaults setObject :@"" forKey:@"mobile"];
+        [defaults setObject :@"" forKey:@"id"];
+        [defaults setObject :@"" forKey:@"password"];
+        [defaults setObject:@"" forKey:@"isLogOut"];
+        [MCIucencyView remRemind];
+
+        [self.requestManager.httpClient.requestSerializer setValue:@"" forHTTPHeaderField:@"user_session"];
+        
+        if ([[defaults objectForKey:@"type"]  isEqual: @(3)]) {
+            
+            [ShareSDK cancelAuthorize:SSDKPlatformTypeSinaWeibo];
+            
+        }
+        if ([[defaults objectForKey:@"type"]  isEqual: @(1)]) {
+            
+           [ShareSDK cancelAuthorize:SSDKPlatformTypeWechat];
+            
+        }
+        if ([[defaults objectForKey:@"type"]  isEqual: @(2)]) {
+            
+            [ShareSDK cancelAuthorize:SSDKPlatformTypeQQ];
+            
+        }
+        
+        //强制让数据立刻保存
+        [defaults synchronize];
+        
+        
+        [JPUSHService setAlias:@""
+              callbackSelector:nil
+                        object:self];
+
+        __weak SettViewController *weakSelf = self;
+
+        dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+            
+            
+            EMError *error = [[EMClient sharedClient] logout:YES];
+            dispatch_async(dispatch_get_main_queue(), ^{
+                
+                [weakSelf stopshowLoading];
+//                if (error != nil) {
+//                    
+//                    [weakSelf showHint:error.errorDescription];
+//                }
+//                else{
+                    [self showAllTextDialog:@"账号已退出"];
+
+                    
+                    [[ApplyViewController shareController] clear];
+                    [[NSNotificationCenter defaultCenter] postNotificationName:KNOTIFICATION_LOGINCHANGE object:@NO];
+                    //发送通知
+                    [[NSNotificationCenter defaultCenter] postNotificationName:@"didNewObjNotification" object:@""];
+                    //发送通知
+                    [[NSNotificationCenter defaultCenter] postNotificationName:@"didMCMyshoppingObjNotification" object:@""];
+                    //发送通知
+                    [[NSNotificationCenter defaultCenter] postNotificationName:@"disquery2ObjNotification" object:@""];
+                    dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(0.5 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
+                        [self.navigationController popViewControllerAnimated:YES];
+                        
+                        
+                    });
+
+                //}
+            });
+        });
+        
+    } fail:^(NSURLSessionDataTask *operation, NSError *error, NSString *description) {
+        [self stopshowLoading];
+//        [self showAllTextDialog:description];
+        NSLog(@"失败");
         /*保存数据－－－－－－－－－－－－－－－－－begin*/
         NSUserDefaults *defaults=[NSUserDefaults standardUserDefaults];
         [defaults setObject :@"" forKey:@"Pwd"];
@@ -94,7 +227,7 @@
         }
         if ([[defaults objectForKey:@"type"]  isEqual: @(1)]) {
             
-           [ShareSDK cancelAuthorize:SSDKPlatformTypeWechat];
+            [ShareSDK cancelAuthorize:SSDKPlatformTypeWechat];
             
         }
         if ([[defaults objectForKey:@"type"]  isEqual: @(2)]) {
@@ -104,21 +237,41 @@
         }
         //强制让数据立刻保存
         [defaults synchronize];
-
+        __weak SettViewController *weakSelf = self;
         
-        [self showAllTextDialog:@"账号已退出"];
-        dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(0.5 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
-            [self.navigationController popViewControllerAnimated:YES];
+        dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
             
-                      
+            
+            EMError *error = [[EMClient sharedClient] logout:YES];
+            dispatch_async(dispatch_get_main_queue(), ^{
+                
+                [weakSelf stopshowLoading];
+//                if (error != nil) {
+//                    
+//                    //[weakSelf showHint:error.errorDescription];
+//                }
+//                else{
+                    [self showAllTextDialog:@"账号已退出"];
+                    
+                    
+                    [[ApplyViewController shareController] clear];
+                    [[NSNotificationCenter defaultCenter] postNotificationName:KNOTIFICATION_LOGINCHANGE object:@NO];
+                    //发送通知
+                    [[NSNotificationCenter defaultCenter] postNotificationName:@"didNewObjNotification" object:@""];
+                    //发送通知
+                    [[NSNotificationCenter defaultCenter] postNotificationName:@"didMCMyshoppingObjNotification" object:@""];
+                    //发送通知
+                    [[NSNotificationCenter defaultCenter] postNotificationName:@"disquery2ObjNotification" object:@""];
+                    dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(0.5 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
+                        [self.navigationController popViewControllerAnimated:YES];
+                        
+                        
+                    });
+                    
+               // }
+            });
         });
-        
 
-        
-    } fail:^(NSURLSessionDataTask *operation, NSError *error, NSString *description) {
-        [self stopshowLoading];
-        [self showAllTextDialog:description];
-        NSLog(@"失败");
 
     }];
     
@@ -129,7 +282,7 @@
 
 -(void)prepareHeadView{
     UIView * view = [[UIView alloc]initWithFrame:CGRectMake(0, 0, Main_Screen_Width, 100*MCHeightScale)];
-    view.backgroundColor = [UIColor groupTableViewBackgroundColor];
+    view.backgroundColor = AppMCBgCOLOR;//[UIColor groupTableViewBackgroundColor];
     _tableView.tableHeaderView = view;
     
     CGFloat w = 60*MCWidthScale;
@@ -225,6 +378,8 @@
         [_headBtn setImage:img forState:0];
         NSUserDefaults *defaults=[NSUserDefaults standardUserDefaults];
         [defaults setObject:resultDic[@"object"] forKey:@"thumbnail"];
+        [defaults setObject:resultDic[@"object"] forKey:@"raw"];
+
         //强制让数据立刻保存
         [defaults synchronize];
         
@@ -259,7 +414,7 @@
 -(NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section
 {
     if (section == 0)
-    return 3;
+    return 4;
     return 4;
 }
 -(UITableViewCell*)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath
@@ -270,6 +425,16 @@
         cell = [[UITableViewCell alloc]initWithStyle:UITableViewCellStyleValue1 reuseIdentifier:cellid];
         
     }
+    for (UIView * view in cell.contentView.subviews) {
+        [view removeFromSuperview];
+    }
+    if (indexPath.section == 0 && indexPath.row == 1) {
+        UIImageView * imgview = [[UIImageView alloc]initWithFrame:CGRectMake(Main_Screen_Width - 25 - 30, 7, 30, 30)];
+        imgview.image = [UIImage imageNamed:@"nav_code"];
+        [cell.contentView addSubview:imgview];
+    }
+    
+    
     cell.accessoryType = UITableViewCellAccessoryDisclosureIndicator;
     cell.textLabel.text = _titleArray[indexPath.section][indexPath.row];
     cell.textLabel.textColor = AppTextCOLOR;
@@ -285,8 +450,8 @@
         }
         if (indexPath.row == 2) {
             cell.detailTextLabel.textColor = [UIColor darkTextColor];
-            
-            cell.detailTextLabel.text = @"123";
+        CGFloat ff= [_IntegralModel.systemIntegral floatValue]+[_IntegralModel.rechargeIntegral floatValue];
+            cell.detailTextLabel.text = [NSString stringWithFormat:@"%.2f",ff];
         }
         
     }
@@ -304,6 +469,12 @@
             changNameViewController * ctl = [[changNameViewController alloc]init];
             [self pushNewViewController:ctl];
         }
+        if (indexPath.row == 1) {
+            MCDimensionViewController * ctl = [[MCDimensionViewController alloc]init];
+            
+            [self pushNewViewController:ctl];
+        }
+
         if (indexPath.row == 2) {
             MyIntegralViewController * ctl = [[MyIntegralViewController alloc]init];
             [self pushNewViewController:ctl];
@@ -344,8 +515,82 @@
     }
     
 }
+- (BOOL)isContainsEmoji:(NSString *)string {
+    __block BOOL isEomji = NO;
+    [string enumerateSubstringsInRange:NSMakeRange(0, [string length]) options:NSStringEnumerationByComposedCharacterSequences usingBlock:^(NSString *substring, NSRange substringRange, NSRange enclosingRange, BOOL *stop) {
+        const unichar hs = [substring characterAtIndex:0];
+        // surrogate pair
+        if (0xd800 <= hs && hs <= 0xdbff) {
+            if (substring.length > 1) {
+                const unichar ls = [substring characterAtIndex:1];
+                const int uc = ((hs - 0xd800) * 0x400) + (ls - 0xdc00) + 0x10000;
+                if (0x1d000 <= uc && uc <= 0x1f77f) {
+                    isEomji = YES;
+                }
+            }
+        } else {
+            // non surrogate
+            if (0x2100 <= hs && hs <= 0x27ff && hs != 0x263b) {
+                isEomji = YES;
+            } else if (0x2B05 <= hs && hs <= 0x2b07) {
+                isEomji = YES;
+            } else if (0x2934 <= hs && hs <= 0x2935) {
+                isEomji = YES;
+            } else if (0x3297 <= hs && hs <= 0x3299) {
+                isEomji = YES;
+            } else if (hs == 0xa9 || hs == 0xae || hs == 0x303d || hs == 0x3030 || hs == 0x2b55 || hs == 0x2b1c || hs == 0x2b1b || hs == 0x2b50|| hs == 0x231a ) {
+                isEomji = YES;
+            }
+            if (!isEomji && substring.length > 1) {
+                const unichar ls = [substring characterAtIndex:1];
+                if (ls == 0x20e3) {
+                    isEomji = YES;
+                }
+            }
+        }
+    }];
+    return isEomji;
+}
+
+-(BOOL)isIncludeSpecialCharact: (NSString *)str {
+    NSLog(@"str == %@",str);
+    NSLog(@"str == %zd",str);
+
+    
+    //***需要过滤的特殊字符：~￥#&*<>《》()[]{}【】^@/￡¤￥|§¨「」『』￠￢￣~@#￥&*（）——+|《》$_€。
+    NSRange urgentRange = [str rangeOfCharacterFromSet: [NSCharacterSet characterSetWithCharactersInString: @"~￥#&*<>《》()[]{}【】^@/￡¤￥|§¨「」『』￠￢￣~@#￥&*（）——+|《》$_€ ~￥#&*<>《》()[]{}【】^@/￡¤￥|§¨「」『』￠￢￣~@#￥&*（）——+|《》$_€ "]];
+    if (urgentRange.location == NSNotFound)
+    {
+        
+        
+        return NO;
+    }
+    
+    return YES;
+}
+
 #pragma mark-修改昵称
 -(void)dischangenameObj:(NSNotification*)Notification{
+    
+    
+    
+    NSString *str=Notification.object;
+    //***调用关键方法，获得bool值，yes或者no：
+    if (str.length>1) {
+        str = [str substringToIndex:2];
+        
+    }
+    BOOL ok= [self isContainsEmoji:str];
+    if (ok==YES) {
+        [self showHint:@"亲，昵称不能特殊字符开头哦"];
+        NSLog(@"包含有特殊字符");
+        
+        
+        return;
+    }else{
+        NSLog(@"不包含特殊字符");
+    }
+    
     
     NSDictionary * Parameterdic = @{
                                     @"nickname":Notification.object

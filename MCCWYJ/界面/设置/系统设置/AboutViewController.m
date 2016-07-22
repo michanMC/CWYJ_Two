@@ -24,18 +24,20 @@
 - (void)viewDidLoad {
     [super viewDidLoad];
     self.title = @"关于我们";
-    _array = @[@"邮箱: 12321321321321",@"功能介绍",@"意见反馈"];
+    _array = @[@"邮箱: 16523162@qq.com",@"功能介绍",@"意见反馈"];
  _tableView = [[UITableView alloc]initWithFrame:CGRectMake(0, 64, Main_Screen_Width, Main_Screen_Height - 64) style:UITableViewStyleGrouped];
     _tableView.delegate =self;
     _tableView.dataSource = self;
     [self.view addSubview:_tableView];
+    _tableView.backgroundColor = AppMCBgCOLOR;
+
     _tableView.tableHeaderView = [self headView];
 
     // Do any additional setup after loading the view.
 }
 -(UIView *)headView{
     UIView *view = [[UIView alloc]initWithFrame:CGRectMake(0, 0, Main_Screen_Width, 170)];
-    view.backgroundColor = [UIColor groupTableViewBackgroundColor];
+    view.backgroundColor =AppMCBgCOLOR; //[UIColor groupTableViewBackgroundColor];
     UIImageView * imgview = [[UIImageView alloc]initWithFrame:CGRectMake((Main_Screen_Width- 80)/2, 20, 80, 80)];
     imgview.image =[UIImage imageNamed:@"mine_logo"];
     [view addSubview:imgview];
@@ -47,7 +49,7 @@
     
     lbl = [[UILabel alloc]initWithFrame:CGRectMake(0, 130, Main_Screen_Width, 20)];
     lbl.textColor = AppTextCOLOR;
-    lbl.text = @"v1.0.0";
+    lbl.text =AppVersions;// @"v1.0.0";
     lbl.textAlignment = NSTextAlignmentCenter;
     [view addSubview:lbl];
     
@@ -77,6 +79,7 @@
     if (!cell) {
         cell = [[UITableViewCell alloc]initWithStyle:UITableViewCellStyleDefault reuseIdentifier:@"mc3"];
     }
+    cell.selectionStyle = UITableViewCellSelectionStyleNone;
     cell.textLabel.text = _array[indexPath.row];
     cell.textLabel.font = AppFont;
     cell.textLabel.textColor = AppTextCOLOR;

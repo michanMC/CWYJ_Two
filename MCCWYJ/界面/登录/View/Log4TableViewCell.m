@@ -14,22 +14,22 @@
     
     self = [super initWithStyle:style reuseIdentifier:reuseIdentifier];
     if (self) {
-        UIView * lineView = [[UIView alloc]initWithFrame:CGRectMake(0, 0, Main_Screen_Width, 1)];
+        UIView * lineView = [[UIView alloc]initWithFrame:CGRectMake(0, 0, Main_Screen_Width, .5)];
         lineView.backgroundColor = [UIColor lightGrayColor];
         [self.contentView addSubview:lineView];
         
-        lineView = [[UIView alloc]initWithFrame:CGRectMake(Main_Screen_Width/2 - 0.5, 5, 1, 44 - 10)];
+        lineView = [[UIView alloc]initWithFrame:CGRectMake(Main_Screen_Width/2 - 0.5, 5, .5, 44 - 10)];
         lineView.backgroundColor = [UIColor lightGrayColor];
         [self.contentView addSubview:lineView];
         
-        _forgetBtn = [[UIButton alloc]initWithFrame:CGRectMake(0, 1,(Main_Screen_Width - 1)/2 , 43)];
+        _forgetBtn = [[UIButton alloc]initWithFrame:CGRectMake(0, .5,(Main_Screen_Width - .5)/2 , 43)];
         [_forgetBtn setTitle:@"忘记密码" forState:0];
         [_forgetBtn setTitleColor:RGBCOLOR(127, 125, 147) forState:0];
         _forgetBtn.titleLabel.font = [UIFont systemFontOfSize:15];
         [self.contentView addSubview:_forgetBtn];
 
         
-        _recBtn = [[UIButton alloc]initWithFrame:CGRectMake(Main_Screen_Width/2+.5, 1,(Main_Screen_Width - 1)/2 , 43)];
+        _recBtn = [[UIButton alloc]initWithFrame:CGRectMake(Main_Screen_Width/2+.5, .5,(Main_Screen_Width - .5)/2 , 43)];
         [_recBtn setTitle:@"注册账号" forState:0];
         [_recBtn setTitleColor:RGBCOLOR(127, 125, 147) forState:0];
         _recBtn.titleLabel.font = [UIFont systemFontOfSize:15];

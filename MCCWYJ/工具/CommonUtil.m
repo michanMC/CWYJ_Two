@@ -393,11 +393,11 @@
 + (BOOL) isMobile:(NSString *)strNum
 {
     
-    NSString *regex = @"^((13[0-9])|(147)|(177)|(170)|(15[0-9])|(18[0-9]))\\d{8}$";
+    NSString *regex = @"^((13[0-9])|(14[0-9])|(17[0-9])|(15[0-9])|(18[0-9]))\\d{8}$";
     NSPredicate *pred = [NSPredicate predicateWithFormat:@"SELF MATCHES %@", regex];
     BOOL isMatch = [pred evaluateWithObject:strNum];
-    return isMatch;
     
+    return isMatch;
 
     
     
@@ -775,7 +775,7 @@
     
     //设定时间格式,这里可以设置成自己需要的格式
     dateFormatter.dateFormat = format;
-    NSDate *confromTimesp = [NSDate dateWithTimeIntervalSince1970:time];
+    NSDate *confromTimesp = [NSDate dateWithTimeIntervalSince1970:time/1000];
     
     //用[NSDate date]可以获取系统当前时间
     NSString *currentDateStr=nil;
@@ -880,7 +880,7 @@
 }
 +(NSString*)daysAgoAgainst:(long long)time{
     
-    NSDate *confromTimesp = [NSDate dateWithTimeIntervalSince1970:time ];
+    NSDate *confromTimesp = [NSDate dateWithTimeIntervalSince1970:time /1000];
     NSDate* dat = [NSDate dateWithTimeIntervalSinceNow:0];
     
     
@@ -923,6 +923,96 @@
     [btn_arrstring addAttributes:@{NSForegroundColorAttributeName : ordinaryColor,	NSFontAttributeName : [UIFont systemFontOfSize:afont]} range:NSMakeRange(startnum, tonum)];
     return btn_arrstring;
     
+}
+//md5 encode
++(NSString *) md5:(NSString *)str
+{
+    const char *cStr = [str UTF8String];
+    unsigned char digest[CC_MD5_DIGEST_LENGTH];
+    CC_MD5( cStr, (unsigned int)strlen(cStr), digest );
+    
+    NSMutableString *output = [NSMutableString stringWithCapacity:CC_MD5_DIGEST_LENGTH * 2];
+    
+    for(int i = 0; i < CC_MD5_DIGEST_LENGTH; i++)
+        [output appendFormat:@"%02X", digest[i]];
+    
+    return output;
+}
+
+
++ (BOOL)getMonthBeginAndEndWith{
+    
+    NSDateFormatter *format=[[NSDateFormatter alloc] init];
+    [format setDateFormat:@"yyyy-MM"];
+    NSDate *newDate=[NSDate date];//[format dateFromString:[NSDate date]];
+    double interval = 0;
+    NSDate *beginDate = nil;
+    NSDate *endDate = nil;
+    NSCalendar *calendar = [NSCalendar currentCalendar];
+    
+    [calendar setFirstWeekday:2];//设定周一为周首日
+    BOOL ok = [calendar rangeOfUnit:NSMonthCalendarUnit startDate:&beginDate interval:&interval forDate:newDate];
+    //分别修改为 NSDayCalendarUnit NSWeekCalendarUnit NSYearCalendarUnit
+    if (ok) {
+        endDate = [beginDate dateByAddingTimeInterval:interval-1];
+    }else {
+        return @"";
+    }
+    NSDateFormatter *myDateFormatter = [[NSDateFormatter alloc] init];
+    [myDateFormatter setDateFormat:@"dd"];
+    NSString *beginString = [myDateFormatter stringFromDate:beginDate];
+    NSString *endString = [myDateFormatter stringFromDate:endDate];
+    NSString *s = [NSString stringWithFormat:@"%@-%@",beginString,endString];
+    
+    
+    //实例化一个NSDateFormatter对象
+    NSDateFormatter *dateFormatter = [[NSDateFormatter alloc] init];
+    
+    //设定时间格式,这里可以设置成自己需要的格式
+    dateFormatter.dateFormat = @"dd";
+    //用[NSDate date]可以获取系统当前时间
+    NSString *currentDateStr= [dateFormatter stringFromDate:[NSDate date]];
+    NSLog(@"endString === %@,currentDateStr === %@",endString,currentDateStr);
+    if ([endString isEqualToString:currentDateStr]) {
+        return YES;
+    }
+    else
+    {
+        return NO;
+ 
+    }
+    
+    
+}
+//创建package签名
++(NSString*) createMd5Sign:(NSMutableDictionary*)dict Key:(NSString*)key
+{
+    NSMutableString *contentString  =[NSMutableString string];
+    NSArray *keys = [dict allKeys];
+    //按字母顺序排序
+    NSArray *sortedArray = [keys sortedArrayUsingComparator:^NSComparisonResult(id obj1, id obj2) {
+        return [obj1 compare:obj2 options:NSNumericSearch];
+    }];
+    
+    //拼接字符串
+    for (NSString *categoryId in sortedArray) {
+        if (   ![[dict objectForKey:categoryId] isEqualToString:@""]
+            && ![categoryId isEqualToString:@"sign"]
+            && ![categoryId isEqualToString:@"key"]
+            )
+        {
+            [contentString appendFormat:@"%@=%@&", categoryId, [dict objectForKey:categoryId]];
+        }
+        
+    }
+    
+    //添加key字段
+    [contentString appendFormat:@"key=%@", key];
+    //得到MD5 sign签名
+    NSString *md5Sign =[CommonUtil md5:contentString];
+    
+    
+    return md5Sign;
 }
 
 

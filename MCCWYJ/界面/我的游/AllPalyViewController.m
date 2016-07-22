@@ -10,6 +10,7 @@
 #import "homeYJModel.h"
 #import "YJTableViewCell.h"
 #import "YJNoDataTableViewCell.h"
+#import "CarteViewController.h"
 @interface AllPalyViewController ()<UITableViewDelegate,UITableViewDataSource>
 {
     
@@ -17,6 +18,7 @@
     NSMutableArray *_dataAarray;//数据源
     NSInteger  _pageStr;
     BOOL _isNoData;
+    NSMutableDictionary * Parameterdic;
 
 }
 
@@ -33,22 +35,39 @@
     
     _dataAarray  =[NSMutableArray array];
     _pageStr = 1;
+    Parameterdic = [NSMutableDictionary dictionary];
+    
+    [Parameterdic  setObject:@(_pageStr) forKey:@"page"];
+    //    [Parameterdic  setObject:@(0) forKey:@"spotId"];
+    //    [Parameterdic  setObject:@(0) forKey:@"classify"];
+    //
+    //    [Parameterdic  setObject:@(5000) forKey:@"distance"];
+    //    [Parameterdic  setObject:@(0) forKey:@"isRecommend"];
+    
+    [Parameterdic setObject:@([MCMApManager sharedInstance].la) forKey:@"lat"];
+    [Parameterdic setObject:@([MCMApManager sharedInstance].lo) forKey:@"lng"];
+    
+    
+    
      _tableView = [[UITableView alloc]initWithFrame:CGRectMake(0, 0, Main_Screen_Width, Main_Screen_Height - 44 - 64 - 49) style:UITableViewStyleGrouped];
     _tableView.delegate =self;
     _tableView.dataSource = self;
     _tableView.mj_header = [MJRefreshNormalHeader headerWithRefreshingTarget:self refreshingAction:@selector(RefreshHeader)];
-    _tableView.mj_footer = [MJRefreshAutoNormalFooter footerWithRefreshingTarget:self refreshingAction:@selector(RefreshFooter)];
+    _tableView.mj_footer = [MJRefreshBackStateFooter footerWithRefreshingTarget:self refreshingAction:@selector(RefreshFooter)];
+    _tableView.backgroundColor = AppMCBgCOLOR;
     [self.view addSubview:_tableView];
     [self loadData];
     // Do any additional setup after loading the view.
 }
 -(void)disqueryObj:(NSNotification*)notication{
-    _pageStr = 1;
-    [self loadData];
+//    _pageStr = 1;
+//    [self loadData];
+    [self RefreshHeader];
 
 }
 -(void)RefreshHeader{
     _pageStr = 1;
+    [_dataAarray removeAllObjects];
     [self loadData];
 
     
@@ -90,6 +109,7 @@
             cell = [[YJNoDataTableViewCell alloc]initWithStyle:UITableViewCellStyleDefault reuseIdentifier:@"mc2"];
         }
         cell.selectionStyle = UITableViewCellSelectionStyleNone;
+        
         [cell prepareNoDataUI:self.view.mj_h TitleStr:@"再怎么找也没有游记啦，你行你来写"];
         [cell.tapBtn addTarget:self action:@selector(actionTapBtn) forControlEvents:UIControlEventTouchUpInside];
         return cell;
@@ -107,10 +127,12 @@
             cell = [[YJTableViewCell alloc]initWithStyle:UITableViewCellStyleDefault reuseIdentifier:cellid];
         }
         cell.selectionStyle = UITableViewCellSelectionStyleNone;
-
 //        cell.selectionStyle =
         homeYJModel * model= _dataAarray[indexPath.section];
         [cell prepareUI:model];
+        cell.imgView.userInteractionEnabled = YES;
+        cell.headerimgBtn.tag = indexPath.section + 430;
+        [cell.headerimgBtn addTarget:self action:@selector(actionHearBtn:) forControlEvents:UIControlEventTouchDown];
         return cell;
     }
     
@@ -131,6 +153,22 @@
     //发送通知
     [[NSNotificationCenter defaultCenter] postNotificationName:@"disXQDatadetailObjNotification" object:dic];
 }
+-(void)actionHearBtn:(UIButton*)btn{
+    NSString *sessionId = [MCUserDefaults objectForKey:@"sessionId"];
+    if (!sessionId.length) {
+        LoginController * ctl = [[LoginController alloc]init];
+        [_delegate pushNewViewController:ctl];
+        return;
+    }
+
+    homeYJModel * model= _dataAarray[btn.tag - 430];
+    CarteViewController *ctl = [[CarteViewController alloc]init];
+    ctl.userModel = model.userModel;
+    [_delegate pushNewViewController:ctl];
+
+    
+    
+}
 -(void)actionTapBtn{
 
     
@@ -142,19 +180,75 @@
 
     
 }
+-(void)selectAlldic:(NSDictionary*)dic{
+    _pageStr = 1;
+    
+//    [Parameterdic  setObject:@(0) forKey:@"spotId"];
+    NSString * classify = @"";
+    if ([dic[@"classify"] isEqualToString:@"0"]) {
+        classify = @"";
+    }
+    if ([dic[@"classify"] isEqualToString:@"1"]) {
+        classify = @"0";
+    }
+    if ([dic[@"classify"] isEqualToString:@"2"]) {
+        classify = @"1";
+    }
+    if ([dic[@"classify"] isEqualToString:@"3"]) {
+        classify = @"2";
+    }
+    if ([dic[@"classify"] isEqualToString:@"4"]) {
+        classify = @"3";
+    }
+
+
+    [Parameterdic  setObject:classify forKey:@"classify"];
+    NSInteger _spotIdStr = -1;
+    if ([dic[@"spotId"] length]) {
+       _spotIdStr = [dic[@"spotId"] integerValue];
+
+    }
+    if (_spotIdStr >=  0 ) {
+        [Parameterdic  setObject:@(_spotIdStr) forKey:@"spotId"];
+        
+    }
+    else
+    {
+        [Parameterdic  setObject:@"" forKey:@"spotId"];
+ 
+    }
+
+
+
+    
+    
+    [Parameterdic  setObject:dic[@"distance"] forKey:@"distance"];
+    
+    
+    
+    
+    NSString * isRecommend = @"";
+    if ([dic[@"isRecommend"] isEqualToString:@"0"]) {
+        isRecommend = @"";
+    }
+    if ([dic[@"isRecommend"] isEqualToString:@"1"]) {
+        isRecommend = @"1";
+    }
+    if ([dic[@"isRecommend"] isEqualToString:@"2"]) {
+        isRecommend = @"0";
+    }
+
+
+
+    [Parameterdic  setObject:isRecommend forKey:@"isRecommend"];
+    [self RefreshHeader];
+    
+}
+
 #pragma mark-加载数据
 -(void)loadData{
-    NSMutableDictionary * Parameterdic = [NSMutableDictionary dictionary];
-    
     [Parameterdic  setObject:@(_pageStr) forKey:@"page"];
-//    [Parameterdic  setObject:@(0) forKey:@"spotId"];
-//    [Parameterdic  setObject:@(0) forKey:@"classify"];
-//
-//    [Parameterdic  setObject:@(5000) forKey:@"distance"];
-//    [Parameterdic  setObject:@(0) forKey:@"isRecommend"];
-    
-    [Parameterdic setObject:@([MCMApManager sharedInstance].la) forKey:@"lat"];
-    [Parameterdic setObject:@([MCMApManager sharedInstance].lo) forKey:@"lng"];
+
 
     [self showLoading];
     [self.requestManager postWithUrl:@"api/travel/query.json" refreshCache:NO params:Parameterdic IsNeedlogin:NO success:^(id resultDic) {
@@ -190,7 +284,7 @@
 
     } fail:^(NSURLSessionDataTask *operation, NSError *error, NSString *description) {
         [self stopshowLoading];
-        [self showAllTextDialog:description];
+//        [self showAllTextDialog:description];
         [_tableView.mj_header endRefreshing];
         [_tableView.mj_footer endRefreshing];
         if (_dataAarray.count) {

@@ -7,7 +7,7 @@
 //
 
 #import "HomeHeaderCollectionReusableView.h"
-
+#import "MCWebViewController.h"
 
 @interface HomeHeaderCollectionReusableView (){
     
@@ -22,12 +22,25 @@
 
 
 @implementation HomeHeaderCollectionReusableView
-
+-(instancetype)initWithFrame:(CGRect)frame Str:(NSString*)str
+{
+    self = [super initWithFrame:frame];
+    if (self) {
+        
+        
+        
+        
+    }
+    return self;
+}
 
 -(void)prepareADUI:(NSMutableArray*)array{
 //    self.backgroundColor = [UIColor whiteColor];
-    for (UIView* obj in self.subviews)
+    for (UIView* obj in self.contentView.subviews)
         [obj removeFromSuperview];
+
+    
+    
     _adArray =array;
     _adView  = [[ZZCarousel alloc]initWithFrame:CGRectMake(0, 0, Main_Screen_Width, 150*MCHeightScale)];
     /*
@@ -66,10 +79,9 @@
     _adView.pageControlOfNumberFont = [UIFont fontWithName:@"Helvetica-Bold" size:18];
     _adView.pageContolOfNumberFontColor = [UIColor whiteColor];
     
-    [self addSubview:_adView];
+    [self.contentView addSubview:_adView];
     [_adView reloadData];
 
-    
     
     
     
@@ -108,6 +120,9 @@
     else
     
         cell.imageView.image = [UIImage imageNamed:@"home_banner"];
+    cell.imageView.contentMode = UIViewContentModeScaleAspectFill;
+    cell.imageView.clipsToBounds = YES; // 裁剪边缘
+
     //
     
     return cell;
@@ -117,7 +132,57 @@
 
 -(void)zzcarouselScrollView:(ZZCarousel *)zzcarouselScrollView didSelectItemAtIndex:(NSInteger)index
 {
-    
+    NSDictionary * dic = _adArray[index];
+    NSLog(@"====%@",dic);
+    if (dic[@"link"]) {
+        MCWebViewController * ctl = [[MCWebViewController alloc]init];
+        NSString * sws =   dic[@"link"];
+        if (![MCUserDefaults objectForKey:@"sessionId"]||![[MCUserDefaults objectForKey:@"sessionId"] length]) {
+            NSLog(@"请登录");
+            return;
+            
+        }
+        
+        
+        if (IOS8) {
+            
+            if ([sws containsString:@"user_session"]) {
+                sws = [NSString stringWithFormat:@"%@%@",sws,[MCUserDefaults objectForKey:@"sessionId"]];
+
+
+                
+            }
+            else
+            {
+                
+            
+            }
+        }
+        else
+        {
+            NSRange range = [sws rangeOfString:@"user_session"];//判断字符串是否包含
+            if (range.length >0)//包含
+            {
+                sws = [NSString stringWithFormat:@"%@%@",sws,[MCUserDefaults objectForKey:@"sessionId"]];
+
+            }
+            else//不包含
+            {
+                
+                
+            }
+        }
+        
+
+        
+        
+        
+//        if (<#condition#>) {
+//            <#statements#>
+//        }
+        ctl.menuagenturl = sws;//dic[@"link"];
+        [_delgateSelf pushNewViewController:ctl];
+    }
     //[self showAllTextDialog:[NSString stringWithFormat:@"点击了 第%ld张",(long)index]];
     //    if(_bannerArray.count > index ){
     //        NSDictionary * model = [_bannerArray objectAtIndex:index];
@@ -132,41 +197,47 @@
 
 
 -(void)prepareMeUI:(NSString*)str{
-    for (UIView* obj in self.subviews)
+    for (UIView* obj in self.contentView.subviews)
         [obj removeFromSuperview];
-    
+
     UILabel * lbl = [[UILabel alloc]initWithFrame:CGRectMake(10, 0, Main_Screen_Width - 10, 40)];
     lbl.text = str;
     lbl.font = AppFont;
     lbl.textColor = AppCOLOR;
-    [self addSubview:lbl];
+    [self.contentView addSubview:lbl];
     _modeBtn = [[UIButton alloc]initWithFrame:CGRectMake(Main_Screen_Width - 10 - 30 , 5, 30, 30)];
     [_modeBtn setImage:[UIImage imageNamed:@"home_icon_more"] forState:0];
-    [self addSubview:_modeBtn];
+    if (str.length)
+    [self.contentView addSubview:_modeBtn];
 
     
 }
 
 -(void)prepareUI:(NSString*)str{
-    for (UIView* obj in self.subviews)
+    for (UIView* obj in self.contentView.subviews)
         [obj removeFromSuperview];
     UIView * lineView = [[UIView alloc]initWithFrame:CGRectMake(10, 10, 4, 20)];
     lineView.backgroundColor = AppCOLOR;
     ViewRadius(lineView, 2);
-    [self addSubview:lineView];
+    [self.contentView addSubview:lineView];
 
     
     UILabel * lbl = [[UILabel alloc]initWithFrame:CGRectMake(10+4 + 10, 0, 200, 40)];
     lbl.text = str;
    lbl.font = [UIFont systemFontOfSize:16];
     lbl.textColor = [UIColor darkTextColor];
-    [self addSubview:lbl];
+    [self.contentView addSubview:lbl];
 
     
     
 }
 
-
+-(void)prepareREMUI{
+        for (UIView* obj in self.contentView.subviews)
+            [obj removeFromSuperview];
+  
+    
+}
 
 
 

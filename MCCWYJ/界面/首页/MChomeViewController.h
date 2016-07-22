@@ -9,7 +9,7 @@
 #import "BaseViewController.h"
 #import "HYViewController.h"
 #import "RESideMenu.h"
-
+#import "JSBadgeView.h"
 @interface MChomeViewController : BaseViewController
-
+@property(nonatomic,strong)UIView *hong_view;
 @end

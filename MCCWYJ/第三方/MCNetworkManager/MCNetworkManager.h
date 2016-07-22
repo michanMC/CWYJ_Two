@@ -30,7 +30,7 @@ typedef NSURLSessionTask MCURLSessionTask;
 + (instancetype)instanceManager;
 @property ExproHttpClient *httpClient;
 
-
+@property(nonatomic,assign)BOOL isneedlogin;
 
 /**
  *
@@ -196,7 +196,7 @@ typedef void (^MCUploadProgress)(int64_t bytesWritten,
  *	@param errorBlock				上传失败回调
  *
  */
-- ( void)uploadWithImage:(UIImage *)image
+- ( void)uploadWithImage:(NSArray *)imageArray
                      url:(NSString *)url
                 filename:(NSString *)filename
                     name:(NSString *)name

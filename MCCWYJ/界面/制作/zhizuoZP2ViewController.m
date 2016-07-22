@@ -12,7 +12,7 @@
 #import "zhizuoTextTableViewCell.h"
 #import "zhizuoText2TableViewCell.h"
 #import "UIPlaceHolderTextView.h"
-//#import "liulanViewController.h"
+#import "liulanViewController.h"
 #import "TYAlertController+BlurEffects.h"
 #import "ShareView.h"
 #import "UIView+TYAlertView.h"
@@ -55,27 +55,26 @@
     
     UIButton *navigationButton = [UIButton buttonWithType:UIButtonTypeCustom];
     [navigationButton setFrame:CGRectMake(100 - 35,0,30,30)];
-    [navigationButton setImage:[UIImage imageNamed:@"预览-"] forState:UIControlStateNormal];
+    //fabu
+    [navigationButton setImage:[UIImage imageNamed:@"nav_release_pressed"] forState:UIControlStateNormal];
+    navigationButton.tag = 202;
+    [navigationButton addTarget:self action:@selector(actionnavigationButton:) forControlEvents:UIControlEventTouchUpInside];
+    [containerView addSubview:navigationButton];
+
+    
+    navigationButton = [UIButton buttonWithType:UIButtonTypeCustom];
+    [navigationButton setFrame:CGRectMake(100 - 35 - 35,0,30,30)];
+    [navigationButton setImage:[UIImage imageNamed:@"nav_preview_pressed"] forState:UIControlStateNormal];
     navigationButton.tag = 203;
     [navigationButton addTarget:self action:@selector(actionnavigationButton:) forControlEvents:UIControlEventTouchUpInside];
     [containerView addSubview:navigationButton];
     
     
-    
-    
-    
     navigationButton = [UIButton buttonWithType:UIButtonTypeCustom];
-    [navigationButton setFrame:CGRectMake(100 - 35 - 35,0,30,30)];
-    [navigationButton setImage:[UIImage imageNamed:@"删除"] forState:UIControlStateNormal];
-    navigationButton.tag = 201;
-    [navigationButton addTarget:self action:@selector(actionnavigationButton:) forControlEvents:UIControlEventTouchUpInside];
 
-    [containerView addSubview:navigationButton];
-    
-    navigationButton = [UIButton buttonWithType:UIButtonTypeCustom];
     [navigationButton setFrame:CGRectMake(100 -3 * 35,0,30,30)];
-    [navigationButton setImage:[UIImage imageNamed:@"发布"] forState:UIControlStateNormal];
-    navigationButton.tag = 202;
+    [navigationButton setImage:[UIImage imageNamed:@"nav_delete_pressed"] forState:UIControlStateNormal];
+    navigationButton.tag = 201;
     //navigationButton.hidden = YES;
     [navigationButton addTarget:self action:@selector(actionnavigationButton:) forControlEvents:UIControlEventTouchUpInside];
 
@@ -95,6 +94,13 @@
 }
 #pragma mark-发布
 -(void)fabu{
+    UITextField * text = [self.view viewWithTag:500];
+    [text resignFirstResponder];
+    UITextView * textv = [self.view viewWithTag:900];
+    [textv resignFirstResponder];
+
+    NSLog(@"classify =====%@",_dataDic[@"classify"]);
+
     NSMutableArray *imgArray = [NSMutableArray array];
     for (int i = 0; i < _imgViewArray.count; i ++) {
         
@@ -132,7 +138,7 @@
     NSInteger classify = 0;
     NSString *startTime;
     NSInteger spotId;
-    if ([[_dataDic objectForKey:@"isRecommend"] isEqualToString:@"赞美"]) {
+    if ([[_dataDic objectForKey:@"isRecommend"] integerValue] == 700) {
         isRecommend = 1;
         //            _titlearray = @[@"东西好吃得不要不要的",@"三星级的价格，五星级的享受",@"景美，我和我的小伙伴都惊呆了",@"买买买"];
         
@@ -145,14 +151,54 @@
         isRecommend = 0;
         
     }
-    if ([[_dataDic objectForKey:@"classify"] isEqualToString:@"东西好吃得不要不要的"]||[[_dataDic objectForKey:@"classify"] isEqualToString:@"我有100钟方法让你吃不下去"])
+    NSString *classifyStr = [_dataDic objectForKey:@"classify"];
+   NSArray* zanTitleArray = @[
+                       @"东西好吃得不要不要的",
+                       @"三星级的价格，五星级的享受",
+                       @"景美，我和我的小伙伴都惊呆了！",
+                       @"买买买"
+                       ];
+    NSArray*caiTitleArray = @[
+                       @"食之无味，弃之也不浪费",
+                       @"除了不淋雨，其实就是天桥底",
+                       @"世界有多大，此景有多差！",
+                       @"钱包好空虚，宝宝好委屈"
+                       ];
+
+    if ([zanTitleArray[0] isEqualToString:classifyStr]||[caiTitleArray[0] isEqualToString:classifyStr]) {
         classify = 0;
-    if ([[_dataDic objectForKey:@"classify"] isEqualToString:@"三星级的价格，五星级的享受"]||[[_dataDic objectForKey:@"classify"] isEqualToString:@"住宿环境差，感觉不会再爱了"])
+
+        
+    }
+    if ([zanTitleArray[1] isEqualToString:classifyStr]||[caiTitleArray[1] isEqualToString:classifyStr]) {
         classify = 1;
-    if ([[_dataDic objectForKey:@"classify"] isEqualToString:@"景美，我和我的小伙伴都惊呆了"]||[[_dataDic objectForKey:@"classify"] isEqualToString:@"看到这景色，我的内心几乎是崩溃"])
+        
+        
+    }
+    if ([zanTitleArray[2] isEqualToString:classifyStr]||[caiTitleArray[2] isEqualToString:classifyStr]) {
         classify = 2;
-    if ([[_dataDic objectForKey:@"classify"] isEqualToString:@"买买买"]|[[_dataDic objectForKey:@"classify"] isEqualToString:@"青岛大虾，38元一只"])
+        
+        
+    }
+    if ([zanTitleArray[3] isEqualToString:classifyStr]||[caiTitleArray[3] isEqualToString:classifyStr]) {
         classify = 3;
+        
+        
+    }
+
+    
+    
+//    if ([[_dataDic objectForKey:@"classify"] isEqualToString:@"东西好吃得不要不要的"]||[[_dataDic objectForKey:@"classify"] isEqualToString:@"食之无味，弃之也不浪费"])
+//        
+//        classify = 0;
+//    if ([[_dataDic objectForKey:@"classify"] isEqualToString:@"三星级的价格，五星级的享受"]||[[_dataDic objectForKey:@"classify"] isEqualToString:@"除了不淋雨，其实就是天桥底"])
+//        classify = 1;
+//    if ([[_dataDic objectForKey:@"classify"] isEqualToString:@"景美，我和我的小伙伴都惊呆了"]||[[_dataDic objectForKey:@"classify"] isEqualToString:@"世界有多大，此景有多差！"])
+//        classify = 2;
+//    if ([[_dataDic objectForKey:@"classify"] isEqualToString:@"买买买"]||[[_dataDic objectForKey:@"classify"] isEqualToString:@"钱包好空虚，宝宝好委屈"])
+//        classify = 3;
+//    
+    
     
     startTime =   [[_dataDic objectForKey:@"startTime"] substringToIndex:10];
     spotId = [[_dataDic objectForKey:@"spotId"] integerValue];
@@ -182,9 +228,8 @@
     
     
     
-//    NSLog(@",,,,,,%@",self.userSessionId);
     
-    /*
+    
     NSDictionary * Parameterdic = @{
                                     @"title":_diaotiStr,
                                     @"content":_holderTextStr,
@@ -192,21 +237,22 @@
                                     @"classify":@(classify),//classify,
                                     @"startTime":startTime,
                                     @"isRecommend":@(isRecommend),//isRecommend,
-                                    @"photoes":photoes,
-                                    @"user_session":self.userSessionId
-                                    
+                                    @"photoes":photoes
+//                                    @"user_session":self.userSessionId
                                     };
     
+    
     [self showLoading];
-    [self.requestManager requestWebWithParaWithURL:@"api/travel/add.json" Parameter:Parameterdic IsLogin:YES Finish:^(NSDictionary *resultDic) {
-        [self hideHud];
+    [self.requestManager postWithUrl:@"api/travel/add.json" refreshCache:NO params:Parameterdic IsNeedlogin:YES success:^(id resultDic) {
+        
+        [self stopshowLoading];
         NSLog(@"成功");
         NSLog(@"返回==%@",resultDic);
         homeYJModel * model = [homeYJModel mj_objectWithKeyValues:resultDic[@"object"]];
-        [self showAllTextDialog:@"发布成功"];
-        //发送通知首页刷新
-        [[NSNotificationCenter defaultCenter] postNotificationName:@"dishuaxinObjNotification" object:@""];
+        //发送通知刷新
+        [[NSNotificationCenter defaultCenter] postNotificationName:@"disqueryObjNotification" object:@""];
         
+
         ShareView *shareView = [ShareView createViewFromNib];
         shareView.titleLbl.textColor = AppTextCOLOR;
         ViewRadius(shareView.bgView, 5);
@@ -215,13 +261,25 @@
         [shareView.detebtn handleControlEvent:UIControlEventTouchUpInside withBlock:^(id sender) {
             [shareView hideView];
             
-            [weakSelf.navigationController popToRootViewControllerAnimated:YES];
+            for (UIViewController *vc in weakSelf.navigationController.viewControllers) {
+                
+                if ([vc isKindOfClass:objc_getClass("MCplayViewController")]) {
+                    
+                    [weakSelf.navigationController popToViewController:vc animated:YES];
+                    
+                    return;
+                }
+            }
+
+           // [weakSelf.navigationController popToRootViewControllerAnimated:YES];
             
             
         }];
+
+        
         [shareView.weiboBtn handleControlEvent:UIControlEventTouchUpInside withBlock:^(id sender) {
             [shareView hideView];
-                        [weakSelf.navigationController popToRootViewControllerAnimated:YES];
+            [weakSelf.navigationController popToRootViewControllerAnimated:YES];
             NSMutableDictionary * dic = [NSMutableDictionary dictionary];
             NSString * url = [NSString stringWithFormat:@"%@api/travel/travelDetailOfH5.jhtml?travelId=%@",AppURL,model.id];
             [dic setObject:url forKey:@"url"];
@@ -229,16 +287,13 @@
             [dic setObject:@"分享游记详情" forKey:@"titlesub"];
             
             [weakSelf actionFenxian:SSDKPlatformTypeSinaWeibo PopToRoot:NO SsDic:dic];
-
             
             
-            
-          //  [weakSelf actionFenxian:SSDKPlatformTypeSinaWeibo PopToRoot:YES SsDic:nil];
             NSLog(@"微博");
         }];
         [shareView.QQBtn handleControlEvent:UIControlEventTouchUpInside withBlock:^(id sender) {
             [shareView hideView];
-                        [weakSelf.navigationController popToRootViewControllerAnimated:YES];
+            [weakSelf.navigationController popToRootViewControllerAnimated:YES];
             NSMutableDictionary * dic = [NSMutableDictionary dictionary];
             NSString * url = [NSString stringWithFormat:@"%@api/travel/travelDetailOfH5.jhtml?travelId=%@",AppURL,model.id];
             [dic setObject:url forKey:@"url"];
@@ -246,12 +301,12 @@
             [dic setObject:@"分享游记详情" forKey:@"titlesub"];
             
             [weakSelf actionFenxian:SSDKPlatformTypeQQ PopToRoot:NO SsDic:dic];
-
+            
             NSLog(@"QQ");
         }];
         [shareView.weixin handleControlEvent:UIControlEventTouchUpInside withBlock:^(id sender) {
             [shareView hideView];
-                        [weakSelf.navigationController popToRootViewControllerAnimated:YES];
+            [weakSelf.navigationController popToRootViewControllerAnimated:YES];
             NSMutableDictionary * dic = [NSMutableDictionary dictionary];
             NSString * url = [NSString stringWithFormat:@"%@api/travel/travelDetailOfH5.jhtml?travelId=%@",AppURL,model.id];
             [dic setObject:url forKey:@"url"];
@@ -263,7 +318,7 @@
         }];
         [shareView.toudouBtn handleControlEvent:UIControlEventTouchUpInside withBlock:^(id sender) {
             [shareView hideView];
-                        [weakSelf.navigationController popToRootViewControllerAnimated:YES];
+            [weakSelf.navigationController popToRootViewControllerAnimated:YES];
             NSMutableDictionary * dic = [NSMutableDictionary dictionary];
             NSString * url = [NSString stringWithFormat:@"%@api/travel/travelDetailOfH5.jhtml?travelId=%@",AppURL,model.id];
             [dic setObject:url forKey:@"url"];
@@ -277,45 +332,38 @@
             NSLog(@"土豆");
         }];
         [shareView showInWindow];
-        //            dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(0.5 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
-        //
-        //                [self.navigationController popToRootViewControllerAnimated:YES];
-        //
-        //            });
-        
-        
-        
-        
-        
-    } Error:^(AFHTTPRequestOperation *operation, NSError *error, NSString *description) {
-        [self hideHud];
-        NSRange range = [description rangeOfString:@"系统错误："];//判断字符串是否包含
-        NSMutableString * ss = [NSMutableString stringWithFormat:description,nil];
 
-        if (range.length >0)//包含
-        {
-          //  NSRange  rr = {0,5};
-            [ss deleteCharactersInRange:range];
-        }
-        else//不包含
-        {
-           
-        }
+        
+        
+        
+        
+        
+    } fail:^(NSURLSessionDataTask *operation, NSError *error, NSString *description) {
+        [self stopshowLoading];
+        if ([description isEqualToString:@"30008"]) {
+            dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(0.5 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
+                
+                LoginController * ctl = [[LoginController alloc]init];
+                [self pushNewViewController:ctl];
 
-        NSData *jsonData = [ss dataUsingEncoding:NSUTF8StringEncoding];
-        NSError *err;
-        
-        
-      NSDictionary *   resultDic = [NSJSONSerialization JSONObjectWithData:jsonData
-                                                    options:NSJSONReadingAllowFragments
-                                                      error:&err];
-        
-        [self showAllTextDialog:resultDic[@"message"]];
-        
-        NSLog(@"失败");
+                
+            });
+
+        }
+        else
+        {
+            if (description.length > 30) {
+                NSRange r = {17,5};
+                NSString *ss = [description substringWithRange:r];
+                description = ss;
+                
+            }
+            [self showAllTextDialog:description];
+        }
     }];
-
-    */
+    
+    
+    
 }
 #pragma mark-点击事件
 -(void)actionnavigationButton:(UIButton*)btn{
@@ -330,9 +378,6 @@
         
         return;
  
-        
-        
-        
     }
     
     
@@ -384,184 +429,36 @@
         return;
     }
 
-    if (btn.tag == 200) {//发布
-        NSLog(@"发布");
-        NSLog(@">>>>%@",_dataDic);
-        NSInteger  isRecommend = 0;
-        NSInteger classify = 0;
-        NSString *startTime;
-        NSInteger spotId;
-        if ([[_dataDic objectForKey:@"isRecommend"] isEqualToString:@"赞美"]) {
-            isRecommend = 1;
-//            _titlearray = @[@"东西好吃得不要不要的",@"三星级的价格，五星级的享受",@"景美，我和我的小伙伴都惊呆了",@"买买买"];
-
-            
-            
-        }
-        else
-        {
-          // [@"我有100钟方法让你吃不下去",@"住宿环境差，感觉不会再爱了",@"看到这景色，我的内心几乎是崩溃",@"青岛大虾，38元一只"];
-            isRecommend = 0;
-            
-        }
-        if ([[_dataDic objectForKey:@"classify"] isEqualToString:@"东西好吃得不要不要的"]||[[_dataDic objectForKey:@"classify"] isEqualToString:@"我有100钟方法让你吃不下去"])
-            classify = 0;
-        if ([[_dataDic objectForKey:@"classify"] isEqualToString:@"三星级的价格，五星级的享受"]||[[_dataDic objectForKey:@"classify"] isEqualToString:@"住宿环境差，感觉不会再爱了"])
-            classify = 1;
-        if ([[_dataDic objectForKey:@"classify"] isEqualToString:@"景美，我和我的小伙伴都惊呆了"]||[[_dataDic objectForKey:@"classify"] isEqualToString:@"看到这景色，我的内心几乎是崩溃"])
-            classify = 2;
-        if ([[_dataDic objectForKey:@"classify"] isEqualToString:@"买买买"]|[[_dataDic objectForKey:@"classify"] isEqualToString:@"青岛大虾，38元一只"])
-            classify = 3;
-
-     startTime =   [[_dataDic objectForKey:@"startTime"] substringToIndex:10];
-        spotId = [[_dataDic objectForKey:@"spotId"] integerValue];
-        
-        
-       // NSLog(@">>>>>%@",imgArray);
-        NSMutableDictionary * imgDic = [NSMutableDictionary dictionary];
-        for (int i = 0; i < imgArray.count; i++) {
-            
-            UIImage *img = imgArray[i];
-            NSData *imageData = UIImageJPEGRepresentation(img, 0.2);
-            NSString *base64Image=[imageData base64Encoding];
-             [imgDic setObject:base64Image forKey:[NSString stringWithFormat:@"%d",i+1]];
-
-            
-        }
-        NSLog(@"<<<<<%@",imgDic);
-        
-        
-        NSError *parseError = nil;
-        
-        NSData *jsonData = [NSJSONSerialization dataWithJSONObject:imgDic options:NSJSONWritingPrettyPrinted error:&parseError];
-        
-        NSString * photoes = [[NSString alloc] initWithData:jsonData encoding:NSUTF8StringEncoding];
-        
-        
-        
-        /*
-        
-        NSLog(@",,,,,,%@",self.userSessionId);
-        NSDictionary * Parameterdic = @{
-                                        @"title":_diaotiStr,
-                                        @"content":_holderTextStr,
-                                        @"spotId":@(spotId),
-                                        @"classify":@(classify),//classify,
-                                        @"startTime":startTime,
-                                        @"isRecommend":@(isRecommend),//isRecommend,
-                                        @"photoes":photoes,
-                                        @"user_session":self.userSessionId
-                                        
-                                        };
-        
-        
-        [self showLoading:YES AndText:nil];
-        [self.requestManager requestWebWithParaWithURL:@"api/travel/add.json" Parameter:Parameterdic IsLogin:YES Finish:^(NSDictionary *resultDic) {
-            [self hideHud];
-            NSLog(@"成功");
-            NSLog(@"返回==%@",resultDic);
-            
-            [self showAllTextDialog:@"发布成功"];
-            //发送通知首页刷新
-            [[NSNotificationCenter defaultCenter] postNotificationName:@"dishuaxinObjNotification" object:@""];
-            
-            ShareView *shareView = [ShareView createViewFromNib];
-            shareView.titleLbl.textColor = AppTextCOLOR;
-            ViewRadius(shareView.bgView, 5);
-            
-            __weak zhizuoZP2ViewController *weakSelf = self;
-            [shareView.detebtn handleControlEvent:UIControlEventTouchUpInside withBlock:^(id sender) {
-                [shareView hideView];
-                
-                [weakSelf.navigationController popToRootViewControllerAnimated:YES];
-                
-                
-            }];
-            [shareView.weiboBtn handleControlEvent:UIControlEventTouchUpInside withBlock:^(id sender) {
-                [shareView hideView];
-                [weakSelf actionFenxian:SSDKPlatformTypeSinaWeibo PopToRoot:YES SsDic:nil];
-                NSLog(@"微博");
-            }];
-            [shareView.QQBtn handleControlEvent:UIControlEventTouchUpInside withBlock:^(id sender) {
-                [shareView hideView];
-                [weakSelf actionFenxian:SSDKPlatformSubTypeQZone PopToRoot:YES SsDic:nil];
-                NSLog(@"QQ");
-            }];
-            [shareView.weixin handleControlEvent:UIControlEventTouchUpInside withBlock:^(id sender) {
-                [shareView hideView];
-                [weakSelf actionFenxian:SSDKPlatformSubTypeWechatSession PopToRoot:YES SsDic:nil];
-                NSLog(@"weixin");
-            }];
-            [shareView.toudouBtn handleControlEvent:UIControlEventTouchUpInside withBlock:^(id sender) {
-                [shareView hideView];
-                [weakSelf actionFenxian:SSDKPlatformSubTypeWechatTimeline PopToRoot:YES SsDic:nil];
-                NSLog(@"土豆");
-            }];
-            [shareView showInWindow];
-//            dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(0.5 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
-//                
-//                [self.navigationController popToRootViewControllerAnimated:YES];
-//                
-//            });
-
-            
-            
-            
-            
-        } Error:^(AFHTTPRequestOperation *operation, NSError *error, NSString *description) {
-            [self hideHud];
-            [self showAllTextDialog:description];
-            
-            NSLog(@"失败");
-        }];
-        
-        */
-        return;
-       
-//        TYAlertController *alertController = [TYAlertController alertControllerWithAlertView:shareView preferredStyle:TYAlertControllerStyleAlert];
-//        
-//        // blur effect
-//        [alertController setBlurEffectWithView:self.view];
-//        
-//        //alertController.alertViewOriginY = 60;
-//        [self presentViewController:alertController animated:YES completion:nil];
-        
-
-        
-        
-        
-        
-    }
     if (btn.tag == 203) {
         NSLog(@"浏览");
         
       
-//        NSMutableArray *imgArray = [NSMutableArray array];
-//        for (int i = 0; i < _imgViewArray.count; i ++) {
-//        
-//        UIImage *tempImg;
-//        if([_imgViewArray[i]isKindOfClass:[UIImage class]]){
-//            tempImg = _imgViewArray[i];
-//        }
-//        else{
-//            ALAsset *asset=_imgViewArray[i];
-//            tempImg =[UIImage imageWithCGImage:asset.defaultRepresentation.fullScreenImage];
-//        }
-//            
-//            [imgArray addObject:tempImg];
-//            
-//        }
-//        if (!imgArray.count) {
-//            kAlertMessage(@"亲，有图有真相哦");
-//            return;
-//        }
-//          liulanViewController * ctl = [[liulanViewController alloc]init];
-//        ctl.imgViewArray= imgArray;
-//        ctl.titleStr = _diaotiStr;
-//        ctl.title2Str = _holderTextStr;
-//        ctl.dataDic = _dataDic;
-//        ctl.jingdianStr =  [_dataDic objectForKey:@"jingdianStr"];
-//        [self pushNewViewController:ctl];
+        NSMutableArray *imgArray = [NSMutableArray array];
+        for (int i = 0; i < _imgViewArray.count; i ++) {
+        
+        UIImage *tempImg;
+        if([_imgViewArray[i]isKindOfClass:[UIImage class]]){
+            tempImg = _imgViewArray[i];
+        }
+        else{
+            ALAsset *asset=_imgViewArray[i];
+            tempImg =[UIImage imageWithCGImage:asset.defaultRepresentation.fullScreenImage];
+        }
+            
+            [imgArray addObject:tempImg];
+            
+        }
+        if (!imgArray.count) {
+            kAlertMessage(@"亲，有图有真相哦");
+            return;
+        }
+          liulanViewController * ctl = [[liulanViewController alloc]init];
+        ctl.imgViewArray= imgArray;
+        ctl.titleStr = _diaotiStr;
+        ctl.title2Str = _holderTextStr;
+        ctl.dataDic = _dataDic;
+        ctl.jingdianStr =  [_dataDic objectForKey:@"jingdianStr"];
+        [self pushNewViewController:ctl];
         
         
         
@@ -570,13 +467,22 @@
     
 }
 -(void)prepareUI{
-    _tableview = [[UITableView alloc]initWithFrame:CGRectMake(0, 64, Main_Screen_Width, Main_Screen_Height - 64)];
+    self.view.backgroundColor = AppMCBgCOLOR;
+
+    _tableview = [[UITableView alloc]initWithFrame:CGRectMake(0, 64, Main_Screen_Width, Main_Screen_Height - 64) style:UITableViewStyleGrouped];
     _tableview.tableHeaderView = [self headView];
     _tableview.delegate =self;
     _tableview.dataSource = self;
     [self.view addSubview:_tableview];
     
     
+}
+-(CGFloat)tableView:(UITableView *)tableView heightForFooterInSection:(NSInteger)section{
+    return 0.001;
+}
+-(CGFloat)tableView:(UITableView *)tableView heightForHeaderInSection:(NSInteger)section
+{
+    return 0.001;
 }
 -(NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section{
     
@@ -585,7 +491,7 @@
 -(CGFloat)tableView:(UITableView *)tableView heightForRowAtIndexPath:(NSIndexPath *)indexPath{
     
     if (indexPath.row == 1) {
-        return 426;
+        return 126;
     }
     
     return 44;
@@ -612,6 +518,7 @@
         }
         cell.selectionStyle=UITableViewCellSelectionStyleNone;
         cell.holderTex.delegate = self;
+        cell.holderTex.tag = 900;
         cell.countLbl.tag = 600;
         cell.countLbl.text = _countTextStr;
         
@@ -659,15 +566,15 @@
     NSString * aString = [textView.text stringByReplacingCharactersInRange:range withString:text];
     
     if ([aString length] > 500) {
-        //[_tableview reloadData];
-        lbl.text = [NSString stringWithFormat:@"%ld/500",aString.length];
-        _countTextStr = lbl.text;
+//        //[_tableview reloadData];
+//        lbl.text = [NSString stringWithFormat:@"%ld/500",aString.length];
+//        _countTextStr = lbl.text;
 
         return NO;
     }
     //[_tableview reloadData];
     lbl.text = [NSString stringWithFormat:@"%ld/500",aString.length];
-    _countTextStr = lbl.text;
+//    _countTextStr = lbl.text;
     return YES;
 
     
@@ -675,7 +582,7 @@
 -(void)textViewDidEndEditing:(UITextView *)textView{
     _holderTextStr = textView.text;
     
-    [_tableview reloadData];
+//    [_tableview reloadData];
     
 }
 -(UIView*)headView{

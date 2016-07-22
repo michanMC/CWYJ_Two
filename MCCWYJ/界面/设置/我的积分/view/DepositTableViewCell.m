@@ -20,7 +20,7 @@
     CGFloat w = Main_Screen_Width - 10 - 10 - 30 - 10;
     CGFloat h = 44;
     _titleLbl = [[UILabel alloc]initWithFrame:CGRectMake(x, y, w, h)];
-    _titleLbl.text = @"张三(134****22222)";
+//    _titleLbl.text = @"张三(134****22222)";
     _titleLbl.textColor = AppTextCOLOR;
     _titleLbl.font = [UIFont systemFontOfSize:15];
     [self.contentView addSubview:_titleLbl];
@@ -87,7 +87,7 @@
     
    
     _textField = [[UITextField alloc]initWithFrame:CGRectMake(x, y,w, h)];
-    _textField.placeholder = @"输入提现金额";
+    _textField.placeholder = @"输入提现金额,至少10元";
     _textField.font = AppFont;
     _textField.textColor = [UIColor darkTextColor];
     _textField.textAlignment = NSTextAlignmentRight;
@@ -133,7 +133,7 @@
     [_selectBtn setImage:[UIImage imageNamed:@"radio-btn_selected"] forState:UIControlStateSelected];
     [self.contentView addSubview:_selectBtn];
     
-    
+    _selectBtn.userInteractionEnabled = NO;
     
 }
 -(void)prepareUI4{

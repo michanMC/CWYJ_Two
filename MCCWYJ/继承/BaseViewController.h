@@ -1,12 +1,14 @@
 
 
 #import <UIKit/UIKit.h>
+#import <ShareSDK/ShareSDK.h>
 
 @class MCNetworkManager;
 @interface BaseViewController : UIViewController
 
 @property (nonatomic,strong) MCNetworkManager *requestManager;
 @property (nonatomic , strong)NSDictionary * classifyDic;
+@property(nonatomic,assign)BOOL isshare;
 
 -(void)ColorNavigation;
 -(void)appColorNavigation;
@@ -40,6 +42,17 @@
 // */
 //- (void)showError;
 -(void)stopshowLoading;
+/**
+ *  分享
+ */
+-(void)actionFenxian:(SSDKPlatformType)PlatformType PopToRoot:(BOOL)isPopToRoot SsDic:(NSMutableDictionary*)ssdic;
 
+-(id)analysis:(NSString*)str;
+-(void)prepareTuisong;
+
+-(void)updateClientId:(NSString*)RegistrationID;
+
+
+-(void)jumpGogin;
 
 @end

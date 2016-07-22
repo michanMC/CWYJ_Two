@@ -7,7 +7,11 @@
 //
 
 #import "BaseViewController.h"
-
+#import "MCBuyModlel.h"
 @interface MakeBuyViewController : BaseViewController
+
+@property(nonatomic,strong)MCBuyModlel*BuyModlel;
+@property(nonatomic,strong)MCBuyModlel*BuyModlel2;
+
 
 @end

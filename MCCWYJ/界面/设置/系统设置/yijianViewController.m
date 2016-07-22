@@ -133,7 +133,8 @@
     _textView.font = AppFont;
     [cell.contentView addSubview:_textView];
     _textView.delegate =self;
-    
+    _tableView.backgroundColor = AppMCBgCOLOR;
+
     
     
     return cell;

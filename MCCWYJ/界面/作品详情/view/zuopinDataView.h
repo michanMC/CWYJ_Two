@@ -8,10 +8,17 @@
 
 #import <UIKit/UIKit.h>
 #import "pinglunModel.h"
+#import "MCBuyModlel.h"
 
 @protocol zuopinDataViewDeleGate <NSObject>
 
 -(void)pinglunModel:(homeYJModel*)model Index:(NSInteger)index IsHuifu:(BOOL)ishuifu PinglunModel:(pinglunModel*)pinglunModel;
+
+
+-(void)pinglun_Model:(MCBuyModlel*)model Index:(NSInteger)index IsHuifu:(BOOL)ishuifu PinglunModel:(pinglunModel*)pinglunModel;
+-(void)Carte_model:(YJUserModel*)model;
+
+
 -(void)zhuan:(NSString*)str;
 -(void)stop:(NSString*)str;
 @end

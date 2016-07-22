@@ -7,8 +7,8 @@
 //
 
 #import <UIKit/UIKit.h>
-
+#import "homeYJModel.h"
 @interface CarteTableViewCell : UITableViewCell
--(void)prepareUI:(NSString *)titleStr;
+-(void)prepareUI:(NSString *)titleStr DataArray:(NSMutableArray*)dataArray;
 
 @end

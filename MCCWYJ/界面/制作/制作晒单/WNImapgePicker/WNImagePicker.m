@@ -352,6 +352,31 @@
         UIImage *fullScreenImage = [UIImage imageWithCGImage:[assetRepresentation fullResolutionImage]
                                                        scale:[assetRepresentation scale]
                                                  orientation:(int)[assetRepresentation orientation]];
+        if (_isshaiDan) {
+            UIImageView * imgview = [[UIImageView alloc]init];
+            if (_imgViewUrl) {
+                [imgview sd_setImageWithURL:[NSURL URLWithString:_imgViewUrl] completed:^(UIImage *image, NSError *error, SDImageCacheType cacheType, NSURL *imageURL) {
+                    
+                    
+                    if (image) {
+                        [self setCoverImage:image];
+
+                    }
+                    else
+                    {
+                        [self setCoverImage:fullScreenImage];
+  
+                    }
+                    
+                }];
+            }
+            else
+            {
+                [self setCoverImage:fullScreenImage];
+
+            }
+        }
+        else
         [self setCoverImage:fullScreenImage];
     }
 }
@@ -751,6 +776,7 @@
 
     MakeshaidanViewController * ctl = [[MakeshaidanViewController alloc]init];
     ctl.img =imageCut;
+    ctl.commodity_Dic = _commodityDic;
     [self.navigationController pushViewController:ctl animated:YES];
                                 
 }

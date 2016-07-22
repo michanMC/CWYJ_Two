@@ -8,6 +8,8 @@
 
 #import "MCIucencyView.h"
 #import <Accelerate/Accelerate.h>
+//两次提示的默认间隔
+static const CGFloat kDefaultPlaySoundInterval = 3.0;
 
 @implementation MCIucencyView
 
@@ -300,6 +302,368 @@
     CGImageRelease(imageRef);
     
     return returnImage;
+}
+
+
+/**
+ 消除所有红点
+ */
++(void)remRemind{
+    //加好友
+    NSString * home = @"addfriend";
+    [MCUserDefaults setObject:@"" forKey:home];
+    
+    
+    home = @"travel";
+    [MCUserDefaults setObject:@"" forKey:home];
+    home = @"show";
+    [MCUserDefaults setObject:@"" forKey:home];
+     home = @"pick";
+    [MCUserDefaults setObject:@"" forKey:home];
+    home = @"sell";
+    [MCUserDefaults setObject:@"" forKey:home];
+
+    home = @"travelArrayID";
+    [MCUserDefaults setObject:@"" forKey:home];
+    home = @"showArrayID";
+    [MCUserDefaults setObject:@"" forKey:home];
+    home = @"pickArrayID";
+    [MCUserDefaults setObject:@"" forKey:home];
+    home = @"sellArrayID";
+    [MCUserDefaults setObject:@"" forKey:home];
+
+}
+
+/**
+ 检测首页头像红点
+ */
++ (BOOL)HomeRemind{
+    //加好友
+    NSString * home = @"addfriend";
+    NSInteger index = [[MCUserDefaults objectForKey:home] integerValue];
+        
+//   NSString* newMessage = @"newMessage";
+//   NSInteger index2 = [[MCUserDefaults objectForKey:newMessage] integerValue];
+    
+    NSInteger index2 =  [MCIucencyView setupUnreadMessageCount];//聊天
+    
+    NSInteger index3 =  [MCIucencyView travelRemind];//yoji
+    NSInteger index4 =  [MCIucencyView showRemind];//晒
+    NSInteger index5 =  [MCIucencyView pickRemind];//代购
+    NSInteger index6 =  [MCIucencyView sellRemind];//shou
+
+    
+//是否隐藏
+    if (index||index2||!index3||!index4||!index5||!index6) {
+        return NO;
+    }
+    else
+    {
+        return YES;
+    }
+    
+}
+/**
+ 检测通讯录红点
+ */
++ (BOOL)addressBookRemind{
+    //加好友
+    NSString * home = @"addfriend";
+    NSInteger index = [[MCUserDefaults objectForKey:home] integerValue];
+    
+//    NSString* newMessage = @"newMessage";
+//    NSInteger index2 = [[MCUserDefaults objectForKey:newMessage] integerValue];
+   NSInteger index2 =  [MCIucencyView setupUnreadMessageCount];
+    //是否隐藏
+    if (index||index2) {
+        return NO;
+    }
+    else
+    {
+        return YES;
+    }
+    
+}
+/**
+ 检测游记红点
+ */
++ (BOOL)travelRemind{
+    
+    NSString * home = @"travel";
+    NSInteger index = [[MCUserDefaults objectForKey:home] integerValue];
+    if (index) {
+        NSLog(@"MCtravel");
+        return NO;
+    }
+    else
+    {
+        return YES;
+    }
+    
+}
+
+/**
+ 获取游记数组
+ */
+
++ (NSMutableArray*)travelRemindArray{
+    
+    NSString * home = @"travelArrayID";
+    
+    
+    NSString * _travelArrayStr = [MCUserDefaults objectForKey:home];
+    NSMutableArray * _travelArrayID = [NSMutableArray array];
+    NSArray * arra   = [_travelArrayStr componentsSeparatedByString:@","];
+    
+    for (NSString * str in arra) {
+        [_travelArrayID addObject:str];
+    }
+    
+    
+    if (_travelArrayID) {
+        
+        return _travelArrayID;
+    }
+    return [NSMutableArray array];
+    
+}
+/**
+ 浏览游记
+ */
++(void)travelStr:(NSString*)travelID{
+    NSMutableArray *srray =[MCIucencyView travelRemindArray];
+    [srray removeAllObjects];
+    
+    NSString * ss = [srray componentsJoinedByString:@","];
+    
+    [MCUserDefaults setObject:ss forKey:@"travelArrayID"];
+
+    NSString * home = @"travel";
+    [MCUserDefaults setObject:@"0" forKey:home];
+}
+
+
+
+
+/**
+ 检测晒红点
+ */
++ (BOOL)showRemind{
+    NSString * home = @"show";
+    NSInteger index = [[MCUserDefaults objectForKey:home] integerValue];
+    if (index) {
+        NSLog(@"MCshow");
+
+        return NO;
+    }
+    else
+    {
+        return YES;
+    }
+ 
+    
+    
+}
+/**
+ 获取晒数组
+ */
+
++ (NSMutableArray*)showRemindArray{
+    
+    NSString * home = @"showArrayID";
+    
+    NSString * _travelArrayStr = [MCUserDefaults objectForKey:home];
+    
+    NSMutableArray * _travelArrayID = [NSMutableArray array];
+    NSArray * arra   = [_travelArrayStr componentsSeparatedByString:@","];
+    
+    for (NSString * str in arra) {
+        [_travelArrayID addObject:str];
+    }
+    
+    
+    if (_travelArrayID) {
+        
+        return _travelArrayID;
+    }
+    return [NSMutableArray array];
+    
+}
+/**
+ 浏览晒
+ */
++(void)showStr:(NSString*)showlID{
+    NSMutableArray *srray =[MCIucencyView showRemindArray];
+    [srray removeAllObjects];
+    
+    NSString * ss = [srray componentsJoinedByString:@","];
+    
+    [MCUserDefaults setObject:ss forKey:@"showArrayID"];
+    
+
+    
+    NSString * home = @"show";
+    [MCUserDefaults setObject:@"0" forKey:home];
+}
+
+
+
+
+/**
+ 检测代购红点
+ */
++ (BOOL)pickRemind{
+    
+    NSString * home = @"pick";
+    NSInteger index = [[MCUserDefaults objectForKey:home] integerValue];
+    if (index) {
+        NSLog(@"MCpick");
+
+        return NO;
+    }
+    else
+    {
+        return YES;
+    }
+
+    
+}
+/**
+ 获取求数组
+ */
+
++ (NSMutableArray*)pickRemindArray{
+    
+    NSString * home = @"pickArrayID";
+    
+    NSString * _travelArrayStr = [MCUserDefaults objectForKey:home];
+    
+    NSMutableArray * _travelArrayID = [NSMutableArray array];
+    NSArray * arra   = [_travelArrayStr componentsSeparatedByString:@","];
+    
+    for (NSString * str in arra) {
+        [_travelArrayID addObject:str];
+    }
+    
+    
+    if (_travelArrayID) {
+        
+        return _travelArrayID;
+    }
+    return [NSMutableArray array];
+    
+}
+/**
+ 浏览求
+ */
++(void)pickStr:(NSString*)picklID{
+    NSMutableArray *srray =[MCIucencyView pickRemindArray];
+    [srray removeAllObjects];
+    
+    NSString * ss = [srray componentsJoinedByString:@","];
+    
+    [MCUserDefaults setObject:ss forKey:@"pickArrayID"];
+    
+    
+    
+    NSString * home = @"pick";
+    [MCUserDefaults setObject:@"0" forKey:home];
+}
+
+
+
+
+
+
+
+
+
+/**
+ 检测售红点
+ */
++ (BOOL)sellRemind{
+    NSString * home = @"sell";
+    NSInteger index = [[MCUserDefaults objectForKey:home] integerValue];
+    if (index) {
+        NSLog(@"MCsell");
+
+        return NO;
+    }
+    else
+    {
+        return YES;
+    }
+
+    
+}
+/**
+ 获取售数组
+ */
+
++ (NSMutableArray*)sellRemindArray{
+    
+    NSString * home = @"sellArrayID";
+    
+    NSString * _travelArrayStr = [MCUserDefaults objectForKey:home];
+    
+    NSMutableArray * _travelArrayID = [NSMutableArray array];
+    NSArray * arra   = [_travelArrayStr componentsSeparatedByString:@","];
+    
+    for (NSString * str in arra) {
+        [_travelArrayID addObject:str];
+    }
+    
+    
+    if (_travelArrayID) {
+        
+        return _travelArrayID;
+    }
+    return [NSMutableArray array];
+    
+}
+/**
+ 浏览售
+ */
++(void)sellStr:(NSString*)picklID{
+    NSMutableArray *srray =[MCIucencyView pickRemindArray];
+    [srray removeAllObjects];
+    
+    NSString * ss = [srray componentsJoinedByString:@","];
+    
+    [MCUserDefaults setObject:ss forKey:@"sellArrayID"];
+    
+    
+    
+    NSString * home = @"sell";
+    [MCUserDefaults setObject:@"0" forKey:home];
+}
+
+
+
+
+// 统计未读消息数
++(NSInteger)setupUnreadMessageCount
+{
+    NSArray *conversations = [[EMClient sharedClient].chatManager getAllConversations];
+    NSInteger unreadCount = 0;
+    for (EMConversation *conversation in conversations) {
+        unreadCount += conversation.unreadMessagesCount;
+        NSLog(@"conversationId == %@",conversation.conversationId);
+    }
+    
+    return unreadCount;
+
+}
+
+/**
+ 收到消息时，播放音频
+ */
++ (void)playSoundAndVibration
+{
+    // 收到消息时，播放音频
+    [[EMCDDeviceManager sharedInstance] playNewMessageSound];
+    // 收到消息时，震动
+    [[EMCDDeviceManager sharedInstance] playVibration];
 }
 
 /*

@@ -30,6 +30,8 @@
     _tableView.delegate =self;
     _tableView.dataSource =self;
     [self.view addSubview:_tableView];
+    _tableView.backgroundColor = AppMCBgCOLOR;
+
     [self loadData:YES];
     // Do any additional setup after loading the view.
 }

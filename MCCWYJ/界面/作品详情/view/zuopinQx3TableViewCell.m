@@ -54,6 +54,10 @@
         _nameLbl.textColor= AppTextCOLOR;
         _nameLbl.font =[UIFont systemFontOfSize:14];
         [self.contentView addSubview:_nameLbl];
+        _headerBtn = [[UIButton alloc]initWithFrame:CGRectMake(_headImgView.mj_x, _headImgView.mj_y, _headImgView.mj_w + 20, 30)];
+        [self.contentView addSubview:_headerBtn];
+        
+        
         _huifuBtn = [[UIButton alloc]initWithFrame:CGRectMake(Main_Screen_Width - 80  - 35, y, 30, height)];
         [_huifuBtn setTitle:@"回复" forState:0];
         _huifuBtn.titleLabel.font = [UIFont systemFontOfSize:12];
@@ -82,7 +86,7 @@
 }
 -(void)setHeadStr:(NSString *)headStr
 {
-    [_headImgView sd_setImageWithURL:[NSURL URLWithString:headStr] placeholderImage:[UIImage imageNamed:@"home_default-avatar"]];
+    [_headImgView sd_setImageWithURL:[NSURL URLWithString:headStr] placeholderImage:[UIImage imageNamed:@"home_Avatar_60"]];
 }
 -(void)setNameStr:(NSString *)nameStr
 {

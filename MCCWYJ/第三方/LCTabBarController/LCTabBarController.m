@@ -133,11 +133,16 @@
 - (void)setSelectedIndex:(NSUInteger)selectedIndex {
     
     [super setSelectedIndex:selectedIndex];
-    
     self.lcTabBar.selectedItem.selected = NO;
     self.lcTabBar.selectedItem = self.lcTabBar.tabBarItems[selectedIndex];
     self.lcTabBar.selectedItem.selected = YES;
+    if (selectedIndex == 1) {
+        //发送通知
+        [[NSNotificationCenter defaultCenter] postNotificationName:@"didMCMyshoppingGoinObjNotification" object:nil];
+    }
+
 }
+
 
 #pragma mark - XXTabBarDelegate Method
 

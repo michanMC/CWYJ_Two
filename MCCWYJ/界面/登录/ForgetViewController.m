@@ -253,9 +253,14 @@
         return;
     }
         [self showLoading];
+    
+    
+    NSString *sign = [CommonUtil md5:_pwd1Str];
+
+    NSLog(@"vsign ==%@",sign);
     NSDictionary * Parameterdic = @{
                                     @"mobile":_phoneStr,
-                                    @"password":_pwd1Str,
+                                    @"password":sign,
                                     @"Code":_cvvStr
                                     };
     [self.requestManager postWithUrl:@"api/user/changePassword.json" refreshCache:NO params:Parameterdic IsNeedlogin:NO success:^(id resultDic) {

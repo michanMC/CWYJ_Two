@@ -5,12 +5,19 @@
 //  Created by MC on 16/4/28.
 //  Copyright © 2016年 MC. All rights reserved.
 //
+#import <Availability.h>
 
-#ifndef PrefixHeader_pch
-#define PrefixHeader_pch
-#import "MCNetworkManager.h"
+#ifndef __IPHONE_3_0
+#warning "This project uses features only available in iOS SDK 3.0 and later."
+#endif
+#define REDPACKET_AVALABLE
+
+#ifdef __OBJC__
+
 #import <UIKit/UIKit.h>
 #import <Foundation/Foundation.h>
+#import "MCNetworkManager.h"
+
 #import "AppConfig.h"
 #import "ACMacros.h"
 #import "MJRefresh.h"
@@ -50,5 +57,6 @@
 
 // Include any system framework and library headers here that should be included in all compilation units.
 // You will also need to set the Prefix Header build setting of one or more of your targets to reference this file.
+#define DEMO_CALL 1
 
 #endif /* PrefixHeader_pch */

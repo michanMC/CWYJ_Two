@@ -22,7 +22,7 @@
         CGFloat h = 44;
         
         UIView * view = [[UIView alloc]initWithFrame:CGRectMake(x, y, w, h)];
-        ViewRadius(view, 5);
+        ViewRadius(view, 3);
         view.layer.borderWidth = .5;
         view.layer.borderColor = [UIColor lightGrayColor].CGColor;
         [self.contentView addSubview:view];
@@ -45,7 +45,7 @@
         
         y +=h + 10;
         view = [[UIView alloc]initWithFrame:CGRectMake(x, y, w, h)];
-        ViewRadius(view, 5);
+        ViewRadius(view, 3);
         view.layer.borderWidth = .5;
         view.layer.borderColor = [UIColor lightGrayColor].CGColor;
         [self.contentView addSubview:view];
@@ -77,7 +77,7 @@
         _loginBtn.backgroundColor = AppRegTextCOLOR;//[UIColor redColor];
         [_loginBtn setTitle:@"登录" forState:0];
         [_loginBtn setTitleColor:[UIColor whiteColor] forState:0];
-        ViewRadius(_loginBtn, 5);
+        ViewRadius(_loginBtn, 3);
 
         _loginBtn.titleLabel.font = [UIFont systemFontOfSize:15];
         [self.contentView addSubview:_loginBtn];

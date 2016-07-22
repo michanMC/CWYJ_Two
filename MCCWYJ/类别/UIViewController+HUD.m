@@ -69,6 +69,7 @@ static const void *HttpRequestHUDKey = &HttpRequestHUDKey;
 
 - (void)hideHud{
     [[self HUD] hide:YES];
+    
 }
 
 @end

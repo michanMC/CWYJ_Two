@@ -9,7 +9,7 @@
 #import "RegisterViewController.h"
 #import "RegisterTableViewCell.h"
 #import "Register2TableViewCell.h"
-
+#import "MCWebViewController.h"
 @interface RegisterViewController ()<UITableViewDelegate,UITableViewDataSource,UITextFieldDelegate>
 {
     UITableView *_tableView;
@@ -20,7 +20,7 @@
     NSTimer *_gameTimer;
     NSDate   *_gameStartTime;
 
-    
+    UIButton * _yueduBtn;
     
 }
 
@@ -43,9 +43,9 @@
 }
 
 -(void)prepareFooer{
-    UIView * view = [[UIView alloc]initWithFrame:CGRectMake(0, 0, Main_Screen_Width, 100)];
+    UIView * view = [[UIView alloc]initWithFrame:CGRectMake(0, 0, Main_Screen_Width, 150)];
     view.backgroundColor = [UIColor whiteColor];
-    UIButton * btn = [[UIButton alloc]initWithFrame:CGRectMake(40, 100 - 40 -20,Main_Screen_Width - 2* 40, 40)];
+    UIButton * btn = [[UIButton alloc]initWithFrame:CGRectMake(40, 150 - 40 -20,Main_Screen_Width - 2* 40, 40)];
     [btn setTitle:@"确认" forState:0];
     [btn setTitleColor:[UIColor whiteColor] forState:0];
     btn.titleLabel.font = AppFont;
@@ -54,8 +54,61 @@
     ViewRadius(btn, 5);
     [btn addTarget:self action:@selector(okbtn) forControlEvents:UIControlEventTouchUpInside];
     _tableView.tableFooterView = view;
-}
+    
+    _yueduBtn = [[UIButton alloc]initWithFrame:CGRectMake(10, 10, 30, 30)];
+    [_yueduBtn setImage:[UIImage imageNamed:@"list_checkbox_normal"] forState:0];
+    [_yueduBtn setImage:[UIImage imageNamed:@"list_checkbox_checked"] forState:UIControlStateSelected];
+    [_yueduBtn addTarget:self action:@selector(action_yueduBtn) forControlEvents:UIControlEventTouchUpInside];
 
+    [view addSubview:_yueduBtn];
+    
+    CGFloat x = 10 + 30 + 5;
+    CGFloat y = 5;
+    CGFloat w = [MCIucencyView heightforString:@"阅读并同意" andHeight:40 fontSize:14];
+    CGFloat h = 40;
+    UILabel * lbl = [[UILabel alloc]initWithFrame:CGRectMake(x, y, w, h)];
+    lbl.text = @"阅读并同意";
+    lbl.font = AppFont;
+    lbl.textColor = AppTextCOLOR;
+    [view addSubview:lbl];
+    
+    x += w + 5;
+    w = Main_Screen_Width - x;
+    lbl = [[UILabel alloc]initWithFrame:CGRectMake(x, y, w, h)];
+    lbl.text = @"《采点注册协议》";
+    lbl.font = AppFont;
+    lbl.textColor = AppCOLOR;
+    [view addSubview:lbl];
+    UIButton * btn1 = [[UIButton alloc]initWithFrame:CGRectMake(10 + 30 + 10, 0, Main_Screen_Width - 50, 50)];
+    [btn1 addTarget:self action:@selector(actionBTn1) forControlEvents:UIControlEventTouchUpInside];
+    [view addSubview:btn1];
+
+
+    
+    
+    
+    
+}
+-(void)action_yueduBtn{
+    
+    if (_yueduBtn.selected) {
+        _yueduBtn.selected = NO;
+    }
+    else
+    {
+        _yueduBtn.selected = YES;
+
+    }
+}
+-(void)actionBTn1{
+    
+    
+    MCWebViewController * ctl = [[MCWebViewController alloc]init];
+    ctl.menuagenturl = [NSString stringWithFormat:@"%@api/agreement/query.jhtml",AppURL];
+    [self pushNewViewController:ctl];
+    
+    
+}
 -(void)shoujianpan{
     UITextField * text1 = (UITextField*)[self.view viewWithTag:210];
     UITextField * text2 = (UITextField*)[self.view viewWithTag:211];
@@ -203,6 +256,7 @@
         [self showAllTextDialog:@"请正确输入手机号码"];
         return;
     }
+    [self showLoading];
     NSDictionary * Parameterdic = @{
                                     @"phone":_phoneStr,
                                     @"type":@(0)
@@ -250,6 +304,12 @@
 -(void)okbtn{
     
     [self shoujianpan];
+    
+    if (!_yueduBtn.selected) {
+        [self showAllTextDialog:@"亲，你还没阅读采点注册协议哦"];
+        return;
+ 
+    }
     if (!_phoneStr.length) {
         [self showAllTextDialog:@"请输入手机号码"];
         return;
@@ -278,9 +338,13 @@
         return;
     }
     [self showLoading];
+    
+    NSString *sign = [CommonUtil md5:_pwd1Str];
+
+    
     NSDictionary * Parameterdic = @{
                                     @"mobile":_phoneStr,
-                                    @"password":_pwd1Str,
+                                    @"password":sign,
                                     @"Code":_cvvStr
                                     };
 [self.requestManager postWithUrl:@"api/user/register.json" refreshCache:NO params:Parameterdic IsNeedlogin:NO success:^(id resultDic) {

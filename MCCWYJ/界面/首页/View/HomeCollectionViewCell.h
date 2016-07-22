@@ -7,14 +7,17 @@
 //
 
 #import <UIKit/UIKit.h>
-
+#import "homeYJModel.h"
+#import "MCBuyModlel.h"
 @interface HomeCollectionViewCell : UICollectionViewCell
 @property(nonatomic,strong)UIButton * headerimgBtn;
 @property(nonatomic,strong)UIButton * buyBtn;
 
-
+@property(nonatomic,strong) homeYJModel *model;
 
 -(void)prepareMeUI;
+
+@property(nonatomic,strong) MCBuyModlel *BuyModlel;
 
 -(void)prepareHotUI;
 

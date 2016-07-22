@@ -10,6 +10,8 @@
 @class homeYJModel;
 
 @interface ProductionViewController : BaseViewController
+@property(nonatomic,strong)UIImage *bgimg;
+
 @property(nonatomic,strong)NSMutableArray *dataArray;
 @property(nonatomic,assign)NSInteger index;
 @property(nonatomic,strong)homeYJModel *home_model;

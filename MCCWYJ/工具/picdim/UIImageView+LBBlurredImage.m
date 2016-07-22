@@ -28,6 +28,9 @@ CGFloat const kLBBlurredImageDefaultSaturationDeltaFactor = 1.8;
             blurRadius:(CGFloat)blurRadius
        completionBlock:(LBBlurredImageCompletionBlock) completion
 {
+    if (!image) {
+        image = [UIImage imageNamed:@"login_bg_720"];
+    }
     NSParameterAssert(image);
     blurRadius = (blurRadius <= 0) ? : kLBBlurredImageDefaultBlurRadius;
     

@@ -93,6 +93,7 @@
         if (!_city.length) {
             _city =response.regeocode.addressComponent.city;
             NSLog(@">>>>>>%@",_city);
+            
             NSUserDefaults *defaults=[NSUserDefaults standardUserDefaults];
             [defaults setObject:_city forKey:@"city"];
             [defaults synchronize];
@@ -126,10 +127,13 @@
     
     
 
-    [_ctlView.requestManager postWithUrl:@"api/user/profiles/updateLocation.json" refreshCache:NO params:Parameterdic  IsNeedlogin:NO success:^(id resultDic) {
+    [_ctlView.requestManager postWithUrl:@"api/user/profiles/updateLocation.json" refreshCache:NO params:Parameterdic  IsNeedlogin:YES success:^(id resultDic) {
         
         NSLog(@"上传地址成功");
         NSLog(@"返回==%@",resultDic);
+        
+        
+        
     } fail:^(NSURLSessionDataTask *operation, NSError *error, NSString *description) {
         NSLog(@"失败%@",description);
         

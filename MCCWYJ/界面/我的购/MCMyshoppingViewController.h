@@ -7,7 +7,7 @@
 //
 
 #import "BaseViewController.h"
-
+#import "homeYJModel.h"
 @interface MCMyshoppingViewController : BaseViewController
 
 @end

@@ -32,7 +32,7 @@
     if (self) {
         
         CGFloat x = 10;
-        CGFloat y = 0;
+        CGFloat y = 8;
         CGFloat w = Main_Screen_Width /2;
         CGFloat h = 20;
         _nameLbl = [[UILabel alloc]initWithFrame:CGRectMake(x, y, w, h)];

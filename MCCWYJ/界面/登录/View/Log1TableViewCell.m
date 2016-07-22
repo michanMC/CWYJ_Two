@@ -23,7 +23,7 @@
         CGFloat x = 40;
         UIImageView *imgview = [[UIImageView alloc]initWithFrame:CGRectMake(x, 0, imgW, imgh)];
 //        imgview.backgroundColor = [UIColor redColor];
-        imgview.image = [UIImage imageNamed:@"微信1"];
+        imgview.image = [UIImage imageNamed:@"微信2"];
         imgview.contentMode = UIViewContentModeScaleAspectFit;  
         [self.contentView addSubview:imgview];
         _weixinBtn = [[UIButton alloc]initWithFrame:CGRectMake(x, 0, imgW, imgh)];
@@ -39,10 +39,10 @@
         
         
         x += imgW;
-        UIView *lineView = [[UIView alloc]initWithFrame: CGRectMake(x, 0, 1, selfViewh)];
+        UIView *lineView = [[UIView alloc]initWithFrame: CGRectMake(x, 0, 0.5, selfViewh)];
         lineView.backgroundColor = [UIColor lightGrayColor];
         [self.contentView addSubview:lineView];
-        x +=1;
+        x +=.5;
         imgview = [[UIImageView alloc]initWithFrame:CGRectMake(x, 0, imgW, imgh)];
 //        imgview.backgroundColor = [UIColor redColor];
         imgview.image = [UIImage imageNamed:@"微博"];
@@ -60,7 +60,7 @@
         lbl.font = AppFont;
         [self.contentView addSubview:lbl];
         x += imgW;
-        lineView = [[UIView alloc]initWithFrame: CGRectMake(x, 0, 1, selfViewh)];
+        lineView = [[UIView alloc]initWithFrame: CGRectMake(x, 0, .5, selfViewh)];
         lineView.backgroundColor = [UIColor lightGrayColor];
         [self.contentView addSubview:lineView];
 

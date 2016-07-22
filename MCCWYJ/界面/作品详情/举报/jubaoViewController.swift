@@ -19,6 +19,10 @@ class jubaoViewController: BaseViewController ,UITableViewDelegate,UITableViewDa
     
     var _youjiId:String!
     
+    
+    var _typeindex :String!
+    
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         
@@ -40,6 +44,13 @@ class jubaoViewController: BaseViewController ,UITableViewDelegate,UITableViewDa
         }
         let dic = NSMutableDictionary()
         dic.setObject(_youjiId, forKey: "targetId")
+        if (_typeindex == nil) {
+            _typeindex = "0";
+        }
+        dic.setObject(_typeindex!, forKey: "type")
+        
+        
+
         dic.setObject(_titleArray![_index], forKey: "content")
         
         self.showLoading()
@@ -59,6 +70,9 @@ requestManager.postWithUrl("api/global/report.json", refreshCache: false, params
         self.stopshowLoading()
         self.showAllTextDialog(String)
 
+        
+        
+        
         }
         
         

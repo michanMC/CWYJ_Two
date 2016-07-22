@@ -33,6 +33,8 @@
     _tableView.delegate =self;
     _tableView.dataSource = self;
     [self.view addSubview:_tableView];
+    _tableView.backgroundColor = AppMCBgCOLOR;
+
     [self prepareFooer];
     // Do any additional setup after loading the view.
 }
@@ -49,6 +51,10 @@
     [btn addTarget:self action:@selector(okbtn) forControlEvents:UIControlEventTouchUpInside];
     _tableView.tableFooterView = view;
 }
+
+
+
+
 -(void)shoujianpan{
     UITextField * text1 = (UITextField*)[self.view viewWithTag:410];
     UITextField * text2 = (UITextField*)[self.view viewWithTag:411];
@@ -142,15 +148,40 @@
         [self showAllTextDialog:@"请正确输入手机号码"];
         return;
     }
-    [self showAllTextDialog:@"发送成功，请留意你的手机短信"];
-    _gameTimer= [NSTimer scheduledTimerWithTimeInterval:1.0f target:self selector:@selector(updateTimer:) userInfo:nil repeats:YES];
-    /*
+
+    
     NSDictionary * Parameterdic = @{
                                     @"phone":_phoneStr,
-                                    @"type":@(0)
+                                    @"type":@(2)
                                     };
     
-    [self.requestManager postWithUrl:@"api/user/genCode.json" refreshCache:NO params:Parameterdic IsNeedlogin:NO success:^(id resultDic) {
+    NSString * url = @"";
+    if ([_verifyStr isEqualToString:@"1"]) {
+        Parameterdic = @{
+                         @"phone":_phoneStr,
+                         @"type":@(1)
+                         };
+        
+    }
+    if ([_verifyStr isEqualToString:@"2"]) {
+        Parameterdic = @{
+                         @"phone":_phoneStr,
+                         @"type":@(2)
+                         };
+        
+    }
+    if ([_verifyStr isEqualToString:@"3"]) {
+        Parameterdic = @{
+                         @"phone":_phoneStr,
+                         @"type":@(3)
+                         };
+        
+    }
+
+
+    url = @"api/user/genCode.json";
+
+    [self.requestManager postWithUrl:url refreshCache:NO params:Parameterdic IsNeedlogin:NO success:^(id resultDic) {
         [self stopshowLoading];
         NSLog(@"成功");
         NSLog(@"返回==%@",resultDic);
@@ -164,7 +195,7 @@
         
         NSLog(@"失败");
     }];
-    */
+    
     
     
 }
@@ -204,6 +235,9 @@
     }
     //[self showLoading];
     payPwdViewController * ctl = [[payPwdViewController alloc]init];
+    ctl.verifyStr =  _verifyStr;
+    ctl.phoneStr = _phoneStr;
+    ctl.cvvStr = _cvvStr;
     [self pushNewViewController:ctl];
 
     /*

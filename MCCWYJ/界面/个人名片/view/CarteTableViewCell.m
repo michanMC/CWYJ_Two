@@ -14,7 +14,7 @@
     [super awakeFromNib];
     // Initialization code
 }
--(void)prepareUI:(NSString *)titleStr {
+-(void)prepareUI:(NSString *)titleStr DataArray:(NSMutableArray*)dataArray {
     
     for (UIView * view in self.contentView.subviews) {
         [view removeFromSuperview];
@@ -34,10 +34,45 @@
     [self.contentView addSubview:lbl];
     x += w + 5;
     
-    for (NSInteger i  = 0; i < 4; i++) {
+    NSInteger count  = dataArray.count;
+    
+    if (dataArray.count > 4) {
+        count = 4;
+    }
+    
+    
+    for (NSInteger i  = 0; i < count; i++) {
         UIButton * btn = [[UIButton alloc]initWithFrame:CGRectMake(x, y, w, h)];
+        NSString * urlStr;
+        if ([titleStr isEqualToString:@"游记"]) {
+         
+            homeYJModel * model = dataArray[i];
+            if (model.YJphotos.count) {
+                YJphotoModel * dic = model.YJphotos[0];
+                urlStr = dic.thumbnail;
+            }
+        }
+        if ([titleStr isEqualToString:@"代购单"]) {
+            
+            MCBuyModlel * model = dataArray[i];
+            if (model.YJphotos.count) {
+                YJphotoModel * dic = model.YJphotos[0];
+                urlStr = dic.raw;
+            }
+        }
+        if ([titleStr isEqualToString:@"售卖单"]) {
+            
+            MCBuyModlel * model = dataArray[i];
+            if (model.YJphotos.count) {
+                YJphotoModel * dic = model.YJphotos[0];
+                urlStr = dic.raw;
+            }
+        }
+
         
-        [btn setBackgroundImage:[UIImage imageNamed:@"city-card_default-photo"] forState:0];
+        
+        [btn sd_setImageWithURL:[NSURL URLWithString:urlStr] forState:0 placeholderImage:[UIImage imageNamed:@"city-card_default-photo"]];
+        btn.userInteractionEnabled = NO;
         [self.contentView addSubview:btn];
         x += w + 5;
 

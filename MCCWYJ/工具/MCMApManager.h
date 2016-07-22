@@ -7,7 +7,7 @@
 //
 
 #import <Foundation/Foundation.h>
-
+#import "getGlobalSettModel.h"
 //@protocol MCMApManagerDelegate <NSObject>
 //
 //
@@ -25,4 +25,5 @@
 @property(nonatomic,assign) CGFloat   la;
 //城市
 @property(nonatomic,copy)  NSString *city;
+@property(nonatomic,strong)getGlobalSettModel * MCSettModel;
 @end

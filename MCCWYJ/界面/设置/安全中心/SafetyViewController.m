@@ -26,6 +26,8 @@
     _tableView.delegate =self;
     _tableView.dataSource = self;
     [self.view addSubview:_tableView];
+    _tableView.backgroundColor = AppMCBgCOLOR;
+
     // Do any additional setup after loading the view.
 }
 -(NSInteger)numberOfSectionsInTableView:(UITableView *)tableView
@@ -68,6 +70,14 @@
 {
     [tableView deselectRowAtIndexPath:indexPath animated:YES];
     verifyViewController * ctl = [[verifyViewController alloc]init];
+    if (indexPath.row == 0) {
+        ctl.verifyStr = @"1";
+    }
+    else
+    {
+        ctl.verifyStr = @"2";
+ 
+    }
     [self pushNewViewController:ctl];
 
 }
